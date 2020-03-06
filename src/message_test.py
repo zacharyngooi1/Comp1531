@@ -20,7 +20,7 @@ def test_message_except():
 
     list_of_channels = channels_listall(12345)
     flag =1
-    if Bob in list_of_channels[name]
+    if Bob in list_of_channels[name]:
         flag = 0
     with pytest.raises(AccessError) as e:
         assert flag == 1

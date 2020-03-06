@@ -9,7 +9,7 @@ def test_channels_create():
     
     #check if it has the names in it
     flag =0
-    if Bob in list_of_channels[name]
+    if Bob in list_of_channels[name]:
         flag =1
     assert flag == 1
 
