@@ -63,9 +63,67 @@ def test_channel_join_correct2():
 	#check to make sure that dictionary contains the channel you wanted to add them to 
 	assert(len(chan_list) == 1)
 
+#Tests that you cannot add an owner to a channel with an invalid ID
+def test_channel_addowner_id(): 
+	user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
+	results = new_channel(user_results['token'], 'Test', True)
+	#Edits the valid channel_id so that it is no invalid
+	bad_id = results['channel_id'] += 6
+	#Should raise an input error 
+    with pytest.raises(InputError): 
+        channel_addowner(user_results['token'], bad_id, user_results['u_id'])
+
+#Checks the the user is not already an owner 
+def test_channel_addowner_owner(): 
+	
+
+#Checks that the token has the correct authorization to add an owner
+
+ 
+#Tests that you cannot remove an owner to a channel with an invalid ID
+def test_channel_removeowner_id(): 
+	user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
+	results = new_channel(user_results['token'], 'Test', True)
+	#Edits the valid channel_id so that it is no invalid
+	bad_id = results['channel_id'] += 6
+	#Should raise an input error 
+    with pytest.raises(InputError): 
+        channel_removeowner(user_results['token'], bad_id, user_results['u_id'])
+
+#Checks the the user is not already not in list 
+
+#Checks that token has correct authorization to remove 
+
+#Check that if there is a new user and they don't join a channel, that channel will not be in their channel list  
+def test_channels_list_zero():
+	user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
+	results = new_channel(user_results['token'], 'Test', True)
+	chan_list = channals_list(user_results['token']) 
+	assert(chan_list.contains_key(results['channel_id']) == false)  
+
+def test_channels_list_correct(): 
+	user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
+	results = new_channel(user_results['token'], 'Test', True)
+	channel_join(user_results['token'], results['channel_id'])
+	#chan_list is a dictionary of all of the channels that a user is apart of 
+	chan_list = channals_list(user_results['token']) 
+	#check to make sure that dictionary contains the channel you wanted to add them to 
+	assert(chan_list.contains_key(results['channel_id']))
+
+def test_channels_list_multiple(): 
+	user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
+	results = new_channel(user_results['token'], 'Test', True)
+	results2 = new_channel(user_results['token'], 'Test2', True)
+	channel_join(user_results['token'], results['channel_id'])
+	channel_join(user_results['token'], results2['channel_id'])
+	#chan_list is a dictionary of all of the channels that a user is apart of 
+	chan_list = channals_list(user_results['token']) 
+	#check to make sure that dictionary contains the channel you wanted to add them to 
+	assert(chan_list.contains_key(results['channel_id']) and chan_list.contains_key(results2['channel_id']))
+ 
+	
 
 
-
-
-def test_channels_list(): 
+	
+ 
 	
