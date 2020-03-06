@@ -49,7 +49,7 @@ def test_channel_join_correct():
 	results = new_channel(user_results['token'], 'Test', True)
 	channel_join(user_results['token'], results['channel_id'])
 	#chan_list is a dictionary of all of the channels that a user is apart of 
-	chan_list = channals_list(user_results['token']) 
+	chan_list = channels_list(user_results['token']) 
 	#check to make sure that dictionary contains the channel you wanted to add them to 
 	assert(chan_list.contains_key(results['channel_id']))
 
@@ -59,7 +59,7 @@ def test_channel_join_correct2():
 	results = new_channel(user_results['token'], 'Test', True)
 	channel_join(user_results['token'], results['channel_id'])
 	#chan_list is a dictionary of all of the channels that a user is apart of 
-	chan_list = channals_list(user_results['token']) 
+	chan_list = channels_list(user_results['token']) 
 	#check to make sure that dictionary contains the channel you wanted to add them to 
 	assert(len(chan_list) == 1)
 
@@ -98,7 +98,7 @@ def test_channel_removeowner_id():
 def test_channels_list_zero():
 	user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
 	results = new_channel(user_results['token'], 'Test', True)
-	chan_list = channals_list(user_results['token']) 
+	chan_list = channels_list(user_results['token']) 
 	assert(chan_list.contains_key(results['channel_id']) == false)  
 
 def test_channels_list_correct(): 
@@ -106,7 +106,7 @@ def test_channels_list_correct():
 	results = new_channel(user_results['token'], 'Test', True)
 	channel_join(user_results['token'], results['channel_id'])
 	#chan_list is a dictionary of all of the channels that a user is apart of 
-	chan_list = channals_list(user_results['token']) 
+	chan_list = channels_list(user_results['token']) 
 	#check to make sure that dictionary contains the channel you wanted to add them to 
 	assert(chan_list.contains_key(results['channel_id']))
 
@@ -117,11 +117,32 @@ def test_channels_list_multiple():
 	channel_join(user_results['token'], results['channel_id'])
 	channel_join(user_results['token'], results2['channel_id'])
 	#chan_list is a dictionary of all of the channels that a user is apart of 
-	chan_list = channals_list(user_results['token']) 
+	chan_list = channels_list(user_results['token']) 
 	#check to make sure that dictionary contains the channel you wanted to add them to 
 	assert(chan_list.contains_key(results['channel_id']) and chan_list.contains_key(results2['channel_id']))
+
+#list all of the channels that the user has joined 
+def test_channels_listall_joined(): 
+	user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
+	results = new_channel(user_results['token'], 'Test', True)
+	channel_join(user_results['token'], results['channel_id'])
+	#chan_list is a dictionary of all of the channels that a user is apart of 
+	chan_list = channels_listall(user_results['token']) 
+	#check to make sure that dictionary contains the channel you wanted to add them to 
+	assert(chan_list.contains_key(results['channel_id']))
+
+#make sure the user cannot see any channels that are private/that they are not authorized to see 
+def test_channels_listall_private(): 
  
-	
+#list all of the public channels that the user has not joined 
+def test_channels_listall_notjoinedpublic(): 
+	user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
+	results = new_channel(user_results['token'], 'Test', True)
+	channel_join(user_results['token'], results['channel_id'])
+	#chan_list is a dictionary of all of the channels that a user is apart of 
+	chan_list = channels_listall(user_results['token']) 
+	#check to make sure that dictionary contains the channel you wanted to add them to 
+	assert(chan_list.contains_key(results['channel_id']))	
 
 
 	
