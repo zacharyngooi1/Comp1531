@@ -6,4 +6,5 @@ def test_register():
     auth_register("devanshakala2000@gmail.com", "12345678", "Devansh", "Kala")
 
 def test_register_valid_email():
-    
+    with python.raises(InputError):
+    auth_register("abc.com", "12345678", "Devansh", "Kala")
