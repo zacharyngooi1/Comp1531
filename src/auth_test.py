@@ -1,3 +1,4 @@
+#By Devansh Kala (Student I.d. - z5161391)
 from auth import auth_register, auth_login, auth_logout
 import pytest
 from error import InputError
@@ -8,7 +9,7 @@ def test_register():
     auth_register("devanshakala2000@gmail.com", "12345678", "Devansh", "Kala")
 
 # This function tests if the correct email address is provided
-def test_register_valid_email_incorrect_email_address():
+def test_register_invalid_email_address():
     with pytest.raises(InputError) as e :
         auth_register("abc.com", "12345678", "Devansh", "Kala")
 
@@ -57,7 +58,7 @@ def test_auth_login():
 	assert user_1 == user_2
 
 # The following functions checks if auth_login returns an InputError when the Email entered is not valid
-def test_auth_login_valid_email():
+def test_auth_login_invalid_email():
 	user_1 = auth_register("devanshakala2000@gmail.com", "12345678", "Devansh", "Kala")
 	with pytest.raises(InputError):
 		user_1_login = auth_login("abc.com", "12345678")
@@ -74,3 +75,21 @@ def test_auth_login_wrong_password():
 	user_1 = auth_register("devanshakala2000@gmail.com", "12345678", "Devansh", "Kala")
 	with pytest.raises(InputError):
 		user_1_login = auth_login("devanshkala2000@gmail.com", "1")
+
+"""The following function tests auth_logout"""
+#The following function tests if auth_logout functions normally
+def test_auth_logout():
+	user_1 = auth_register("devanshakala2000@gmail.com", "12345678", "Devansh", "Kala")
+	#Auth_logout returns a dictionary containing {'is_success': True}
+	result_from_auth_logout = auth_logout(user_1["token"])
+	assert result_from_auth_logout['is_success'] == True
+
+#The following function tests if the auth_logout does not work when the wrong token is provided
+def test_auth_logout_wrong_token():
+	user_1 = auth_register("devanshakala2000@gmail.com", "12345678", "Devansh", "Kala")
+	#Auth_logout returns a dictionary containing {'is_success': True}
+	result_from_auth_logout = auth_logout("NOTATOKEN")
+	assert result_from_auth_logout['is_success'] == True
+
+#Note to self: One assumption is that auth_register automatically logs in a user. Another assumption is that "NOTATOKEN" is not
+#a valid name for a token
