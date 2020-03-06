@@ -1,7 +1,8 @@
-from auth import auth_register, auth_login
+from auth import auth_register, auth_login, auth_logout
 import pytest
 from error import InputError
 
+"""The following functions test auth_register"""
 # This function tests if the register() function works normally
 def test_register():
     auth_register("devanshakala2000@gmail.com", "12345678", "Devansh", "Kala")
@@ -47,3 +48,29 @@ def test_user_id_is_integer():
 def test_token_is_string():
 	user_1 = auth_register("devanshakala2000@gmail.com", "12345678", "Devansh", "Kala")
 	assert isinstance(user_1["token"], str) == True
+
+"""The following functions test auth_login"""
+# The following function checks if auth_login functions normally
+def test_auth_login():
+	user_1 = auth_register("devanshakala2000@gmail.com", "12345678", "Devansh", "Kala")
+	user_1_login = auth_login("devanshkala2000@gmail.com", "12345678")
+	assert user_1 == user_2
+
+# The following functions checks if auth_login returns an InputError when the Email entered is not valid
+def test_auth_login_valid_email():
+	user_1 = auth_register("devanshakala2000@gmail.com", "12345678", "Devansh", "Kala")
+	with pytest.raises(InputError):
+		user_1_login = auth_login("abc.com", "12345678")
+
+# The following function checks if the auth_login function returns an InputError when the wmail does not belong to the user.
+def test_auth_login_wrong_login():
+	user_1 = auth_register("devanshakala2000@gmail.com", "12345678", "Devansh", "Kala")
+	with pytest.raises(InputError):
+		user_1_login = auth_login("notdevanshkala@gmail.com", "12345678")
+
+
+# The following function checks if the auth_login function returns an InputError when the password is incorrect
+def test_auth_login_wrong_password():
+	user_1 = auth_register("devanshakala2000@gmail.com", "12345678", "Devansh", "Kala")
+	with pytest.raises(InputError):
+		user_1_login = auth_login("devanshkala2000@gmail.com", "1")
