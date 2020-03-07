@@ -7,7 +7,7 @@ def users_all(token):
                 'name_first': 'Hayden',
                 'name_last': 'Jacobs',
                 'handle_str': 'hjacobs',
-            },
+            }
         ],
     }
 

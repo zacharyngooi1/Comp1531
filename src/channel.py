@@ -40,8 +40,8 @@ def channel_leave(token, channel_id):
     }
 
 def channel_join(token, channel_id):
-    return {
-    }
+	return { 
+	} 
 
 def channel_addowner(token, channel_id, u_id):
     return {
