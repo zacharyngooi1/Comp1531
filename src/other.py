@@ -1,6 +1,4 @@
 def users_all(token):
-    if (type(token) != str):
-        raise NameError
     return {
         'users': [
             {
@@ -21,8 +19,6 @@ def users_all(token):
     }
 
 def search(token, query_str):
-    if (type(query_str) != str):
-        raise NameError
     return {
         'messages': [
             {
