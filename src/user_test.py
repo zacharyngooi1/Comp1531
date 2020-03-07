@@ -1,5 +1,6 @@
 import pytest
-from user import user_profile_setname, user_profile_setemail, user_profile_sethandle, email_check, handle_check
+from error import InputError
+from user import user_profile_setname, user_profile_setemail, user_profile_sethandle, email_check, handle_check, user_profile
 from other import users_all, search
 #If its just import user, use user.(function_to_call) when calling each function for testing
 
@@ -83,3 +84,12 @@ def test_search_valid():
 #Assume only condition is the length of the names
 #Assume conditions for correct inputs is set in functions already
 #Assume InputError is already implemented
+
+# The following part was done by Mufeed Oomatia
+def test_user_profile():
+    assert user_profile(12345, 1) ==  {'u_id': 1,'email': 'cs1531@cse.unsw.edu.au','name_first': 'Hayden','name_last': 'Jacobs', 	'handle_str': 'hjacobs'}
+   
+def test_user_profile():
+    with pytest.raises(InputError) as e:
+        #assert channels.channels_create() HOW DO I TEST THE INPUT VARIABLE??
+        assert user_profile(12345, 2) #technically u_id can be anything but 1
