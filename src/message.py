@@ -4,6 +4,8 @@ def message_send(token, channel_id, message):
     }
 
 def message_remove(token, message_id):
+    message_to_be_removed = message_remove(token, message_id)
+    assert message_to_be_removed != {}
     return {
     }
 
