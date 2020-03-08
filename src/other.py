@@ -7,14 +7,7 @@ def users_all(token):
                 'name_first': 'Hayden',
                 'name_last': 'Jacobs',
                 'handle_str': 'hjacobs',
-            },
-            {
-                'u_id': 2,
-        	    'email': 'zachary@cse.unsw.edu.au',
-        	    'name_first': 'Zach',
-        	    'name_last': 'Ngooi',
-        	    'handle_str': 'NZach',
-            },
+            }
         ],
     }
 
