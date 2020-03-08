@@ -3,12 +3,12 @@ import pytest
 from error import InputError
 
 def test_channels_create():
-    assert channels.channels_create(12345, 'Ben', False) == 1
-    assert channels.channels_create(12345, 'Bob', True) == 1
+    channels.channels_create(12345, 'Ben', False) == ch_id
     list_of_channels = channels_listall(12345)
     #check if it has the names in it
     flag =0
-    if Bob in list_of_channels[name]:
+        
+    if ch_id in list_of_channels['channel_id']:
         flag =1
     assert flag == 1
 
