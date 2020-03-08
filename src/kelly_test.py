@@ -33,11 +33,7 @@ def get_details(token, channel_id):
 		'owner_members': tmp['owner_members'],
 		'all_members': tmp['all_members'],
 		'token': token,
-<<<<<<< HEAD
-		'channel_id': channel_id,
-=======
 		'channel_id': channel_id
->>>>>>> kellys_branch
 	}
 
 #Tests that you cannot join a channel with an invalid ID
@@ -111,6 +107,36 @@ def test_channel_removeowner_removed():
         if i['u_id'] == user_results['u_id']:
             flag = 1
     assert flag = 0
+
+def test_channel_addowner_removed_no_access():
+    #create a newuser, add the user to the channel
+    kelly = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
+	results = new_channel(kelly['token'], 'Test', True)
+    channel_removeowner(kelly['token'], results['channel_id'] , kelly['u_id'])
+    #user is removed as an owner, and hence cannot make any changes to the 
+    #create another user and the user to the channel
+    Zach = user_register('zach@test.com', 'Password12', 'Zach', 'Zach')
+    channel_join(Zach['token'], results['channel_id']):
+    #assumption: chen someone joins a channel they are not the owner by default
+    #when Zach tries to add Kelly as an owner there is an Access error
+    with pytest.raises(AccessError): 
+		channel_addowner(Zach['token'], results['channel_id'], kelly['u_id'])
+
+
+def test_channel_removeowner_no_access():
+    #create a newuser, add the user to the channel
+    kelly = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
+	results = new_channel(kelly['token'], 'Test', True)
+    channel_addowner(kelly['token'], results['channel_id'] , kelly['u_id'])
+    #user is removed as an owner, and hence cannot make any changes to the 
+    #create another user and the user to the channel
+    Zach = user_register('zach@test.com', 'Password12', 'Zach', 'Zach')
+    channel_join(Zach['token'], results['channel_id']):
+    #assumption: chen someone joins a channel they are not the owner by default
+    #when Zach tries to remove Kelly as an owner there is an Access error
+    with pytest.raises(AccessError): 
+		channel_removeowner(Zach['token'], results['channel_id'], kelly['u_id'])
+
 
 #Checks the the user is not already an owner 
 def test_channel_addowner_owner(): 
