@@ -15,7 +15,6 @@ def test_channels_create():
 #Assumptions
 #Assume token is valid
 #Assume correct number of inputs and inputs are of proper type
-#Assume only condition is the length of the names
 #Assume conditions for correct inputs is set in functions already
 
 def test_channels_except():
