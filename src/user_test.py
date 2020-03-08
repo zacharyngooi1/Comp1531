@@ -125,16 +125,9 @@ def test_search_valid():
             }
         ]) # Valid Display 
 
-#Assumptions:
-#Assume token is valid
-#Assume correct number of inputs and inputs are of proper type
-#Assume only condition is the length of the names
-#Assume conditions for correct inputs is set in functions already
-#Assume InputError is already implemented
-
 # The following part was done by Mufeed Oomatia
 def test_user_profile():
-    assert user_profile(12345, 1) ==  {'u_id': 1,'email': 'cs1531@cse.unsw.edu.au','name_first': 'Hayden','name_last': 'Jacobs', 	'handle_str': 'hjacobs'}
+    assert user_profile(12345, 1) ==  {'u_id': 1,'email': 'cs1531@cse.unsw.edu.au','name_first': 'Hayden','name_last': 'Jacobs', 'handle_str': 'hjacobs'}
    
 def test_user_profile():
     with pytest.raises(InputError) as e:
