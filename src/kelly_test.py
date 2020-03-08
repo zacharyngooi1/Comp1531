@@ -11,7 +11,7 @@ def user_register(email, password, name_first, name_last):
         'token': tmp['token'],
 		'name_first': name_first,
 		'name_last': name_last, 
-		'email': email
+		'email': email,
 		'password': password
     }
 
@@ -19,9 +19,9 @@ def user_register(email, password, name_first, name_last):
 def new_channel(token, name, is_public): 
 	tmp = channels_create(token, name, is_public)
 	return { 
-		'channel_id': tmp['channel_id']
-		'token': token
-		'name': name
+		'channel_id': tmp['channel_id'],
+		'token': token,
+		'name': name,
 		'is_public': is_public
 	}
 
@@ -29,11 +29,11 @@ def new_channel(token, name, is_public):
 def get_details(token, channel_id): 
 	tmp = channel_details(token, channel_id)
 	return { 
-		'name': tmp['name']
-		'owner_members': tmp['owner_members']
-		'all_members': tmp['all_members']
-		'token': token
-		'channel_id': channel_id
+		'name': tmp['name'],
+		'owner_members': tmp['owner_members'],
+		'all_members': tmp['all_members'],
+		'token': token,
+		'channel_id': channel_id,
 	}
 
 #Tests that you cannot join a channel with an invalid ID
@@ -83,6 +83,29 @@ def test_channel_addowner_id():
 	#Should raise an input error 
     with pytest.raises(InputError): 
         channel_addowner(user_results['token'], bad_id, user_results['u_id'])
+
+#This checks if the owner has actually been added
+
+def test_channel_addowner_added ():
+    user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
+	results = new_channel(user_results['token'], 'Test', True)
+    channel_addowner(user_results['token'], results['channel_id'] , user_results['u_id'])
+    flag = 0;
+    for i in results['owner_members']:
+        if i['u_id'] == user_results['u_id']:
+            flag = 1
+    assert flag = 1
+
+def test_channel_removeowner_removed():
+    user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
+	results = new_channel(user_results['token'], 'Test', True)
+    channel_addowner(user_results['token'], results['channel_id'] , user_results['u_id'])
+    channel_removeowner(user_results['token'], results['channel_id'] , user_results['u_id'])
+    flag = 0;
+    for i in results['owner_members']:
+        if i['u_id'] == user_results['u_id']:
+            flag = 1
+    assert flag = 0
 
 #Checks the the user is not already an owner 
 def test_channel_addowner_owner(): 
