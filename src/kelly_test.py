@@ -98,7 +98,6 @@ def test_channel_addowner_owner():
 	 with pytest.raises(InputError): 
         channel_addowner(user_token, results['channel_id'], user_id)
 	
-
 #Checks that the token has the correct authorization to add an owner
 #(owner of slackr will by default be an owner of channel)
 
