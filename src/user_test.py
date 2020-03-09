@@ -3,6 +3,7 @@ from error import InputError
 from user import user_profile_setname, user_profile_setemail, user_profile_sethandle, email_check, handle_check, user_profile
 from other import users_all, search
 from message import message_send
+from channels import channels_create
 import datetime
 from auth import auth_register
 #If its just import user, use user.(function_to_call) when calling each function for testing
@@ -17,7 +18,7 @@ def user_register(email, password, name_first, name_last):
         'token': tmp['token'],
 		'name_first': name_first,
 		'name_last': name_last, 
-        'handle_str': "generic",
+        'handle_str': (name_first[0]+name_last).lower,
 		'email': email,
 		'password': password
     }
@@ -82,12 +83,12 @@ def test_user_setname_invalid_display():
         user_profile_sethandle(hamish['token'],"jonathonjonathonjonathonjonathonjonathonjonathon")  # Invalid display3
     # Creates dummy user
     zach = user_register('Zacharyngooi@email.com', 'password', 'Zachary', 'Ngooi')
-    # Save user_id of 1st user
-    zach_handle = zach['u_id']
+    # Save handle_str of 1st user
+    zach_handle = zach['handle_str']
     # Create another user 
     kelly = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
-    # Save user_id of 2nd user
-    kelly_handle = kelly['u_id']
+    # Save handle_str of 2nd user
+    kelly_handle = kelly['handle_str']
     # Save token of 2nd user
     kelly_token = kelly['token']
     with pytest.raises(InputError):  
@@ -96,11 +97,10 @@ def test_user_setname_invalid_display():
         
 def test_user_setname_valid_display():      
     # Save display
-    display = hamish['u_id']
+    display = hamish['handle_str']
     # Valid display change
-    user_profile_sethandle(hamish['u_id'],"Jacky")
-    assert(hamish['u_id'] == "Jacky") 
-     
+    user_profile_sethandle(hamish['token'],"jacky")
+    assert(hamish['handle_str'] == "jacky") 
      
 def test_users_all():      
     assert(users_all(hamish['token']) ==  {
@@ -108,18 +108,19 @@ def test_users_all():
         	'email': hamish['email'],
         	'name_first': hamish['name_first'],
         	'name_last': hamish['name_last'],
-        	'handle_str': 'hbutt',
+        	'handle_str': hamish['handle_str'],
         }) # Valid Display
 
-def test_search_valid(): 
+def test_search_valid():
+    ch_id = channels_create(hamish['token'], 'comp', True)
     # Send a message
-    new_message = message_send(hamish['token'],'yes')
+    new_message_id = message_send(hamish['token'], ch_id, 'yes')
     # Save the time created
     time = datetime.datetime.now()
     assert(search(hamish['token'],'yes') == 
         [
             {
-                'message_id': new_message['message_id'],
+                'message_id': message_id,
                 'u_id': hamish['u_id'],
                 'message': 'yes',
                 'time_created': time,
