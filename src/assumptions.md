@@ -10,5 +10,5 @@ Assumptions:
 9: When adding an owner, you are adding them to the whole channel .
 10: If a channel is private and the user is not part of that channel, they will not be able to see it when listing all channels. Similarly, they will only be able to see channels that are public or that they are members of (or owners of, which means they are members of).
 11: Function to register a new user as a profile in Slackr has already been implemented.
-12: One assumption is that auth_register automatically logs in a user. Another assumption is that "NOTATOKEN" is not
-#a valid name for a token
+12: One assumption is that auth_register automatically logs in a user.
+13: "NOTATOKEN" is not a valid name for a token
