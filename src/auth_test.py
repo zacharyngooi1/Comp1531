@@ -55,7 +55,7 @@ def test_token_is_string():
 def test_auth_login():
 	user_1 = auth_register("devanshakala2000@gmail.com", "12345678", "Devansh", "Kala")
 	user_1_login = auth_login("devanshkala2000@gmail.com", "12345678")
-	assert user_1 == user_2
+	assert user_1 == user_1_login
 
 # The following functions checks if auth_login returns an InputError when the Email entered is not valid
 def test_auth_login_invalid_email():
@@ -63,7 +63,7 @@ def test_auth_login_invalid_email():
 	with pytest.raises(InputError):
 		user_1_login = auth_login("abc.com", "12345678")
 
-# The following function checks if the auth_login function returns an InputError when the wmail does not belong to the user.
+# The following function checks if the auth_login function returns an InputError when the email does not belong to the user.
 def test_auth_login_wrong_login():
 	user_1 = auth_register("devanshakala2000@gmail.com", "12345678", "Devansh", "Kala")
 	with pytest.raises(InputError):
