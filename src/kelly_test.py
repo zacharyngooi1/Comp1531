@@ -62,7 +62,7 @@ def test_channel_join_correct():
 	#chan_list is a dictionary of all of the channels that a user is apart of 
 	chan_list = channels_list(user_results['token']) 
 	#check to make sure that dictionary contains the channel you wanted to add them to 
-	assert(chan_list.contains_key(results['channel_id']) == True)
+	assert chan_list.contains_key(results['channel_id']) == True
 
 #Tests to make sure a user can correctly join a channel by checking to see if the dictionary for
 # a new user is 1 after adding them to their first channel 
@@ -73,7 +73,7 @@ def test_channel_join_correct2():
 	#chan_list is a dictionary of all of the channels that a user is apart of 
 	chan_list = channels_list(user_results['token']) 
 	#check to make sure that dictionary contains the channel you wanted to add them to 
-	assert(len(chan_list) == 1)
+	assert len(chan_list) == 1
 
 #Tests that you cannot add an owner to a channel with an invalid ID
 def test_channel_addowner_id(): 
@@ -88,53 +88,53 @@ def test_channel_addowner_id():
 #This checks if the owner has actually been added
 
 def test_channel_addowner_added ():
-    user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
+	user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
 	results = new_channel(user_results['token'], 'Test', True)
-    channel_addowner(user_results['token'], results['channel_id'] , user_results['u_id'])
-    flag = 0;
-    for i in results['owner_members']:
-        if i['u_id'] == user_results['u_id']:
-            flag = 1
-    assert flag = 1
+	channel_addowner(user_results['token'], results['channel_id'] , user_results['u_id'])
+	flag = 0
+	for i in results['owner_members']:
+		if i['u_id'] == user_results['u_id']:
+			flag = 1
+	assert flag == 1
 
 def test_channel_removeowner_removed():
-    user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
+	user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
 	results = new_channel(user_results['token'], 'Test', True)
-    channel_addowner(user_results['token'], results['channel_id'] , user_results['u_id'])
-    channel_removeowner(user_results['token'], results['channel_id'] , user_results['u_id'])
-    flag = 0;
-    for i in results['owner_members']:
-        if i['u_id'] == user_results['u_id']:
-            flag = 1
-    assert flag = 0
+	channel_addowner(user_results['token'], results['channel_id'] , user_results['u_id'])
+	channel_removeowner(user_results['token'], results['channel_id'] , user_results['u_id'])
+	flag = 0
+	for i in results['owner_members']:
+		if i['u_id'] == user_results['u_id']:
+			flag = 1
+	assert flag == 0
 
 def test_channel_addowner_removed_no_access():
-    #create a newuser, add the user to the channel
-    kelly = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
+	#create a newuser, add the user to the channel
+	kelly = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
 	results = new_channel(kelly['token'], 'Test', True)
-    channel_removeowner(kelly['token'], results['channel_id'] , kelly['u_id'])
-    #user is removed as an owner, and hence cannot make any changes to the 
-    #create another user and the user to the channel
-    Zach = user_register('zach@test.com', 'Password12', 'Zach', 'Zach')
-    channel_join(Zach['token'], results['channel_id']):
-    #assumption: chen someone joins a channel they are not the owner by default
-    #when Zach tries to add Kelly as an owner there is an Access error
-    with pytest.raises(AccessError): 
+	channel_removeowner(kelly['token'], results['channel_id'] , kelly['u_id'])
+	#user is removed as an owner, and hence cannot make any changes to the 
+	#create another user and the user to the channel
+	Zach = user_register('zach@test.com', 'Password12', 'Zach', 'Zach')
+	channel_join(Zach['token'], results['channel_id'])
+	#assumption: chen someone joins a channel they are not the owner by default
+	#when Zach tries to add Kelly as an owner there is an Access error
+	with pytest.raises(AccessError): 
 		channel_addowner(Zach['token'], results['channel_id'], kelly['u_id'])
 
 
 def test_channel_removeowner_no_access():
-    #create a newuser, add the user to the channel
-    kelly = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
+	#create a newuser, add the user to the channel
+	kelly = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
 	results = new_channel(kelly['token'], 'Test', True)
-    channel_addowner(kelly['token'], results['channel_id'] , kelly['u_id'])
-    #user is removed as an owner, and hence cannot make any changes to the 
-    #create another user and the user to the channel
-    Zach = user_register('zach@test.com', 'Password12', 'Zach', 'Zach')
-    channel_join(Zach['token'], results['channel_id']):
-    #assumption: chen someone joins a channel they are not the owner by default
-    #when Zach tries to remove Kelly as an owner there is an Access error
-    with pytest.raises(AccessError): 
+	channel_addowner(kelly['token'], results['channel_id'] , kelly['u_id'])
+	#user is removed as an owner, and hence cannot make any changes to the 
+	#create another user and the user to the channel
+	Zach = user_register('zach@test.com', 'Password12', 'Zach', 'Zach')
+	channel_join(Zach['token'], results['channel_id'])
+	#assumption: chen someone joins a channel they are not the owner by default
+	#when Zach tries to remove Kelly as an owner there is an Access error
+	with pytest.raises(AccessError): 
 		channel_removeowner(Zach['token'], results['channel_id'], kelly['u_id'])
 
 
@@ -175,7 +175,7 @@ def test_channels_list_zero():
 	user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
 	results = new_channel(user_results['token'], 'Test', True)
 	chan_list = channels_list(user_results['token']) 
-	assert(chan_list.contains_key(results['channel_id']) == False)  
+	assert chan_list.contains_key(results['channel_id']) == False 
 
 #checks to make sure joined channel is returned 
 def test_channels_list_correct(): 
@@ -185,7 +185,7 @@ def test_channels_list_correct():
 	#chan_list is a dictionary of all of the channels that a user is apart of 
 	chan_list = channels_list(user_results['token']) 
 	#check to make sure that dictionary contains the channel you wanted to add them to 
-	assert(chan_list.contains_key(results['channel_id']) == True)
+	assert chan_list.contains_key(results['channel_id']) == True
 
 #tests to make sure all joined channels are returned 
 def test_channels_list_multiple(): 
@@ -207,7 +207,7 @@ def test_channels_listall_joined():
 	#chan_list is a dictionary of all of the channels that a user is apart of 
 	chan_list = channels_listall(user_results['token']) 
 	#check to make sure that dictionary contains the channel you wanted to add them to 
-	assert(chan_list.contains_key(results['channel_id']) == True)
+	assert chan_list.contains_key(results['channel_id']) == True
 
 #make sure the user cannot see any channels that are private/that they are not authorized to see 
 def test_channels_listall_private(): 
@@ -216,9 +216,9 @@ def test_channels_listall_private():
 	chan_list = channels_list(user_results['token'])
 	chan_listall = channels_listall(user_results['token'])
 	if (chan_list.contains_key(results['channel_id'])): 
-		assert(chan_listall.contains_key(results['channel_id']))
+		assert chan_listall.contains_key(results['channel_id'])
 	else: 
-		assert(chan_listall.contains_key(results['channel_id']) == False)
+		assert chan_listall.contains_key(results['channel_id']) == False
 	
 
 #list all of the public channels that the user has not joined 
@@ -229,7 +229,7 @@ def test_channels_listall_notjoinedpublic():
 	#chan_list is a dictionary of all of the channels that a user is apart of 
 	chan_list = channels_listall(user_results['token'])
 	#check to make sure that dictionary contains the channel you wanted to add them to 
-	assert(chan_list.contains_key(results['channel_id']) == True)	
+	assert chan_list.contains_key(results['channel_id']) == True
 
 
 	
