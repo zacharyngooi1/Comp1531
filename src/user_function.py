@@ -47,8 +47,6 @@ def workspace_reset(email, password, name_first, name_last):
     return None
 
 
-
-
 # Zach user set handle
 # what do i use as the stucture for the glocal store for user such that i can check if its the right user and change the other variables. which variables
 # are there supposed to be in the user store?????
@@ -64,7 +62,7 @@ def user_handle():
         # Save input as handle
         set_handle = data['handle_str']
         # Check requirements for length
-        if (len(set_handle) <= 2 and >= 20):
+        if (len(set_handle) <= 2 or >= 20):
             raise InputError
         # Check requirements for duplication
         if check_handle(store,set_handle) == 1:
