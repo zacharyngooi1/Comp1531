@@ -2,7 +2,7 @@
 import jwt
 
 from db import get_user_store, add_user, login, make_user
-from db import login, make_user, channel_add_all_members, get_channel_store
+from db import login, make_user, channel_add_all_members, get_channel_store, get_messages_store
 from db import token_check, channel_check, u_id_check
 from error import InputError, AccessError
 
@@ -27,9 +27,19 @@ def channel_details(token, channel_id):
     return dict
 
 def channel_messages(token, channel_id, start):
+
+    message_store = get_messages_store()
+
     if channel_check(channel_id) == None:
         raise InputError
+
+    if check_if_user_in_channel_member(token, channel_id) == False:
+        raise AccessError
+
     channel = channel_check(channel_id)
+    
+    user = token_check(token)
+
     if len(channel)
     return {
         'messages': [
