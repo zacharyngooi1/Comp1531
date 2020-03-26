@@ -25,7 +25,7 @@ APP.register_error_handler(Exception, defaultHandler)
 
 
 #APP route
-APP.route("workspace/reset", methods=['POST'])
+@APP.route("workspace/reset", methods=['POST'])
 def workspace_reset():
     store = get_user_store()
     pemrission_store = get_permission_store()
