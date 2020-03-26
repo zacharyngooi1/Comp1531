@@ -41,7 +41,13 @@ def hashPassword(password):
 
 #Assumption: Assume there are no users with the same firstname + lastname + first letter of their password
 def auth_register(email, password, name_first, name_last):
-    return_dict = {}
+    user = add_user(email, password, name_first, name_last)
+    token = login(user)
+    return {
+        "u_id": user["u_id"]
+        "token": token
+    }
+    """return_dict = {}
     u_id = len(data['user']) 
     token =  generateToken(name_first + name_last + password[0])
     return_dict['u_id'] = u_id
@@ -52,7 +58,7 @@ def auth_register(email, password, name_first, name_last):
     return_dict['email'] = email
     return_dict['password'] = hashPassword(password)
     data['user'].append(return_dict)
-    return {'u_id':return_dict['u_id'] , 'token': return_dict['token'], }
+    return {'u_id':return_dict['u_id'] , 'token': return_dict['token'], }"""
 
 
 def auth_logout(token):
