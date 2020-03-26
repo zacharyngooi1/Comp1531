@@ -18,19 +18,12 @@ APP.register_error_handler(Exception, defaultHandler)
 if __name__ == "__main__":
     APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
 
-USERDATASTORE = {
-    'user': []
-}
 
-PERMISSIONSTORE = {}
+#liost of channels useeer joined
+# list of channels user is owner of 
+# list of messages user has done
 
-def get_permission_store():
-    global PERMISSIONSTORE
-    return PERMISSIONSTORE
 
-def get_user_store():
-    global USERDATASTORE
-    return USERDATASTORE
 
 #APP route
 APP.route("workspace/reset", methods=['POST'])
@@ -77,17 +70,7 @@ def get_all():
         return None
     return dumps({'Users': store})
     
-@APP.route("/search", method=["GET"])
-def search():
-    store = get_user_store()
-    data = request.get_json()
-    token = data['token']
-    # Authenticate if token is a valid token
-    if check_token(store, token) != 1:
-        print("Sorry you are not authorized to access this information")
-        return None
-    string = data['string']
-    
+
 
 @APP.route("admin/userpermission/change", method=["GET"])
 def permission_change():
@@ -145,4 +128,21 @@ def check_permission(PERMISSIONSTORE, str given_permission_id):
 
 # Check for the channels that the user is authorised in.
 # Check how to do this function 
-def check_channel(CHANNELDATASTORE, MESSAGESTORE):
+def check_channel(token, channel_id):
+    store = get_user_store()
+    if 
+
+@APP.route("/search", method=["GET"])
+def search():
+    store = get_user_store()
+    data = request.get_json()
+    token = data['token']
+    # Authenticate if token is a valid token
+    if check_token(store, token) != 1:
+        print("Sorry you are not authorized to access this information")
+        return None
+    query_string = data['string']
+    start = data['start']
+    channel_id = data['channel_id']
+    list = #function im calling e.g get messages form channel
+    for message in list['messages']['message']
