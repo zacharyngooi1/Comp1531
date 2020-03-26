@@ -5,6 +5,7 @@ from flask import Flask, request
 import jwt
 import hashlib
 import re
+from datetime import date, time, datetime
 #from user import token_check
 
 USERDATASTORE = {
@@ -23,6 +24,20 @@ CHANNELSTORE = {
     ]
 }
 
+MESSAGESTORE = { 
+    'Messages': [
+        #{
+            #message_id
+            #user_id
+            #message
+            #has_react
+            #is_pinned
+            #time_created
+        #}
+    ]
+}
+
+
 def get_user_store():
     global USERDATASTORE
     return USERDATASTORE
@@ -30,6 +45,36 @@ def get_user_store():
 def get_channel_store():
     global CHANNELSTORE
     return CHANNELSTORE
+
+def get_messages_store(): 
+    global MESSAGESTORE
+    return MESSAGESTORE
+
+
+def make_message(message, channel_id, user_id, time_created): 
+    store = get_messages_store()
+    message_id = len(message) #PLACEHOLDER same as channel id 
+    #maybe make message_id a global variable 
+    if time_created == 0: 
+        time = datetime.now()
+    else: 
+        time = time_created
+    store['Messages'].append({'message_id':message_id, 'user_id': user_id, 'channel_id': channel_id, 'time_created': time})
+    return message_id
+
+def check_user_in_channel(u_id, channel_id): 
+    channel_store = get_channel_store
+    flag = 0
+    for channel in channel_store['Channels']: 
+        for member in channel['all_members']: 
+            if member['u_id'] == u_id: 
+                flag = 1
+    if flag == 1: 
+        return True
+    else: 
+        return False
+    
+                
 
 """
 channels.append(ch)
