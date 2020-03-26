@@ -7,6 +7,10 @@ from db import token_check, channel_check, u_id_check
 
 def users_all(token):
 
+    if not token_check(token):
+        print('Token invalid')
+        raise InputError
+    
     user_store = get_user_store()
 
     user_dict = {

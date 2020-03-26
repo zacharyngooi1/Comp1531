@@ -177,11 +177,11 @@ def handle_check(handle_str):
 # for validating an Email 
 regex = '^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$'
 def email_check(email):
-    # pass the regualar expression 
-    # and the string in search() method 
-    if(re.search(regex,email)):  
-        return True  
-    else:  
+    # pass the regualar expression
+    # and the string in search() method
+    if (re.search(regex, email)):
+        return True
+    else:
         return False
     
 def email_dupe_check(email):
