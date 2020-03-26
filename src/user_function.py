@@ -6,6 +6,7 @@ from error import InputError
 from server import defaultHandler
 from channel import channel_messages
 from other import search
+from auth import getData
 
 APP = Flask(__name__)
 CORS(APP)
@@ -17,17 +18,10 @@ APP.register_error_handler(Exception, defaultHandler)
 if __name__ == "__main__":
     APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
 
-USERDATASTORE = [
-    'user': {
-        	'u_id': 1,
-        	'email': 'cs1531@cse.unsw.edu.au',
-        	'name_first': 'Hayden',
-        	'name_last': 'Jacobs',
-        	'handle_str': 'hjacobs'
-        },
-        ]
+USERDATASTORE = {
+    'user': []
+}
 
-#IDK what it looks like
 PERMISSIONSTORE = {}
 
 def get_permission_store():
@@ -39,17 +33,17 @@ def get_user_store():
     return USERDATASTORE
 
 #APP route
-def workspace_reset(email, password, name_first, name_last):
+APP.route("workspace/reset", methods=['POST'])
+def workspace_reset():
     store = get_user_store()
     pemrission_store = get_permission_store
-    store = []
+    store = {
+        'user': []
+    }
     pemrission_store = {}
     return None
 
 
-# Zach user set handle
-# what do i use as the stucture for the glocal store for user such that i can check if its the right user and change the other variables. which variables
-# are there supposed to be in the user store?????
 @APP.route("/user/profile/sethandle", method=["PUT"])
 def user_handle():
         # Request information
@@ -57,7 +51,7 @@ def user_handle():
         data = request.get_json()
         token = data['token']
         # Validate token first
-        if check_token(token) != 1: 
+        if check_token(token) != 1:
             raise InputError
         # Save input as handle
         set_handle = data['handle_str']
@@ -118,7 +112,6 @@ def permission_change():
     permission_store['permissions'] = permissions
     return dumps({})
     
-
 
 # Functions to check errors.
 def check_handle(USERDATASTORE , str given_handle):
