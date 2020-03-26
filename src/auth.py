@@ -58,7 +58,7 @@ def auth_register(email, password, name_first, name_last):
 def auth_logout(token):
     for user in data['users']:
         if user['token'] == token:
-            user[].pop('token')
+            dummy_value = user.pop('token')
             return True
     return False
     
