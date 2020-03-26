@@ -2,7 +2,9 @@ import jwt
 import hashlib
 from json import dumps
 from flask import Flask, request
-from db import get_user_store, add_user, login, make_user
+from db import get_user_store, add_user, login, make_user,get_channel_store
+from db import token_check, channel_check
+from channel import channel_create
 APP = Flask(__name__)
 
 def sendSuccess(data):
@@ -18,6 +20,10 @@ def sendError(message):
 def auth_register(email, password, name_first, name_last):
     user = add_user(email, password, name_first, name_last)
     token = login(user)
+    data = get_user_store()
+    for i in data['users']:
+        if i['u_id'] == user['u_id']:
+            i['token'] = token
     return {
         "u_id": user["u_id"],
         "token": token
@@ -47,6 +53,13 @@ def auth_login(username , password):
     return sendError('Username or password incorrect')    
 
 
+#print(auth_register('hayden@gmail', 'password', 'name_first', 'name_last'))
+
+input_dict =  auth_register('hayden@gmail', 'password', 'name_first', 'name_last')
+
+channel_create(input_dict['token'], 'Hayden' , True)
+store = get_channel_store()
+print(store)
 #def auth_login(email, password):
 #    return {
 #        'u_id': 1,

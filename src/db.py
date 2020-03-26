@@ -4,7 +4,7 @@ from flask import Flask, request
 from flask_cors import CORS
 import jwt
 import hashlib
-from user import token_check
+#from user import token_check
 
 USERDATASTORE = {
     'users': []
@@ -14,9 +14,10 @@ USERDATASTORE = {
 CHANNELSTORE = {
     'Channels': [
         #{
-       # 'channel_id':[],
+       # 'channel_id'
        # 'owner_memmbers':[],
       #  'all_members':[],
+      #  'is_public': Boolean
     #},
     ]
 }
@@ -50,38 +51,36 @@ if ch in usr['channels_owned']:
 
 """
 
-def make_ch(token, name, is_public):
+def make_ch(name, is_public):
     store = get_channel_store()
-    channel_id = len(store['Channels'])
-    return {
-        'channel_id':channel_id,
-        'owner_memmbers': [],
-        'all_members':[],
-    }
+    #channel_id = len(store['Channels'])
+    channel_id = name #CHANGE THIS SUCH CHAT NO 2 CHANNELS HAVE THE SAME NAME
+    store['Channels'].append({'channel_id':channel_id, 'is_public' : is_public})
 
-def add_ch(channel_id):
-    store = get_channel_store()
-    store['Channels']['channel_id'].append(channel_id)
+#def add_ch(channel_id):
+#    store = get_channel_store()
+#    store['Channels']['channel_id'].append(channel_id)
 
-def channel_add_owner(token):
+def channel_add_owner(token, channel_dict):
     store = get_user_store()
     channel_store = get_channel_store()
     user = token_check(token)
     if user == None:
          raise InputError
-    channel_store['Channels']['owner_members'].append({'u_id': user['u_id']})
-    channel_store['Channels']['owner_members'].append({'name_first': user['name_first']})
-    channel_store['Channels']['owner_members'].append({'name_last': user['name_last']})
 
-def channel_add_all_members(token):
+
+    channel['owner_members'].append({'u_id': user['u_id'], 'name_first': user['name_first'], 'name_last': user['name_last']})
+    
+    channel_store['Channels']['all_members'].append({'u_id': user['u_id'], 'name_first': user['name_first'], 'name_last': user['name_last']})
+   
+
+def channel_add_all_members(handle_str):
     store = get_user_store()
     channel_store = get_channel_store()
-    user = token_check(token)
+    user = handle_check(handle_str)
     if user == None:
          raise InputError
-    channel_store['Channels']['all_members'].append({'u_id': user['u_id']})
-    channel_store['Channels']['all_members'].append({'name_first': user['name_first']})
-    channel_store['Channels']['all_members'].append({'name_last': user['name_last']})
+    channel_store['Channels']['all_members'].append({'u_id': user['u_id'], 'name_first': user['name_first'], 'name_last': user['name_last']})
 
 
 
@@ -109,10 +108,10 @@ def make_user(email, password, name_first, name_last, u_id, perm_id):
 
 def add_user(email, password, name_first, name_last):
     store = get_user_store()
-    u_id = len(store['user'])
+    u_id = len(store['users'])
     permission_id = permission_ids['SLACKR_OWNER'] if u_id == 0 else permission_ids['SLACKR_MEMBER']
     user = make_user(email, password, name_first, name_last, u_id, permission_id)
-    store['user'].append(user)
+    store['users'].append(user)
     return user
 
 
@@ -157,14 +156,24 @@ def email_check(email):
     
 def email_dupe_check(email):
     data = getData()
-    for user in data['user']:
+    for user in data['users']:
         if user['email'] == email:
             return user
     return None
 
 def token_check(token):
-    data = get_user_data()
-    for user in data['user']:
+    data = get_user_store()
+    print(data)
+    for user in data['users']:
+        
         if user['token'] == token:
+            
             return user
+    return None
+
+def channel_check(channel_id):
+    data = get_channel_store()
+    for channel in data['Channels']:
+        if channel['channel_id'] == channel_id:
+            return channel
     return None
