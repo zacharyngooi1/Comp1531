@@ -3,9 +3,9 @@ import hashlib
 from json import dumps
 from flask import Flask, request
 from db import get_user_store, add_user, login, make_user,get_channel_store
-from db import token_check, channel_check
-from channel import channel_create
-APP = Flask(__name__)
+from db import token_check, channel_check, email_check, email_dupe_check
+from channel import channels_create, channel_details, channel_invite, channel_addowner, channel_removeowner, channels_list_all, channel_list
+from error import InputError, AccessError
 
 def sendSuccess(data):
     return dumps(data)
@@ -16,8 +16,17 @@ def sendError(message):
     })
 
 #Assumption: Assume there are no users with the same firstname + lastname + first letter of their password
-
 def auth_register(email, password, name_first, name_last):
+    if email_check(email) == False:
+        raise InputError
+    if email_dupe_check(email) == True:
+        raise InputError
+    if len(password) < 6:
+        raise InputError
+    if len(name_first) < 1 or len(name_first) > 50:
+        raise InputError
+    if len(name_last) < 1 or len(name_last) > 50:
+        raise InputError
     user = add_user(email, password, name_first, name_last)
     token = login(user)
     data = get_user_store()
@@ -54,25 +63,20 @@ def auth_login(username , password):
 
 
 #print(auth_register('hayden@gmail', 'password', 'name_first', 'name_last'))
+"""
+input_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
+chan_id = channels_create(input_dict['token'], 'Hayden' , True)
 
-input_dict =  auth_register('hayden@gmail', 'password', 'name_first', 'name_last')
+rob_dict = auth_register("rob@gmail.com", "paswword123", "Rob", "Ever")
+chan2_id = channels_create(input_dict['token'], 'Someone' , True)
 
-channel_create(input_dict['token'], 'Hayden' , True)
-store = get_channel_store()
-print(store)
-#def auth_login(email, password):
-#    return {
-#        'u_id': 1,
-#        'token': '12345',
-#    }
-
-#def auth_logout(token):
-#    return {
-#        'is_success': True,
-#    }
-
-#def auth_register(email, password, name_first, name_last):
-#    return {
-#        'u_id': 1,
-#        'token': '12345',
-#    }
+channel_invite(rob_dict['token'], chan_id["channel_id"], rob_dict["u_id"])
+channel_addowner(input_dict["token"], chan_id["channel_id"], rob_dict["u_id"])
+#print(channel_details(input_dict['token'], chan_id["channel_id"]))
+channel_removeowner(input_dict['token'], chan_id["channel_id"], rob_dict["u_id"])
+#print(channel_details(input_dict['token'], chan_id["channel_id"]))
+#print(channels_list_all(input_dict["token"]))
+print(channel_list(input_dict['token']))
+#store = get_channel_store()
+#print(store)
+"""

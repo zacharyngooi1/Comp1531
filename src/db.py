@@ -1,9 +1,10 @@
 import sys
 from json import dumps
 from flask import Flask, request
-from flask_cors import CORS
+#from flask_cors import CORS
 import jwt
 import hashlib
+import re
 #from user import token_check
 
 USERDATASTORE = {
@@ -130,18 +131,18 @@ def login(user):
 ###################################################
 
 def u_id_check(u_id):
-    data = getData()
-    for user in data['user']:
+    data = get_user_store()
+    for user in data['users']:
         if user['u_id'] == u_id:
-            return True
-    return None
+            return user
+    return False
     
 def handle_check(handle_str):
-    data = getData()
-    for user in data['user']:
+    data = get_user_store()
+    for user in data['users']:
         if user['handle_str'] == handle_str:
             return True
-    return None
+    return False
     
 # Make a regular expression 
 # for validating an Email 
@@ -155,25 +156,28 @@ def email_check(email):
         return False
     
 def email_dupe_check(email):
-    data = getData()
+    data = get_user_store()
     for user in data['users']:
         if user['email'] == email:
-            return user
-    return None
+            return True
+    return False
 
 def token_check(token):
     data = get_user_store()
-    print(data)
     for user in data['users']:
         
         if user['token'] == token:
             
             return user
-    return None
+    return False
 
 def channel_check(channel_id):
     data = get_channel_store()
+    flag = 0
+    #print(channel_id)
     for channel in data['Channels']:
         if channel['channel_id'] == channel_id:
+            #print("Hey")
             return channel
+    #print("False")
     return None
