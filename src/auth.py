@@ -56,10 +56,13 @@ def auth_register(email, password, name_first, name_last):
 
 
 def auth_logout(token):
-    # I think this is data['user'] not users but not sure dbl check
+<<<<<<< HEAD
     for user in data['users']:
+=======
+    for user in data['user']:
+>>>>>>> 4c70472c500445ed885679d16fb8efd68743c4bc
         if user['token'] == token:
-            user[].pop('token')
+            dummy_value = user.pop('token')
             return True
     return False
     
@@ -82,7 +85,7 @@ def auth_logout(token):
 #@APP.route('/login', methods=['PUT'])
 def auth_login(username , password):
     data = getData()
-    for user in data['users']:
+    for user in data['user']:
         if user['username'] == username and user['password'] == hashPassword(password):
             user['token'] = generateToken(username)
             return sendSuccess({
