@@ -4,21 +4,30 @@ from flask import Flask, request
 from flask_cors import CORS
 import jwt
 import hashlib
+from user import token_check
 
 USERDATASTORE = {
-    'user': [
-    ],
-    'Channel': [ 
-    ],
-    'Messages':[
-    ],
+    'users': []
 }
 
+
+CHANNELSTORE = {
+    'Channels': [
+        #{
+       # 'channel_id':[],
+       # 'owner_memmbers':[],
+      #  'all_members':[],
+    #},
+    ]
+}
 
 def get_user_store():
     global USERDATASTORE
     return USERDATASTORE
 
+def get_channel_store():
+    global CHANNELSTORE
+    return CHANNELSTORE
 
 """
 channels.append(ch)
@@ -41,6 +50,41 @@ if ch in usr['channels_owned']:
 
 """
 
+def make_ch(token, name, is_public):
+    store = get_channel_store()
+    channel_id = len(store['Channels'])
+    return {
+        'channel_id':channel_id,
+        'owner_memmbers': [],
+        'all_members':[],
+    }
+
+def add_ch(channel_id):
+    store = get_channel_store()
+    store['Channels']['channel_id'].append(channel_id)
+
+def channel_add_owner(token):
+    store = get_user_store()
+    channel_store = get_channel_store()
+    user = token_check(token)
+    if user == None:
+         raise InputError
+    channel_store['Channels']['owner_members'].append({'u_id': user['u_id']})
+    channel_store['Channels']['owner_members'].append({'name_first': user['name_first']})
+    channel_store['Channels']['owner_members'].append({'name_last': user['name_last']})
+
+def channel_add_all_members(token):
+    store = get_user_store()
+    channel_store = get_channel_store()
+    user = token_check(token)
+    if user == None:
+         raise InputError
+    channel_store['Channels']['all_members'].append({'u_id': user['u_id']})
+    channel_store['Channels']['all_members'].append({'name_first': user['name_first']})
+    channel_store['Channels']['all_members'].append({'name_last': user['name_last']})
+
+
+
 logged_in_users = {}
 permission_ids = {
     "SLACKR_OWNER": 1,
@@ -59,6 +103,8 @@ def make_user(email, password, name_first, name_last, u_id, perm_id):
             'email': email,
             'password': password,
             'permission_id': perm_id,
+            'channel_id_owned': [],
+            'channel_id_part': [],
         }
 
 def add_user(email, password, name_first, name_last):
@@ -80,3 +126,45 @@ def login(user):
 
 
 
+###################################################
+##             Checking functions                ##
+###################################################
+
+def u_id_check(u_id):
+    data = getData()
+    for user in data['user']:
+        if user['u_id'] == u_id:
+            return True
+    return None
+    
+def handle_check(handle_str):
+    data = getData()
+    for user in data['user']:
+        if user['handle_str'] == handle_str:
+            return True
+    return None
+    
+# Make a regular expression 
+# for validating an Email 
+regex = '^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$'
+def email_check(email):
+    # pass the regualar expression 
+    # and the string in search() method 
+    if(re.search(regex,email)):  
+        return True  
+    else:  
+        return False
+    
+def email_dupe_check(email):
+    data = getData()
+    for user in data['user']:
+        if user['email'] == email:
+            return user
+    return None
+
+def token_check(token):
+    data = get_user_data()
+    for user in data['user']:
+        if user['token'] == token:
+            return user
+    return None
