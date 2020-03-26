@@ -27,6 +27,7 @@ CHANNELSTORE = {
 MESSAGESTORE = { 
     'Messages': [
         #{
+            #channel_id
             #message_id
             #user_id
             #message
@@ -59,7 +60,7 @@ def make_message(message, channel_id, user_id, time_created):
         time = datetime.now()
     else: 
         time = time_created
-    store['Messages'].append({'message_id':message_id, 'user_id': user_id, 'channel_id': channel_id, 'time_created': time})
+    store['Messages'].append({'channel_id':channel_id, 'message_id':message_id, 'user_id': user_id, 'message': message, 'channel_id': channel_id, 'time_created': time})
     return message_id
 
 def check_user_in_channel(u_id, channel_id): 

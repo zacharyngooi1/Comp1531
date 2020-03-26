@@ -28,32 +28,49 @@ def channel_details(token, channel_id):
 
 def channel_messages(token, channel_id, start):
 
-    message_store = get_messages_store()
-
     if channel_check(channel_id) == None:
         raise InputError
 
     if check_if_user_in_channel_member(token, channel_id) == False:
         raise AccessError
-
-    channel = channel_check(channel_id)
     
-    user = token_check(token)
+    sum = 0
+    
+    message_store = get_messages_store()
 
-    if len(channel)
-    return {
-        'messages': [
-            {
-                'message_id': 1,
-                'u_id': 1,
-                'message': 'Hello world',
-                'time_created': 1582426789,
-            }
-        ],
-        'start': 0,
-        'end': 50,
+    for x in message_store['Messages']:
+            if x['channel_id'] == channel_id:
+                sum += 1
+
+    if start > sum:
+        raise InputError
+
+    dict = {
+        'messages':[]
     }
 
+    final_dict = {
+        'messages':[]
+    }
+    for x in message_store['Messages']:
+        if x['channel_id'] == channel_id:
+            dict['messages'].append(x['message'])
+
+    for i in range(50):
+        for y in dict['messages']:
+            final_dict['messages'].append(y[start + i])
+            final_dict['start'] = start
+            final_dict['end'] = start + 50
+            if start + 50 >= sum:
+                final_dict['end'] = -1
+
+    return final_dict
+            
+        
+
+
+
+    return dict
 
 def channel_leave(token, channel_id):
     if channel_check(channel_id) == None:
