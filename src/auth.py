@@ -1,4 +1,3 @@
-
 import jwt
 import hashlib
 from json import dumps
