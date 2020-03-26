@@ -4,6 +4,8 @@ from db import get_user_store, add_user, login, make_user
 from db import login, make_user, get_channel_store, get_messages_store
 from db import token_check, channel_check, u_id_check
 from error import InputError, AccessError
+from random import randrange
+
 
 def channel_invite(token, channel_id, u_id):
 
@@ -49,18 +51,18 @@ def channel_messages(token, channel_id, start):
     if check_if_user_in_channel_member(token, channel_id) == False:
         raise AccessError
     
-    sum = 0
+    sum_of_messages = 0
     
     message_store = get_messages_store()
 
     for x in message_store['Messages']:
             if x['channel_id'] == channel_id:
-                sum += 1
+                sum_of_messages += 1
 
-    if start > sum:
+    if start > sum_of_messages:
         raise InputError
 
-    dict = {
+    proto_dict = {
         'messages':[]
     }
 
@@ -69,14 +71,17 @@ def channel_messages(token, channel_id, start):
     }
     for x in message_store['Messages']:
         if x['channel_id'] == channel_id:
-            dict['messages'].append(x['message'])
+            proto_dict['messages'].append(x['message'])
+
+    # Now i reverse the list to get the most recent message as the first value
+    proto_dict['messages'].reverse()
 
     for i in range(50):
-        for y in dict['messages']:
+        for y in proto_dict['messages']:
             final_dict['messages'].append(y[start + i])
             final_dict['start'] = start
             final_dict['end'] = start + 50
-            if start + 50 >= sum:
+            if start + 50 >= sum_of_messages:
                 final_dict['end'] = -1
 
     return final_dict
@@ -176,7 +181,7 @@ def channels_create(token, name, is_public):
         raise InputError
 
     channel_dict = {
-        'channel_id': len(name) + len(token),
+        'channel_id': len(name) + len(token) + randrange(25000),
         'owner_members':[],
         'all_members':[],
         'is_public': is_public,

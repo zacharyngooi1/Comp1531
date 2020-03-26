@@ -8,7 +8,8 @@ from channel import channel_messages
 from other import search
 from db import login, make_user, channel_add_all_members, get_channel_store, get_messages_store
 from db import get_user_store, add_user, login, make_user
-from db import token_check, channel_check, u_id_check
+from db import token_check, channel_check, u_id_check, handle_check, email_check, email_dupe_check
+from other import users_all
 
 APP = Flask(__name__)
 CORS(APP)
@@ -21,60 +22,50 @@ if __name__ == "__main__":
     APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
 
 
-#liost of channels useeer joined
-# list of channels user is owner of 
-# list of messages user has done
-
-
-
 #APP route
-APP.route("workspace/reset", methods=['POST'])
-def workspace_reset():
-    store = get_user_store()
-    pemrission_store = get_permission_store()
-    channel_store = get_channel_store
-    store = {
-        'user': []
-    }
-    pemrission_store = {}
-    return None
 
 
 @APP.route("/user/profile/sethandle", method=["PUT"])
 def user_handle():
+
         # Request information
-        store = get_user_store()
         data = request.get_json()
+
         token = data['token']
+
         # Validate token first
-        if check_token(token) != 1:
+        if token_check(token) == False:
             raise InputError
+
         # Save input as handle
         set_handle = data['handle_str']
+
         # Check requirements for length
-        if (len(set_handle) <= 2 or >= 20):
+        if (len(set_handle) <= 2 or len(set_handle) >= 20):
             raise InputError
+
         # Check requirements for duplication
-        if check_handle(store,set_handle) == 1:
+        if handle_check(set_handle) == True:
             raise InputError
+
+        user = token_check(token)
         # Change handle to provided handle
-        store['token']['handle_str'] = set_handle
+        user['handle_str'] = set_handle
         return dumps({})
         
 @APP.route("users/all", method=["GET"])
 def get_all():
     # Get current data inside store
-    store = get_user_store()
     data = request.get_json()
     token = data['token']
     # Authenticate if token is a valid token
-    if check_token(store, token) != 1:
+    if token_check(token) == False:
         print("Sorry you are not authorized to access this information")
         return None
-    return dumps({'Users': store})
+    all_users = users_all(token)
+    return dumps({all_users})
     
-
-
+""""
 @APP.route("admin/userpermission/change", method=["GET"])
 def permission_change():
     store = get_user_store()
@@ -97,55 +88,16 @@ def permission_change():
     permissions = data['permissions']
     permission_store['permissions'] = permissions
     return dumps({})
-    
-
-# Functions to check errors.
-def check_handle(USERDATASTORE , str given_handle):
-    for x in USERDATASTORE['user']['handle_string']:
-        if x == given_handle:
-            return 1
-        else:
-            return None
-
-def check_token(USERDATASTORE, str given_token):
-    for x in USERDATASTORE['user']['token']:
-        if x == given_token:
-            return 1
-        else:
-            return None
-
-def check_id(USERDATASTORE, str given_u_id):
-    for x in USERDATASTORE['user']['u_id']:
-        if x == given_u_id:
-            return 1
-        else:
-            return None
-
-# I have no idea what its supposed to look like
-def check_permission(PERMISSIONSTORE, str given_permission_id):
-    for x in PERMISSIONSTORE['permission_id']:
-        if x == given_permission_id:
-            return 1
-        else:
-            return None
-
-# Check for the channels that the user is authorised in.
-# Check how to do this function 
-def check_channel(token, channel_id):
-    store = get_user_store()
-    if 
+""""
 
 @APP.route("/search", method=["GET"])
 def search():
-    store = get_user_store()
     data = request.get_json()
     token = data['token']
     # Authenticate if token is a valid token
-    if check_token(store, token) != 1:
+    if token_check(token) == False:
         print("Sorry you are not authorized to access this information")
         return None
-    query_string = data['string']
-    start = data['start']
-    channel_id = data['channel_id']
-    list = #function im calling e.g get messages form channel
-    for message in list['messages']['message']
+    query_string = data['query_str']
+    message_list = search(token, query_string)
+    return dumps({message_list})

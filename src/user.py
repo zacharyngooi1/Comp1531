@@ -1,7 +1,6 @@
 import re
 from error import InputError
-from auth import auth_login, auth_register, auth_logout
-from db import login, make_user, channel_add_all_members, get_channel_store, get_messages_store
+from db import login, make_user, get_channel_store, get_messages_store
 from db import get_user_store, add_user, login, make_user
 from db import token_check, channel_check, u_id_check
 

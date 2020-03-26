@@ -6,7 +6,7 @@ import jwt
 import hashlib
 import re
 from datetime import date, time, datetime
-#from user import token_check
+from random import randrange
 
 USERDATASTORE = {
     'users': []
@@ -38,6 +38,12 @@ MESSAGESTORE = {
     ]
 }
 
+PERMISSIONSTORE = {
+    "SLACKR_OWNER": 1,
+    "SLACKR_MEMBER": 2,
+    "CHANNEL_OWNER": 1,
+    "CHANNEL_MEMBER": 2,
+}
 
 def get_user_store():
     global USERDATASTORE
@@ -47,10 +53,13 @@ def get_channel_store():
     global CHANNELSTORE
     return CHANNELSTORE
 
-def get_messages_store(): 
+def get_messages_store():
     global MESSAGESTORE
     return MESSAGESTORE
 
+def get_permission_store():
+    global PERMISSIONSTORE
+    return PERMISSIONSTORE
 
 def make_message(message, channel_id, user_id, time_created): 
     store = get_messages_store()
@@ -66,7 +75,7 @@ def make_message(message, channel_id, user_id, time_created):
     return message_id
 
 def check_user_in_channel(u_id, channel_id): 
-    channel_store = get_channel_store
+    channel_store = get_channel_store()
     flag = 0
     for channel in channel_store['Channels']: 
         for member in channel['all_members']: 
@@ -130,7 +139,7 @@ def make_user(email, password, name_first, name_last, u_id, perm_id):
 
 def add_user(email, password, name_first, name_last):
     store = get_user_store()
-    u_id = len(store['users'])
+    u_id = len(name_first) +len(name_last) +len(email) + randrange(100000)
     permission_id = permission_ids['SLACKR_OWNER'] if u_id == 0 else permission_ids['SLACKR_MEMBER']
     user = make_user(email, password, name_first, name_last, u_id, permission_id)
     store['users'].append(user)
