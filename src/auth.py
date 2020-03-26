@@ -3,7 +3,7 @@ import hashlib
 from json import dumps
 from flask import Flask, request
 from db import get_user_store, add_user, login, make_user,get_channel_store
-from db import token_check, channel_check, email_check, email_dupe_check
+from db import token_check, channel_check, email_check, email_dupe_check, password_check
 from channel import channels_create, channel_details, channel_invite, channel_addowner
 from channel import channel_removeowner, channels_list_all, channel_list, channel_leave, channel_join
 
@@ -41,12 +41,28 @@ def auth_register(email, password, name_first, name_last):
     }
 
 def auth_logout(token):
-    for user in data['user']:
+    data = get_user_store()
+    for user in data['users']:
         if user['token'] == token:
-            dummy_value = user.pop('token')
+            user.pop('token')
             return True
     return False
     
+def auth_login(email,password):
+    if email_check(email) == False:
+        raise InputError
+    if email_dupe_check(email) == False:
+        raise InputError
+    if password_check(password) == False:
+        raise InputError
+
+    user = password_check(password)
+    token = login(user)
+    return {
+        "u_id": user["u_id"],
+        "token": token
+    }
+
 #while user_handle is in system already:
 #Userhandle = userhandel append 1
 #and then you just keep looping until its not there anymore
@@ -99,3 +115,5 @@ print("")
 print(chan_id)
 print("")
 print(chan2_id)
+
+

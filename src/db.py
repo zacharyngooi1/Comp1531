@@ -54,12 +54,14 @@ def get_messages_store():
 
 def make_message(message, channel_id, user_id, time_created): 
     store = get_messages_store()
+    user = u_id_check(user_id)
     message_id = len(message) #PLACEHOLDER same as channel id 
     #maybe make message_id a global variable 
     if time_created == 0: 
         time = datetime.now()
     else: 
         time = time_created
+    user['messages_created'].append[message]
     store['Messages'].append({'channel_id':channel_id, 'message_id':message_id, 'user_id': user_id, 'message': message, 'channel_id': channel_id, 'time_created': time})
     return message_id
 
@@ -98,36 +100,8 @@ if ch in usr['channels_owned']:
 
 """
 
-def make_ch(name, is_public):
-    store = get_channel_store()
-    #channel_id = len(store['Channels'])
-    channel_id = name #CHANGE THIS SUCH CHAT NO 2 CHANNELS HAVE THE SAME NAME
-    store['Channels'].append({'channel_id':channel_id, 'is_public' : is_public})
-
-#def add_ch(channel_id):
-#    store = get_channel_store()
-#    store['Channels']['channel_id'].append(channel_id)
-
-def channel_add_owner(token, channel_dict):
-    store = get_user_store()
-    channel_store = get_channel_store()
-    user = token_check(token)
-    if user == None:
-         raise InputError
 
 
-    channel['owner_members'].append({'u_id': user['u_id'], 'name_first': user['name_first'], 'name_last': user['name_last']})
-    
-    channel_store['Channels']['all_members'].append({'u_id': user['u_id'], 'name_first': user['name_first'], 'name_last': user['name_last']})
-   
-
-def channel_add_all_members(handle_str):
-    store = get_user_store()
-    channel_store = get_channel_store()
-    user = handle_check(handle_str)
-    if user == None:
-         raise InputError
-    channel_store['Channels']['all_members'].append({'u_id': user['u_id'], 'name_first': user['name_first'], 'name_last': user['name_last']})
 
 
 
@@ -151,6 +125,7 @@ def make_user(email, password, name_first, name_last, u_id, perm_id):
             'permission_id': perm_id,
             'channel_id_owned': [],
             'channel_id_part': [],
+            'messages_created':[],
         }
 
 def add_user(email, password, name_first, name_last):
@@ -167,7 +142,6 @@ def login(user):
     token = str(jwt.encode({'handle_str': user['handle_str']}, SECRET, algorithm='HS256'))
     logged_in_users[token] = user
     return token
-
 
 
 
@@ -211,9 +185,7 @@ def email_dupe_check(email):
 def token_check(token):
     data = get_user_store()
     for user in data['users']:
-        
         if user['token'] == token:
-            
             return user
     return False
 
@@ -227,3 +199,10 @@ def channel_check(channel_id):
             return channel
     #print("False")
     return None
+
+def password_check(password):
+    data = get_user_store()
+    for user in data['users']:
+        if user['pasword'] == password:
+            return user
+    return False

@@ -6,7 +6,9 @@ from error import InputError
 from server import defaultHandler
 from channel import channel_messages
 from other import search
-from auth import getData
+from db import login, make_user, channel_add_all_members, get_channel_store, get_messages_store
+from db import get_user_store, add_user, login, make_user
+from db import token_check, channel_check, u_id_check
 
 APP = Flask(__name__)
 CORS(APP)
@@ -29,7 +31,8 @@ if __name__ == "__main__":
 APP.route("workspace/reset", methods=['POST'])
 def workspace_reset():
     store = get_user_store()
-    pemrission_store = get_permission_store
+    pemrission_store = get_permission_store()
+    channel_store = get_channel_store
     store = {
         'user': []
     }

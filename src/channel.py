@@ -1,23 +1,38 @@
 
 import jwt
-
 from db import get_user_store, add_user, login, make_user
-from db import login, make_user, channel_add_all_members, get_channel_store, get_messages_store
+from db import login, make_user, get_channel_store, get_messages_store
 from db import token_check, channel_check, u_id_check
 from error import InputError, AccessError
 
 def channel_invite(token, channel_id, u_id):
+
+    if channel_check(channel_id) == None:
+        raise InputError
+
+    if u_id_check(u_id) == False:
+        return InputError
+
+    if check_if_user_in_channel_member(token, channel_id) == True:
+        raise AccessError
+
+    
     channel_store = get_channel_store()
-    user_store = get_user_store()
     user = token_check(token)
     for channel in channel_store["Channels"]:
         if channel["channel_id"] == channel_id:
             channel["all_members"].append({"u_id": user["u_id"], "name_first": user['name_first'], "name_last" : user["name_last"]})    
-    return {
+    
+    user['channel_id_part'].append(channel_id)
 
-    }  
+    return {} 
 
 def channel_details(token, channel_id):
+    if channel_check(channel_id) == None:
+        raise InputError
+    if check_if_user_in_channel_member(token, channel_id) == False:
+        raise AccessError
+
     dict = {
     }
     channel_info = channel_check(channel_id)
@@ -65,12 +80,6 @@ def channel_messages(token, channel_id, start):
                 final_dict['end'] = -1
 
     return final_dict
-            
-        
-
-
-
-    return dict
 
 def channel_leave(token, channel_id):
     if channel_check(channel_id) == None:
@@ -84,6 +93,10 @@ def channel_leave(token, channel_id):
     for inner in channel['all_members']:
         if inner['u_id'] == user['u_id']:
             channel['all_members'].remove(inner)
+
+    for leave in user['channel_id_part']:
+        if leave == channel_id:
+            user['channel_id_part'].remove(leave)
     return {}
 
 
@@ -104,6 +117,9 @@ def channel_join(token, channel_id):
         if channel["channel_id"] == channel_id:
             channel["all_members"].append({"u_id": user["u_id"], 
             "name_first": user['name_first'], "name_last" : user["name_last"]})
+
+    user['channel_id_part'].append(channel_id)
+
     return {} 
 
 
@@ -118,11 +134,15 @@ def channel_addowner(token, channel_id, u_id):
         raise AccessError
 
     channel_store = get_channel_store()
-    owner_user = token_check(token)
     user = u_id_check(u_id)
+
     for channel in channel_store["Channels"]:
         if channel["channel_id"] == channel_id:
-            channel["owner_members"].append({"u_id": user["u_id"], "name_first": user['name_first'], "name_last" : user["name_last"]})
+            channel["owner_members"].append({"u_id": user["u_id"],
+             "name_first": user['name_first'], "name_last" : user["name_last"]})
+
+    user['channel_id_owned'].append(channel_id)
+    user['channel_id_part'].append(channel_id)
     return {
     }
 
@@ -136,12 +156,18 @@ def channel_removeowner(token, channel_id, u_id):
     if check_if_user_in_channel_owner(token, channel_id) == False:
         raise AccessError
 
+    user = u_id_check(u_id)
     channel_store = get_channel_store()
     for channel in channel_store["Channels"]:
         if channel["channel_id"] == channel_id:
             for member in channel["owner_members"]:
                 if member["u_id"] == u_id:
                     channel["owner_members"].remove(member)
+
+    for leave in user['channel_id_owned']:
+        if leave == channel_id:
+            user['channel_id_owned'].remove(leave)
+
     return {}
 
 def channels_create(token, name, is_public):
@@ -193,12 +219,9 @@ def channel_list(token):
     return empty_list
 
 
-###
-#
-#Checker functions
-#
-###
-
+#####################################
+##        Checker functions        ##
+#####################################
 
 def check_if_user_in_channel_member(token, channel_id):
     user = token_check(token)
@@ -228,6 +251,16 @@ def check_if_user_in_channel_owner_uid(u_id, channel_id):
     for mem_check in channel_store["Channels"]:
         if mem_check['channel_id'] == channel_id:
             for mem in mem_check['owner_members']:
+                if mem["u_id"] == u_id:
+                    result = True
+    return result
+
+def check_if_user_in_channel_member_uid(u_id, channel_id):
+    channel_store = get_channel_store()
+    result = False
+    for mem_check in channel_store["Channels"]:
+        if mem_check['channel_id'] == channel_id:
+            for mem in mem_check['all_members']:
                 if mem["u_id"] == u_id:
                     result = True
     return result
