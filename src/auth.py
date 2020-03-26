@@ -3,18 +3,13 @@ import jwt
 import hashlib
 from json import dumps
 from flask import Flask, request
+from dp.py import get_permission_store, get_user_store
+
 
 APP = Flask(__name__)
         
 SECRET = 'YEET'
 
-data = {
-    'user': []
-}
-
-def getData():
-    global data
-    return data
 
 def sendSuccess(data):
     return dumps(data)
@@ -58,7 +53,7 @@ def auth_register(email, password, name_first, name_last):
 def auth_logout(token):
     for user in data['users']:
         if user['token'] == token:
-            user[].pop('token')
+            user['token'].pop('token')
             return True
     return False
     
