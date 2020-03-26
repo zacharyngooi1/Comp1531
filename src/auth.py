@@ -9,11 +9,7 @@ APP = Flask(__name__)
 SECRET = 'YEET'
 
 data = {
-    'user': [{
-        	'name_first': 'Hayden',
-        	'name_last': 'Jacobs',
-        	'handle_str': 'hjacobs'
-        },]
+    'user': []
 }
 
 def getData():
@@ -30,73 +26,69 @@ def sendError(message):
 
 def generateToken(username):
     global SECRET
-    encoded = jwt.encode({'username': username}, SECRET, algorithm='HS256')
+    encoded = jwt.encode({'handle_str': username}, SECRET, algorithm='HS256')
     print(encoded)
     return str(encoded)
 
 def getUserFromToken(token):
     global SECRET
     decoded = jwt.decode(token, SECRET, algorithms=['HS256'])
-    return decoded['username']
+    return decoded['handle_str']
 
 def hashPassword(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
-#@APP.route('/secrets', methods=['GET'])
-def get():
-    if getUserFromToken(request.args.get('token')) is None:
-        return sendError('Invalid token')
-    return sendSuccess({
-        'secrets' : ['I', 'like', 'rats'],
-    })
-
-#@APP.route('/register', methods=['POST'])
-def create():
-    data = getData()
-    username = request.form.get('username')
-    password = request.form.get('password')
-    data['users'].append({
-        'username': username,
-        'password': hashPassword(password),
-    })
-    print(data)
-    return sendSuccess({
-        'token': generateToken(username),
-    })
 
 #Assumption: Assume there are no users with the same firstname + lastname + first letter of their password
 def auth_register(email, password, name_first, name_last):
     return_dict = {}
-    u_id = len(data['users']) 
+    u_id = len(data['user']) 
     token =  generateToken(name_first + name_last + password[0])
     return_dict['u_id'] = u_id
     return_dict['token'] = token
-    return return_dict
+    return_dict['handle_str'] = name_first + name_last #CHANGE THIS LATERR!!!!!!
+    return_dict['name_first'] = name_first 
+    return_dict['name_last'] = name_last 
+    return_dict['email'] = email
+    return_dict['password'] = hashPassword(password)
+    data['user'].append(return_dict)
+    return {'u_id':return_dict['u_id'] , 'token': return_dict['token'], }
 
-def user_register(email, password, name_first, name_last):
-	tmp = auth_register(email, password, name_first, name_last)    
-	return {
-        'u_id': tmp['u_id'],
-        'token': tmp['token'],
-		'name_first': name_first,
-		'name_last': name_last, 
-        'handle_str': (name_first[0]+name_last).lower,
-		'email': email,
-		'password': password
-    }
+
+def auth_logout(token):
+    for user in data['users']:
+        if user['token'] == token:
+            user[].pop('token')
+            return True
+    return False
+    
+#while user_handle is in system already:
+#Userhandle = userhandel append 1
+#and then you just keep looping until its not there anymore
+
+#def user_register(email, password, name_first, name_last):
+#	tmp = auth_register(email, password, name_first, name_last)    
+#	return {
+#        'u_id': tmp['u_id'],
+#        'token': tmp['token'],
+#		'name_first': name_first,
+#		'name_last': name_last, 
+ #       'handle_str': (name_first[0]+name_last).lower,
+	#	'email': email,
+	#	'password': password
+    #}
 
 #@APP.route('/login', methods=['PUT'])
 def auth_login(username , password):
     data = getData()
     for user in data['users']:
         if user['username'] == username and user['password'] == hashPassword(password):
+            user['token'] = generateToken(username)
             return sendSuccess({
-                'token': generateToken(username),
+                'token': user['token'],
+                'i_id' : user['u_id'],
             })
     return sendError('Username or password incorrect')    
-
-#if __name__ == '__main__':
-#    APP.run()
 
 
 #def auth_login(email, password):
