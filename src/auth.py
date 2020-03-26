@@ -3,18 +3,10 @@ import jwt
 import hashlib
 from json import dumps
 from flask import Flask, request
-
+from db import get_user_store, add_user, login, make_user,get_channel_store
+from db import token_check, channel_check
+from channel import channel_create
 APP = Flask(__name__)
-        
-SECRET = 'YEET'
-
-data = {
-    'user': []
-}
-
-def getData():
-    global data
-    return data
 
 def sendSuccess(data):
     return dumps(data)
@@ -24,42 +16,18 @@ def sendError(message):
         '_error' : message,
     })
 
-def generateToken(username):
-    global SECRET
-    encoded = jwt.encode({'handle_str': username}, SECRET, algorithm='HS256')
-    print(encoded)
-    return str(encoded)
-
-def getUserFromToken(token):
-    global SECRET
-    decoded = jwt.decode(token, SECRET, algorithms=['HS256'])
-    return decoded['handle_str']
-
-def hashPassword(password):
-    return hashlib.sha256(password.encode()).hexdigest()
-
-
 #Assumption: Assume there are no users with the same firstname + lastname + first letter of their password
 def auth_register(email, password, name_first, name_last):
     user = add_user(email, password, name_first, name_last)
     token = login(user)
+    data = get_user_store()
+    for i in data['users']:
+        if i['u_id'] == user['u_id']:
+            i['token'] = token
     return {
-        "u_id": user["u_id"]
+        "u_id": user["u_id"],
         "token": token
     }
-    """return_dict = {}
-    u_id = len(data['user']) 
-    token =  generateToken(name_first + name_last + password[0])
-    return_dict['u_id'] = u_id
-    return_dict['token'] = token
-    return_dict['handle_str'] = name_first + name_last #CHANGE THIS LATERR!!!!!!
-    return_dict['name_first'] = name_first 
-    return_dict['name_last'] = name_last 
-    return_dict['email'] = email
-    return_dict['password'] = hashPassword(password)
-    data['user'].append(return_dict)
-    return {'u_id':return_dict['u_id'] , 'token': return_dict['token'], }"""
-
 
 def auth_logout(token):
     for user in data['user']:
@@ -71,18 +39,6 @@ def auth_logout(token):
 #while user_handle is in system already:
 #Userhandle = userhandel append 1
 #and then you just keep looping until its not there anymore
-
-#def user_register(email, password, name_first, name_last):
-#	tmp = auth_register(email, password, name_first, name_last)    
-#	return {
-#        'u_id': tmp['u_id'],
-#        'token': tmp['token'],
-#		'name_first': name_first,
-#		'name_last': name_last, 
- #       'handle_str': (name_first[0]+name_last).lower,
-	#	'email': email,
-	#	'password': password
-    #}
 
 #@APP.route('/login', methods=['PUT'])
 def auth_login(username , password):
@@ -97,6 +53,13 @@ def auth_login(username , password):
     return sendError('Username or password incorrect')    
 
 
+#print(auth_register('hayden@gmail', 'password', 'name_first', 'name_last'))
+
+input_dict =  auth_register('hayden@gmail', 'password', 'name_first', 'name_last')
+
+channel_create(input_dict['token'], 'Hayden' , True)
+store = get_channel_store()
+print(store)
 #def auth_login(email, password):
 #    return {
 #        'u_id': 1,

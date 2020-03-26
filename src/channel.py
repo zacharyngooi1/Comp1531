@@ -1,7 +1,9 @@
-data = {
-    #'user' is a list of dictionaries of users
-    'user': [] 
-}
+
+import jwt
+
+from db import get_user_store, add_user, login, make_user
+from db import login, make_user, channel_add_all_members, get_channel_store
+from db import token_check, channel_check
 
 def channel_invite(token, channel_id, u_id):
     #@Muffeed you should go back to auth_register and add another key in the dictionary called channel_ids
@@ -73,3 +75,32 @@ def channel_addowner(token, channel_id, u_id):
 def channel_removeowner(token, channel_id, u_id):
     return {
     }
+
+        #{
+       # 'channel_id'
+       # 'owner_memmbers':[],
+      #  'all_members':[],
+      #  'is_public': Boolean
+    #},
+
+def channel_create(token, name, is_public):
+    channel_dict = {
+        'channel_id': name,
+        'owner_members':[],
+        'all_members':[],
+        'is_public': is_public
+    }
+    #user = token_check(token)
+    store = get_channel_store()
+    
+    user_store = token_check(token)
+    if user_store == None:
+         raise InputError
+
+    channel_dict['owner_members'].append({'u_id': user_store['u_id'], 'name_first': user_store['name_first'], 'name_last': user_store['name_last']})
+    
+    channel_dict['all_members'].append({'u_id': user_store['u_id'], 'name_first': user_store['name_first'], 'name_last': user_store['name_last']})
+    
+    store['Channels'].append(channel_dict)
+
+
