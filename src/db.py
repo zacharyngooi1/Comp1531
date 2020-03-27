@@ -177,8 +177,9 @@ def handle_check(handle_str):
     
 # Make a regular expression 
 # for validating an Email 
-regex = '^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$'
+
 def email_check(email):
+    regex = '^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$'
     # pass the regualar expression
     # and the string in search() method
     if (re.search(regex, email)):
@@ -230,11 +231,11 @@ def message_check(message_id):
 
 def owner_channel_check(token, channel_id):
     user = token_check(token)   #checks if it's a valid user
-    if user == None:
+    if user == False:
         raise AccessError
 
     channel = channel_check(channel_id)
-    if user == None:
+    if channel == None:
         raise AccessError
 
     for member in channel['owner_members']:     
@@ -247,7 +248,7 @@ def owner_channel_check(token, channel_id):
 
 def member_channel_check(token, channel_id):
     user = token_check(token)   #checks if it's a valid user
-    if user == None:
+    if user == False:
         raise AccessError
     channel = channel_check(channel_id)
     if user == None:

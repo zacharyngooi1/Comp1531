@@ -12,19 +12,16 @@ def message_send(token, channel_id, message):
     channel = channel_check(channel_id)
     if channel == None: 
         raise InputError
-    print(user['u_id'])
     #if check_user_in_channel(user['u_id'], channel_id) == False: 
     #    raise AccessError
     if (len(message) > 1000): 
         raise InputError
    # message_store = get_messages_store()
-    print("hey", channel)
     for member in channel['all_members']: 
         if user['u_id'] == member['u_id']: 
             message_id = make_message(message, channel_id, user['u_id'], 0)
-    
     return {
-        'message_id': message_id, 
+        'message_id': message_id,
     }
 
 def message_send_later(token, channel_id, message, time_sent): 
@@ -145,7 +142,7 @@ def message_edit(token, message_id, edited_message):
         raise InputError
     is_owner = owner_channel_check(token, message['channel_id'])
     user = token_check(token)
-    if user == None:
+    if user == False:
         raise AccessError
 
     is_sender = False

@@ -1,30 +1,22 @@
 import pytest
-from error import InputError
-from user import user_profile_setname, user_profile_setemail, user_profile_sethandle, email_check, handle_check, user_profile
+from error import InputError, AccessError
+from user import user_profile_setname, user_profile_setemail, user_profile_sethandle, user_profile
 from other import users_all, search
 from message import message_send
-from channels import channels_create
+from channel import channels_create
 import datetime
 from auth import auth_register
+from db import token_check, email_check, email_dupe_check, get_messages_store
 #If its just import user, use user.(function_to_call) when calling each function for testing
 
 #.Raises wil assert if that error appears as assert() cant be used to check for errors
 
-#Creates a function to register a new user
-def user_register(email, password, name_first, name_last):
-	tmp = auth_register(email, password, name_first, name_last)    
-	return {
-        'u_id': tmp['u_id'],
-        'token': tmp['token'],
-		'name_first': name_first,
-		'name_last': name_last, 
-        'handle_str': (name_first[0]+name_last).lower,
-		'email': email,
-		'password': password
-    }
-
-# Creates dummy user
-hamish = user_register('hamish@email.com', 'yes', 'Hamish', 'butt')
+user_token = auth_register('haydenishere@gmail.com', 'this_ispass', 'hayden', 'smith')
+hamish = token_check(user_token['token'])
+zach_token = auth_register('Zacharyngooi@gmail.com', 'password', 'Zachary', 'Ngooi')
+zach = token_check(zach_token['token'])
+kelly_token = auth_register('kellywolfe@gmail.com', 'Password', 'Kelly', 'Wolfe')
+kelly = token_check(kelly_token['token'])
     
 def test_user_setname_invalid_firstname():
     with pytest.raises(InputError):
@@ -42,29 +34,18 @@ def test_user_setname_invalid_bothnames():
         user_profile_setname(hamish['token'], "SmithlastyesSmithlastyesSmithlastyesSmithlastyesSmithlastyes","SmithlastyesSmithlastyesSmithlastyesSmithlastyesSmithlastyes") # More than 50 characers for both
 
 def test_user_setname_valid_bothname():
-    # Save first name
-    first = hamish['name_last']
-    # Save last name    
-    last = hamish['name_first']
     # Change first and last name
-    user_profile_setname(hamish['token'], "hello","stranger")
+    user_profile_setname(hamish['token'], 'hello', 'stranger')
     assert(hamish['name_first'] == 'hello')
     assert(hamish['name_last'] == 'stranger')
-    
+
 def test_user_setname_invalid_email():
-    with pytest.raises(InputError):        
+    with pytest.raises(InputError):      
         user_profile_setemail(hamish['token'],"John@hello") # Invalid email 1
-        user_profile_setemail(hamish['token'],"Smith.com") # Invalid email 2
-    # Creates dummy user
-    zach = user_register('Zacharyngooi@email.com', 'password', 'Zachary', 'Ngooi')
-    # Save email of 1st user
-    zach_email = zach['email']
-    # Create another user 
-    kelly = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
-    # Save token of 2nd user
-    kelly_token = kelly['token']
+        user_profile_setemail(hamish['token'], "Smith.com") # Invalid email 2
+
     with pytest.raises(InputError): 
-        user_profile_setemail(kelly_token,"Zacharyngooi@email.com") #Checking for dupes
+        user_profile_setemail(kelly_token['token'],"Zacharyngooi@gmail.com") #Checking for dupes
         
 def test_user_setname_valid_email():
     # Save email
@@ -74,26 +55,24 @@ def test_user_setname_valid_email():
     assert(hamish['email'] == "my.ownsite@ourearth.org") 
     # Valid email
     user_profile_setemail(hamish['token'], "ankitrai326@gmail.com") 
-    assert(hamish['email'] == "my.ownsite@ourearth.org")
+    assert(hamish['email'] == "ankitrai326@gmail.com")
+    user_profile_setemail(hamish['token'], "haydenishere@gmail.com")
     
 def test_user_setname_invalid_display():
     with pytest.raises(InputError):     
         user_profile_sethandle(hamish['token'],"") # Invalid display1
         user_profile_sethandle(hamish['token'],"on")  # Invalid display2
         user_profile_sethandle(hamish['token'],"jonathonjonathonjonathonjonathonjonathonjonathon")  # Invalid display3
-    # Creates dummy user
-    zach = user_register('Zacharyngooi@email.com', 'password', 'Zachary', 'Ngooi')
+
     # Save handle_str of 1st user
     zach_handle = zach['handle_str']
-    # Create another user 
-    kelly = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
     # Save handle_str of 2nd user
     kelly_handle = kelly['handle_str']
     # Save token of 2nd user
     kelly_token = kelly['token']
     with pytest.raises(InputError):  
         # Checking for dupes
-        user_profile_sethandle(kelly_token,zach_handle)
+        user_profile_sethandle(kelly_token, zach_handle)
         
 def test_user_setname_valid_display():      
     # Save display
@@ -102,30 +81,42 @@ def test_user_setname_valid_display():
     user_profile_sethandle(hamish['token'],"jacky")
     assert(hamish['handle_str'] == "jacky") 
      
-def test_users_all():      
-    assert(users_all(hamish['token']) ==  {
-        	'u_id': hamish['u_id'],
-        	'email': hamish['email'],
-        	'name_first': hamish['name_first'],
-        	'name_last': hamish['name_last'],
-        	'handle_str': hamish['handle_str'],
-        }) # Valid Display
+def test_users_all():
+    assert(users_all(hamish['token']) == { 
+        'users': [ 
+
+    user_profile(hamish['token'], hamish['u_id']), 
+
+    user_profile(zach['token'], zach['u_id']),
+
+    user_profile(kelly['token'], kelly['u_id']),
+
+       ]   }) # Valid Display
 
 def test_search_valid():
     ch_id = channels_create(hamish['token'], 'comp', True)
     # Send a message
-    new_message_id = message_send(hamish['token'], ch_id, 'yes')
+    new_message_id = message_send(hamish['token'], ch_id['channel_id'], 'yes')
     # Save the time created
-    time = datetime.datetime.now()
-    assert(search(hamish['token'],'yes') == 
+    message_store = get_messages_store()
+    for x in message_store['Messages']:
+        if x['message_id'] == new_message_id['message_id']:
+            time_created = x['time_created']
+    assert(search(hamish['token'], 'yes') == {
+       'messages':
         [
             {
-                'message_id': message_id,
+                'message_id': new_message_id['message_id'],
                 'u_id': hamish['u_id'],
                 'message': 'yes',
-                'time_created': time,
+                'time_created': time_created,
             }
-        ]) # Valid Display 
+        ]
+        
+    
+        }
+        
+        ) # Valid Display 
 
 # The following part was done by Mufeed Oomatia
 def test_user_profile():
