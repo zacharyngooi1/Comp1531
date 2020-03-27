@@ -70,17 +70,20 @@ def make_message(message, channel_id, user_id, time_created):
         time = datetime.now()
     else: 
         time = time_created
-    user['messages_created'].append[message]
-    store['Messages'].append({'channel_id':channel_id, 'message_id':message_id, 'user_id': user_id, 'message': message, 'channel_id': channel_id, 'time_created': time})
+    dict_message = {'message_id':message_id, 'user_id': user_id, 'channel_id': channel_id, 'time_created': time}
+    print(dict_message)
+    store['Messages'].append(dict_message)
+    print(store)
     return message_id
 
 def check_user_in_channel(u_id, channel_id): 
-    channel_store = get_channel_store()
+    channel_data = get_channel_store
+    print(channel_data)
+    channel = channel_check(channel_id)
     flag = 0
-    for channel in channel_store['Channels']: 
-        for member in channel['all_members']: 
-            if member['u_id'] == u_id: 
-                flag = 1
+    for member in channel_iter['all_members']: 
+        if member['u_id'] == u_id: 
+            flag = 1
     if flag == 1: 
         return True
     else: 
