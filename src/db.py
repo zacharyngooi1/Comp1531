@@ -65,7 +65,7 @@ def make_message(message, channel_id, user_id, time_created):
     store = get_messages_store()
     user = u_id_check(user_id)
     Reacts = [] #assume the message isn't reacted
-    message_id = len(message) #PLACEHOLDER same as channel id 
+    message_id = len(message) + randrange(25000)
     #maybe make message_id a global variable 
     if time_created == 0: 
         time = datetime.now()
@@ -130,7 +130,7 @@ def make_user(email, password, name_first, name_last, u_id, perm_id):
             'u_id': u_id,
             'name_first': name_first,
             'name_last': name_last,
-            'handle_str': (name_first[0]+name_last).lower(),
+            'handle_str': create_handle(name_first, name_last),
             'email': email,
             'password': password,
             'permission_id': perm_id,
@@ -138,6 +138,15 @@ def make_user(email, password, name_first, name_last, u_id, perm_id):
             'channel_id_part': [],
             'messages_created':[],
         }
+
+def create_handle(first_name, last_name):
+    sample_handle = first_name + last_name
+    
+    if len(sample_handle) > 20:
+        sample_handle = sample_handle[0:20]
+
+    sample_handle = sample_handle.lower() +  str(len(first_name + last_name) + randrange(25000))#This will insure all handles are unique
+    return sample_handle
 
 def add_user(email, password, name_first, name_last):
     store = get_user_store()
