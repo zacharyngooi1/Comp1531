@@ -187,7 +187,7 @@ def channels_create(token, name, is_public):
         'is_public': is_public,
         'name' : name,
     }
-    #user = token_check(token)
+
     store = get_channel_store()
     
     user_store = token_check(token)
