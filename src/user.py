@@ -2,7 +2,7 @@ import re
 from error import InputError
 from db import login, make_user, get_channel_store, get_messages_store
 from db import get_user_store, add_user, login, make_user
-from db import token_check, channel_check, u_id_check
+from db import token_check, channel_check, u_id_check, email_check, email_dupe_check, handle_check
 
 def user_profile(token, u_id):
 
@@ -16,14 +16,12 @@ def user_profile(token, u_id):
     # get required user dict
     user = u_id_check(u_id)
     # create a dict of what we need
-    user_prof_dict = {
-
-    }
-    user_prof_dict['user_id'] = user['u_id']
+    user_prof_dict = {}
+    user_prof_dict['u_id'] = user['u_id']
     user_prof_dict['email'] = user['email']
-    user_prof_dict['first_name'] = user['name_first']
-    user_prof_dict['last_name'] = user['name_last']
-    user_prof_dict['handle'] = user['handle_str']
+    user_prof_dict['name_first'] = user['name_first']
+    user_prof_dict['name_last'] = user['name_last']
+    user_prof_dict['handle_str'] = user['handle_str']
 
     return user_prof_dict
 
@@ -43,16 +41,14 @@ def user_profile_setname(token, name_first, name_last):
 
     # get required user dict
     user = token_check(token)
-    
     user['name_first'] = name_first
     user['name_last'] = name_last
-
     return {}
 
 
 
 def user_profile_setemail(token, email):
-
+    print(email)
       # Check for any name length errors
     if email_check(email) == False:
         raise InputError

@@ -22,6 +22,7 @@ def users_all(token):
         'name_first': indiv_user['name_first'], 'name_last': indiv_user['name_last'], 
         'handle_str': indiv_user['handle_str'] })
 
+    print(user_dict)
     return user_dict
 
 def search(token, query_str):
@@ -34,11 +35,11 @@ def search(token, query_str):
         'messages':[]
     }
     for user_part in user['channel_id_part']:
-        for mem_check in message_store["channel_id"]:
+        for mem_check in message_store["Messages"]:
             if mem_check['channel_id'] == user_part:
                 fullstring = mem_check['message']
                 substring = query_str
-                if search(substring, fullstring):
+                if substring in fullstring:
                     message_list['messages'].append({'message_id':mem_check['message_id'],'u_id': mem_check['user_id'],
                     'message':mem_check['message'], 'time_created': mem_check['time_created'] })
 

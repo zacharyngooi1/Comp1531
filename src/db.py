@@ -16,10 +16,10 @@ USERDATASTORE = {
 CHANNELSTORE = {
     'Channels': [
         #{
-       # 'channel_id'
-       # 'owner_memmbers':[],
-      #  'all_members':[],
-      #  'is_public': Boolean
+        #'channel_id'
+        #'owner_memmbers':[],
+        #'all_members':[],
+        #'is_public': Boolean
     #},
     ]
 }
@@ -31,7 +31,7 @@ MESSAGESTORE = {
             #message_id
             #user_id
             #message
-            #react_id
+            #reacts[]  <--- contains dicts of people that reacted(user_id) and reaction_id
             #is_pinned
             #time_created
         #}
@@ -64,15 +64,15 @@ def get_permission_store():
 def make_message(message, channel_id, user_id, time_created): 
     store = get_messages_store()
     user = u_id_check(user_id)
-    react_id = 0 #assume the message isn't reacted
-    message_id = len(message) #PLACEHOLDER same as channel id 
+    Reacts = [] #assume the message isn't reacted
+    message_id = len(message) + randrange(25000)
     #maybe make message_id a global variable 
     if time_created == 0: 
         time = datetime.now()
     else: 
         time = time_created
     user['messages_created'].append(message)
-    store['Messages'].append({'channel_id':channel_id, 'message_id':message_id, 'user_id': user_id, 'message': message, 'react_id': react_id, 'time_created': time, 'is_pinned' : False})
+    store['Messages'].append({'channel_id':channel_id, 'message_id':message_id, 'user_id': user_id, 'message': message, 'Reacts': Reacts, 'time_created': time, 'is_pinned' : False})
     return message_id
 
 def check_user_in_channel(u_id, channel_id): 
@@ -130,7 +130,7 @@ def make_user(email, password, name_first, name_last, u_id, perm_id):
             'u_id': u_id,
             'name_first': name_first,
             'name_last': name_last,
-            'handle_str': (name_first[0]+name_last).lower(),
+            'handle_str': create_handle(name_first, name_last),
             'email': email,
             'password': password,
             'permission_id': perm_id,
@@ -138,6 +138,15 @@ def make_user(email, password, name_first, name_last, u_id, perm_id):
             'channel_id_part': [],
             'messages_created':[],
         }
+
+def create_handle(first_name, last_name):
+    sample_handle = first_name + last_name
+    
+    if len(sample_handle) > 20:
+        sample_handle = sample_handle[0:20]
+
+    sample_handle = sample_handle.lower() +  str(len(first_name + last_name) + randrange(25000))#This will insure all handles are unique
+    return sample_handle
 
 def add_user(email, password, name_first, name_last):
     store = get_user_store()
@@ -184,8 +193,9 @@ def handle_check(handle_str):
     
 # Make a regular expression 
 # for validating an Email 
-regex = '^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$'
+
 def email_check(email):
+    regex = '^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$'
     # pass the regualar expression
     # and the string in search() method
     if (re.search(regex, email)):
@@ -237,11 +247,11 @@ def message_check(message_id):
 
 def owner_channel_check(token, channel_id):
     user = token_check(token)   #checks if it's a valid user
-    if user == None:
+    if user == False:
         raise AccessError
 
     channel = channel_check(channel_id)
-    if user == None:
+    if channel == None:
         raise AccessError
 
     for member in channel['owner_members']:     
@@ -254,7 +264,7 @@ def owner_channel_check(token, channel_id):
 
 def member_channel_check(token, channel_id):
     user = token_check(token)   #checks if it's a valid user
-    if user == None:
+    if user == False:
         raise AccessError
     channel = channel_check(channel_id)
     if user == None:
@@ -266,5 +276,17 @@ def member_channel_check(token, channel_id):
     return False
 
     
-    
+def react_check(message_id, user_id, react_id):
+    data = get_messages_store()
+   
+    for message in data['Messages']:
+        #print("data---------->",message_id['message_id'])
+        if message['message_id'] == message_id['message_id']:
+            for reacts in message['Reacts']:
+                #print('Everything you need------>',reacts)
+                if reacts['u_id'] == user_id and reacts['react_id'] == react_id:
+                    return True
+    return False
+    #print("False")
+
     
