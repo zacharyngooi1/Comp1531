@@ -60,6 +60,10 @@ def auth_login(email, password):
 
     user = password_check(password)
     token = login(user)
+    data = get_user_store()
+    for i in data['users']:
+        if i['u_id'] == user['u_id']:
+            i['token'] = token
     return {
         "u_id": user["u_id"],
         "token": token
