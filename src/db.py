@@ -149,11 +149,12 @@ def make_user(email, password, name_first, name_last, u_id, perm_id):
 
 def create_handle(first_name, last_name):
     sample_handle = first_name + last_name
-    
+
+    sample_handle = sample_handle.lower() +  str(len(first_name + last_name) + randrange(25000))#This will insure all handles are unique
+
     if len(sample_handle) > 20:
         sample_handle = sample_handle[0:20]
 
-    sample_handle = sample_handle.lower() +  str(len(first_name + last_name) + randrange(25000))#This will insure all handles are unique
     return sample_handle
 
 def add_user(email, password, name_first, name_last):
@@ -232,7 +233,7 @@ def channel_check(channel_id):
 def password_check(password):
     data = get_user_store()
     for user in data['users']:
-        if user['pasword'] == password:
+        if user['password'] == password:
             return user
     return False
 
