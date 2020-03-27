@@ -241,8 +241,8 @@ def message_check(message_id):
     data = get_messages_store()
    
     for message in data['Messages']:
-        #print("data---------->",message_id['message_id'])
-        if message['message_id'] == message_id['message_id']:
+        print("data---------->",message_id)
+        if message['message_id'] == message_id:
             return message
     return None
 
@@ -282,7 +282,7 @@ def react_check(message_id, user_id, react_id):
    
     for message in data['Messages']:
         #print("data---------->",message_id['message_id'])
-        if message['message_id'] == message_id['message_id']:
+        if message['message_id'] == message_id:
             for reacts in message['Reacts']:
                 #print('Everything you need------>',reacts)
                 if reacts['u_id'] == user_id and reacts['react_id'] == react_id:

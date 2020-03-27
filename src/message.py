@@ -1,5 +1,5 @@
 from db import get_messages_store, get_user_store, get_channel_store, make_message 
-from db import member_channel_check, owner_channel_check, react_check
+from db import member_channel_check, owner_channel_check, react_check, member_channel_check
 from db import token_check, channel_check, u_id_check, check_user_in_channel, message_check
 from error import InputError, AccessError
 from datetime import datetime 
@@ -16,6 +16,9 @@ def message_send(token, channel_id, message):
     #    raise AccessError
     if (len(message) > 1000): 
         raise InputError
+    
+    if member_channel_check(token, channel_id) == False:
+        raise AccessError
    # message_store = get_messages_store()
     for member in channel['all_members']: 
         if user['u_id'] == member['u_id']: 
@@ -31,7 +34,8 @@ def message_send_later(token, channel_id, message, time_sent):
     channel = channel_check(channel_id)
     if channel == False: 
         raise InputError
-    if check_user_in_channel(user['u_id'], channel_id) == False: 
+
+    if member_channel_check(token, channel_id) == False: 
         raise AccessError
     if (len(message) > 1000): 
         raise InputError
