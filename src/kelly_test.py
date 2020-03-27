@@ -1,237 +1,352 @@
 import pytest 
 from channel import channel_join, channel_addowner, channel_removeowner, channel_details
-from channels import channels_list, channels_listall, channels_create
+from channel import channel_list, channels_list_all, channels_create, channel_leave, channel_invite
 from auth import auth_register
+from error import InputError, AccessError
+from user import user_profile_setname, user_profile_setemail, user_profile_sethandle, user_profile
+from other import users_all, search
+import datetime
+from auth import auth_register
+from db import token_check, email_check, email_dupe_check, get_messages_store, channel_check, u_id_check, handle_check, get_channel_store
 
-#Function to create a new user. Returns information about that new user 
-def user_register(email, password, name_first, name_last):
-	tmp = auth_register(email, password, name_first, name_last)    
-	return {
-        'u_id': tmp['u_id'],
-        'token': tmp['token'],
-		'name_first': name_first,
-		'name_last': name_last, 
-		'email': email,
-		'password': password
-    }
+# First create a dummy user
+hamish_token = auth_register('haydenishere@gmail.com', 'this_ispass', 'hayden', 'smith')
+hamish = token_check(hamish_token['token'])
+zach_token = auth_register('Zacharyngooi@gmail.com', 'password', 'Zachary', 'Ngooi')
+zach = token_check(zach_token['token'])
+kelly_token = auth_register('kellywolfe@gmail.com', 'Password', 'Kelly', 'Wolfe')
+kelly = token_check(kelly_token['token'])
 
-#Function to create a new channel. Returns information about that channel 
-def new_channel(token, name, is_public): 
-	tmp = channels_create(token, name, is_public)
-	return { 
-		'channel_id': tmp['channel_id'],
-		'token': token,
-		'name': name,
-		'is_public': is_public
-	}
+# Now we create 3 channels and use them to test
+
+
+def test_channels_create_invalid():
+    with pytest.raises(InputError):
+        channels_create(hamish['token'], 'BenBenBenBenBenBenBenBenBenBenBenBenBenBen', True)
+   
+def test_channels_create_valid():
+	channel_id = channels_create(hamish_token['token'], 'New_channel', True)
+	# Now to call our storage and assert that the channel_id is present in our store
+	channel_store = get_channel_store()
+	result = False
+	for probe in channel_store['Channels']:
+		if probe['channel_id'] == channel_id['channel_id']:
+			result = True
+	# Now we assert the value of result
+	assert(result == True)
+	for probe in channel_store['Channels']:
+		if probe['channel_id'] == channel_id['channel_id']:
+			channel_store['Channels'].remove(probe)
+
+# Lets go to our next tests
+channel_id_hamish = channels_create(hamish_token['token'], 'Hamish_channel', True)
+# Zachs channel will be private
+channel_id_zach = channels_create(zach_token['token'], 'Zach_channel', False)
+
+channel_id_kelly = channels_create(kelly_token['token'], 'Kelly_channel', True)
+
+# As of now, each uer is a owner and a member of their channel
+
+# Test invalid channel
+def test_channel_details_invalid(): 
+	with pytest.raises(AccessError):
+		channel_details(zach['token'], channel_id_hamish['channel_id'])
+	with pytest.raises(InputError):
+		channel_details(zach['token'], 12345)
 
 #returns basic information about a channel, including owner and member list 
-def get_details(token, channel_id): 
-	tmp = channel_details(token, channel_id)
-	return { 
-		'name': tmp['name'],
-		'owner_members': tmp['owner_members'],
-		'all_members': tmp['all_members'],
-		'token': token,
-		'channel_id': channel_id
-	}
+def test_channel_details_valid():
+	assert(channel_details(zach['token'], channel_id_zach['channel_id']) ==
+	{
+		'name': 'Zach_channel',
 
-#Tests that you cannot join a channel with an invalid ID
-def test_channel_join_id(): 
-	user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
-	results = new_channel(user_results['token'], 'Test', True)
-	#Edits the valid channel_id so that it is no invalid
-	bad_id = results['channel_id'] + 689809
-	#Should raise an input error 
+		'owner_members': [{'name_first': zach['name_first'], 
+		'name_last': zach['name_last'], 'u_id': zach['u_id']}],
+
+		'all_members':  [{'name_first': zach['name_first'], 
+		'name_last': zach['name_last'], 'u_id': zach['u_id']}],
+
+	} 
+	)
+
+#Tests that you cannot join a channel with an invalid ID or a private channel
+def test_channel_join_id_invalid(): 
 	with pytest.raises(InputError):
-		channel_join(user_results['token'], bad_id)
+		channel_join(kelly['token'], 288374)
+	# Since zachs channel is private, kelly can't join, Nice try Kelly
+	with pytest.raises(AccessError):
+		channel_join(kelly['token'], channel_id_zach['channel_id'])
 
-#Tests that a user (who is not an admin) can not join a private channel 
-def test_channel_join_access(): 
-	user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
-	#Creates a new private channel 
-	results = new_channel(user_results['token'], 'Test', False)
-	with pytest.raises(AccessError): 
-		channel_join(user_results['token'], results['channel_id']) 
 
 #Tests to make sure a user can correctly join a channel 
 def test_channel_join_correct(): 
-	user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
-	results = new_channel(user_results['token'], 'Test', True)
-	channel_join(user_results['token'], results['channel_id'])
-	#chan_list is a dictionary of all of the channels that a user is apart of 
-	chan_list = channels_list(user_results['token']) 
-	#check to make sure that dictionary contains the channel you wanted to add them to 
-	assert chan_list.contains_key(results['channel_id']) == True
+	# Now lets have zach join kellys channel and assert that.
+	assert(channel_details(kelly['token'], channel_id_kelly['channel_id']) ==
+	{
+		'name': 'Kelly_channel',
 
-#Tests to make sure a user can correctly join a channel by checking to see if the dictionary for
-# a new user is 1 after adding them to their first channel 
-def test_channel_join_correct2(): 
-	user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
-	results = new_channel(user_results['token'], 'Test', True)
-	channel_join(user_results['token'], results['channel_id'])
-	#chan_list is a dictionary of all of the channels that a user is apart of 
-	chan_list = channels_list(user_results['token']) 
-	#check to make sure that dictionary contains the channel you wanted to add them to 
-	assert len(chan_list) == 1
+		'owner_members': [{'name_first': kelly['name_first'], 
+		'name_last': kelly['name_last'], 'u_id': kelly['u_id']}],
 
+		'all_members':  [{'name_first': kelly['name_first'], 
+		'name_last': kelly['name_last'], 'u_id': kelly['u_id']}],
+
+	} 
+	)
+	channel_join(zach['token'], channel_id_kelly['channel_id'])
+	# Now we assert that zach is now a member in kelly's channel.
+	assert(channel_details(kelly['token'], channel_id_kelly['channel_id']) ==
+	{
+		'name': 'Kelly_channel',
+
+		'owner_members': [{'name_first': kelly['name_first'], 
+		'name_last': kelly['name_last'], 'u_id': kelly['u_id']}],
+
+		'all_members':  [
+			{'name_first': kelly['name_first'], 
+		'name_last': kelly['name_last'], 'u_id': kelly['u_id']},
+		
+		{'name_first': zach['name_first'], 
+		'name_last': zach['name_last'], 'u_id': zach['u_id']}
+		],
+
+	} 
+	)
+
+	#You know what lets have hamish join kellys channel too
+	channel_join(hamish['token'], channel_id_kelly['channel_id'])
+	assert(channel_details(kelly['token'], channel_id_kelly['channel_id']) ==
+	{
+		'name': 'Kelly_channel',
+
+		'owner_members': [{'name_first': kelly['name_first'], 
+		'name_last': kelly['name_last'], 'u_id': kelly['u_id']}],
+
+		'all_members':  [
+			{'name_first': kelly['name_first'], 
+		'name_last': kelly['name_last'], 'u_id': kelly['u_id']},
+		
+		{'name_first': zach['name_first'], 
+		'name_last': zach['name_last'], 'u_id': zach['u_id']},
+
+		{'name_first': hamish['name_first'], 
+		'name_last': hamish['name_last'], 'u_id': hamish['u_id']}
+		],
+	}
+	)
+
+# Now we need to remmeber that kelly has 3 people in her channel for members
 #Tests that you cannot add an owner to a channel with an invalid ID
-def test_channel_addowner_id(): 
-	user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
-	results = new_channel(user_results['token'], 'Test', True)
-	#Edits the valid channel_id so that it is no invalid
-	bad_id = results['channel_id'] + 6098988
-	#Should raise an input error 
+def test_channel_addowner_id_invalid(): 
 	with pytest.raises(InputError):
-		channel_addowner(user_results['token'], bad_id, user_results['u_id'])
+		#Lets test for wrong channel id first
+		channel_addowner(kelly['token'], 63534, zach['u_id'])
+		#Now test for alrady owner
+		channel_addowner(kelly['token'], channel_id_kelly['channel_id'], kelly['u_id'])
+	with pytest.raises(AccessError):
+		channel_addowner(zach['token'], channel_id_kelly['channel_id'], hamish['u_id'])
 
 #This checks if the owner has actually been added
 
 def test_channel_addowner_added ():
-	user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
-	results = new_channel(user_results['token'], 'Test', True)
-	channel_addowner(user_results['token'], results['channel_id'] , user_results['u_id'])
-	flag = 0
-	for i in results['owner_members']:
-		if i['u_id'] == user_results['u_id']:
-			flag = 1
-	assert flag == 1
+	assert(channel_details(kelly['token'], channel_id_kelly['channel_id']) ==
+	{
+		'name': 'Kelly_channel',
 
-def test_channel_removeowner_removed():
-	user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
-	results = new_channel(user_results['token'], 'Test', True)
-	channel_addowner(user_results['token'], results['channel_id'] , user_results['u_id'])
-	channel_removeowner(user_results['token'], results['channel_id'] , user_results['u_id'])
-	flag = 0
-	for i in results['owner_members']:
-		if i['u_id'] == user_results['u_id']:
-			flag = 1
-	assert flag == 0
+		'owner_members': [{'name_first': kelly['name_first'], 
+		'name_last': kelly['name_last'], 'u_id': kelly['u_id']}],
 
-def test_channel_addowner_removed_no_access():
-	#create a newuser, add the user to the channel
-	kelly = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
-	results = new_channel(kelly['token'], 'Test', True)
-	channel_removeowner(kelly['token'], results['channel_id'] , kelly['u_id'])
-	#user is removed as an owner, and hence cannot make any changes to the 
-	#create another user and the user to the channel
-	Zach = user_register('zach@test.com', 'Password12', 'Zach', 'Zach')
-	channel_join(Zach['token'], results['channel_id'])
-	#assumption: chen someone joins a channel they are not the owner by default
-	#when Zach tries to add Kelly as an owner there is an Access error
-	with pytest.raises(AccessError): 
-		channel_addowner(Zach['token'], results['channel_id'], kelly['u_id'])
+		'all_members':  [
+			{'name_first': kelly['name_first'], 
+		'name_last': kelly['name_last'], 'u_id': kelly['u_id']},
+		
+		{'name_first': zach['name_first'], 
+		'name_last': zach['name_last'], 'u_id': zach['u_id']},
 
+		{'name_first': hamish['name_first'], 
+		'name_last': hamish['name_last'], 'u_id': hamish['u_id']}
+		],
+	}
+	)
+	# Add zach as owner
+	channel_addowner(kelly['token'], channel_id_kelly['channel_id'], zach['u_id'])
+	assert(channel_details(kelly['token'], channel_id_kelly['channel_id']) ==
+	{
+		'name': 'Kelly_channel',
 
-def test_channel_removeowner_no_access():
-	#create a newuser, add the user to the channel
-	kelly = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
-	results = new_channel(kelly['token'], 'Test', True)
-	channel_addowner(kelly['token'], results['channel_id'] , kelly['u_id'])
-	#user is removed as an owner, and hence cannot make any changes to the 
-	#create another user and the user to the channel
-	Zach = user_register('zach@test.com', 'Password12', 'Zach', 'Zach')
-	channel_join(Zach['token'], results['channel_id'])
-	#assumption: chen someone joins a channel they are not the owner by default
-	#when Zach tries to remove Kelly as an owner there is an Access error
-	with pytest.raises(AccessError): 
-		channel_removeowner(Zach['token'], results['channel_id'], kelly['u_id'])
+		'owner_members': [
+			{'name_first': kelly['name_first'], 
+		'name_last': kelly['name_last'], 'u_id': kelly['u_id']},
+		{'name_first': zach['name_first'], 
+		'name_last': zach['name_last'], 'u_id': zach['u_id']},
 
+		],
 
-#Checks the the user is not already an owner 
-def test_channel_addowner_owner(): 
-	user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
-	results = new_channel(user_results['token'], 'Test', True)
-	#copy the user token and id to variables 
-	user_token = user_results['token']
-	user_id = user_results['u_id']
-	#add that user as an owner of the channel 
-	channel_addowner(user_results['token'], results['channel_id'], user_results['u_id'])
-	#throw an input error if the user is already an owner 
-	#try to add the same id that you just added as an owner 
-	with pytest.raises(InputError): 
-		channel_addowner(user_token, results['channel_id'], user_id)
-	
+		'all_members':  [
+			{'name_first': kelly['name_first'], 
+		'name_last': kelly['name_last'], 'u_id': kelly['u_id']},
+		
+		{'name_first': zach['name_first'], 
+		'name_last': zach['name_last'], 'u_id': zach['u_id']},
+
+		{'name_first': hamish['name_first'], 
+		'name_last': hamish['name_last'], 'u_id': hamish['u_id']}
+		],
+	}
+	)
+
+def test_channel_remove_owner_invalid():
+	with pytest.raises(InputError):
+		#Lets test for wrong channel id first
+		channel_removeowner(kelly['token'], 63534, zach['u_id'])
+		#Now test for when not an owner
+		channel_removeowner(kelly['token'], channel_id_kelly['channel_id'], hamish['u_id'])
+	with pytest.raises(AccessError):
+		# Only hamish is not an owner
+		channel_removeowner(hamish['token'], channel_id_kelly['channel_id'], zach['u_id'])
+
+def test_channel_remove_owner_valid():
+	assert(channel_details(kelly['token'], channel_id_kelly['channel_id']) ==
+	{
+		'name': 'Kelly_channel',
+
+		'owner_members': [
+			{'name_first': kelly['name_first'], 
+		'name_last': kelly['name_last'], 'u_id': kelly['u_id']},
+		{'name_first': zach['name_first'], 
+		'name_last': zach['name_last'], 'u_id': zach['u_id']},
+
+		],
+
+		'all_members':  [
+			{'name_first': kelly['name_first'], 
+		'name_last': kelly['name_last'], 'u_id': kelly['u_id']},
+		
+		{'name_first': zach['name_first'], 
+		'name_last': zach['name_last'], 'u_id': zach['u_id']},
+
+		{'name_first': hamish['name_first'], 
+		'name_last': hamish['name_last'], 'u_id': hamish['u_id']}
+		],
+	}
+	)
+
+	# Now we remove owner zach
+	channel_removeowner(kelly['token'], channel_id_kelly['channel_id'], zach['u_id'])
+	assert(channel_details(kelly['token'], channel_id_kelly['channel_id']) ==
+	{
+		'name': 'Kelly_channel',
+
+		'owner_members': [
+			{'name_first': kelly['name_first'], 
+		'name_last': kelly['name_last'], 'u_id': kelly['u_id']},
+
+		],
+
+		'all_members':  [
+			{'name_first': kelly['name_first'], 
+		'name_last': kelly['name_last'], 'u_id': kelly['u_id']},
+		
+		{'name_first': zach['name_first'], 
+		'name_last': zach['name_last'], 'u_id': zach['u_id']},
+
+		{'name_first': hamish['name_first'], 
+		'name_last': hamish['name_last'], 'u_id': hamish['u_id']}
+		],
+	}
+	)
 #Checks that the token has the correct authorization to add an owner
 #(owner of slackr will by default be an owner of channel)
 
- 
-#Tests that you cannot remove an owner to a channel with an invalid ID
-def test_channel_removeowner_id(): 
-	user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
-	results = new_channel(user_results['token'], 'Test', True)
-	#Edits the valid channel_id so that it is no invalid
-	bad_id = results['channel_id'] + 6908988
-	#Should raise an input error 
-	with pytest.raises(InputError):
-		channel_removeowner(user_results['token'], bad_id, user_results['u_id'])
-
-#Checks the the user is not already not in list 
-
-#Checks that token has correct authorization to remove 
-
 #Check that if there is a new user and they don't join a channel, that channel will not be in their channel list  
+dummy_token = auth_register("Yeshey@hotmail.com", 'itsmepaswird', 'boop', 'ilast')
+dummy = token_check(dummy_token['token'])
 def test_channels_list_zero():
-	user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
-	results = new_channel(user_results['token'], 'Test', True)
-	chan_list = channels_list(user_results['token']) 
-	assert chan_list.contains_key(results['channel_id']) == False 
+	assert(channel_list(dummy['token']) == [])
+	
 
 #checks to make sure joined channel is returned 
 def test_channels_list_correct(): 
-	user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
-	results = new_channel(user_results['token'], 'Test', True)
-	channel_join(user_results['token'], results['channel_id'])
-	#chan_list is a dictionary of all of the channels that a user is apart of 
-	chan_list = channels_list(user_results['token']) 
-	#check to make sure that dictionary contains the channel you wanted to add them to 
-	assert chan_list.contains_key(results['channel_id']) == True
+	assert(channel_list(kelly['token']) == 
+		[
+		{
+		'channel_id' : channel_id_kelly['channel_id'],
+		'name': 'Kelly_channel'
+		},
+		])
 
 #tests to make sure all joined channels are returned 
 def test_channels_list_multiple(): 
-	user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
-	results = new_channel(user_results['token'], 'Test', True)
-	results2 = new_channel(user_results['token'], 'Test2', True)
-	channel_join(user_results['token'], results['channel_id'])
-	channel_join(user_results['token'], results2['channel_id'])
-	#chan_list is a dictionary of all of the channels that a user is apart of 
-	chan_list = channels_list(user_results['token']) 
-	#check to make sure that dictionary contains the channel you wanted to add them to 
-	assert((chan_list.contains_key(results['channel_id']) == True) and (chan_list.contains_key(results2['channel_id']) == True))
+	assert(channel_list(hamish['token']) == 
+		[
+		{
+		'channel_id' : channel_id_hamish['channel_id'],
+		'name': 'Hamish_channel'
+		},
+		{
+		'channel_id' : channel_id_kelly['channel_id'],
+		'name': 'Kelly_channel'
+		},
+		])
 
-#list all of the channels that the user has joined 
+#list all of the channels available 
 def test_channels_listall_joined(): 
-	user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
-	results = new_channel(user_results['token'], 'Test', True)
-	channel_join(user_results['token'], results['channel_id'])
-	#chan_list is a dictionary of all of the channels that a user is apart of 
-	chan_list = channels_listall(user_results['token']) 
-	#check to make sure that dictionary contains the channel you wanted to add them to 
-	assert chan_list.contains_key(results['channel_id']) == True
-
-#make sure the user cannot see any channels that are private/that they are not authorized to see 
-def test_channels_listall_private(): 
-	user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
-	results = new_channel(user_results['token'], 'Test', False)
-	chan_list = channels_list(user_results['token'])
-	chan_listall = channels_listall(user_results['token'])
-	if (chan_list.contains_key(results['channel_id'])): 
-		assert chan_listall.contains_key(results['channel_id'])
-	else: 
-		assert chan_listall.contains_key(results['channel_id']) == False
-	
-
-#list all of the public channels that the user has not joined 
-def test_channels_listall_notjoinedpublic(): 
-	user_results = user_register('kellywolfe@test.com', 'Password', 'Kelly', 'Wolfe')
-	results = new_channel(user_results['token'], 'Test', True)
-	channel_join(user_results['token'], results['channel_id'])
-	#chan_list is a dictionary of all of the channels that a user is apart of 
-	chan_list = channels_listall(user_results['token'])
-	#check to make sure that dictionary contains the channel you wanted to add them to 
-	assert chan_list.contains_key(results['channel_id']) == True
+	assert(channels_list_all(hamish['token']) == 
+		[
+		{
+		'channel_id' : channel_id_hamish['channel_id'],
+		'name': 'Hamish_channel'
+		},
+		{
+		'channel_id' : channel_id_zach['channel_id'],
+		'name': 'Zach_channel'
+		},
+		{
+		'channel_id' : channel_id_kelly['channel_id'],
+		'name': 'Kelly_channel'
+		},
+		])
 
 
-	
+def test_channel_leave_invalid():
+	with pytest.raises(InputError):
+		channel_leave(hamish['token'], 67430)
+	with pytest.raises(AccessError):
+		channel_leave(hamish['token'], channel_id_zach['channel_id'])
  
 	
+def test_channel_leave_valid():
+	channel_leave(hamish['token'], channel_id_kelly['channel_id'])
+	assert(channel_list(hamish['token']) == 
+		[
+		{
+		'channel_id' : channel_id_hamish['channel_id'],
+		'name': 'Hamish_channel'
+		}
+		])
+
+def test_channel_invite_invalid():
+	with pytest.raises(InputError):
+		channel_invite(hamish['token'], 67430, kelly['u_id'])
+		channel_invite(hamish['token'], channel_id_hamish['channel_id'], "jone")
+	with pytest.raises(AccessError):
+		channel_invite(kelly['token'], channel_id_kelly['channel_id'], zach['u_id'])
+ 
+ # Now we test inviting to hamish's channel
+def test_channel_invite_valid():
+	channel_invite(zach['token'], channel_id_zach['channel_id'], hamish['u_id'])
+	assert(channel_list(hamish['token']) == 
+		[
+		{
+		'channel_id' : channel_id_hamish['channel_id'],
+		'name': 'Hamish_channel'
+		},
+		{
+		'channel_id' : channel_id_zach['channel_id'],
+		'name': 'Zach_channel'
+		}
+		])
+
+
+
+

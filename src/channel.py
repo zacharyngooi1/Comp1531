@@ -9,18 +9,17 @@ from random import randrange
 
 def channel_invite(token, channel_id, u_id):
 
-    if channel_check(channel_id) == None:
+    if channel_check(channel_id) == False:
         raise InputError
 
     if u_id_check(u_id) == False:
         return InputError
 
-    if check_if_user_in_channel_member(token, channel_id) == True:
+    if check_if_user_in_channel_member_uid(u_id, channel_id) == True:
         raise AccessError
 
-    
     channel_store = get_channel_store()
-    user = token_check(token)
+    user = u_id_check(u_id)
     for channel in channel_store["Channels"]:
         if channel["channel_id"] == channel_id:
             channel["all_members"].append({"u_id": user["u_id"], "name_first": user['name_first'], "name_last" : user["name_last"]})    
@@ -30,22 +29,22 @@ def channel_invite(token, channel_id, u_id):
     return {} 
 
 def channel_details(token, channel_id):
-    if channel_check(channel_id) == None:
+    if channel_check(channel_id) == False:
         raise InputError
     if check_if_user_in_channel_member(token, channel_id) == False:
         raise AccessError
 
-    dict = {
+    ch_dict = {
     }
     channel_info = channel_check(channel_id)
-    dict['name'] = channel_info['name']
-    dict['owner_members'] = channel_info['owner_members']
-    dict['all_members'] = channel_info['all_members']
-    return dict
+    ch_dict['name'] = channel_info['name']
+    ch_dict['owner_members'] = channel_info['owner_members']
+    ch_dict['all_members'] = channel_info['all_members']
+    return ch_dict
 
 def channel_messages(token, channel_id, start):
 
-    if channel_check(channel_id) == None:
+    if channel_check(channel_id) == False:
         raise InputError
 
     if check_if_user_in_channel_member(token, channel_id) == False:
@@ -87,7 +86,7 @@ def channel_messages(token, channel_id, start):
     return final_dict
 
 def channel_leave(token, channel_id):
-    if channel_check(channel_id) == None:
+    if channel_check(channel_id) == False:
         raise InputError
 
     if check_if_user_in_channel_member(token, channel_id) == False:
@@ -107,10 +106,10 @@ def channel_leave(token, channel_id):
 
 def channel_join(token, channel_id):
 
-    if channel_check(channel_id) == None:
+    if channel_check(channel_id) == False:
         raise InputError
 
-    if (check_if_channel_is_public(channel_id) == True and 
+    if (check_if_channel_is_public(channel_id) == False and 
     check_if_user_in_channel_owner(token, channel_id) == False):
         raise AccessError
     
@@ -134,10 +133,16 @@ def channel_addowner(token, channel_id, u_id):
 
     if check_if_user_in_channel_owner_uid(u_id, channel_id) == True:
         raise InputError
+    
+    permission_error = token_check(token)
 
     if check_if_user_in_channel_owner(token, channel_id) == False:
-        raise AccessError
+        if permission_error['permission_id'] != 1:
+            raise AccessError
+        else:
+            pass
 
+    
     channel_store = get_channel_store()
     user = u_id_check(u_id)
 
@@ -158,8 +163,13 @@ def channel_removeowner(token, channel_id, u_id):
     if check_if_user_in_channel_owner_uid(u_id, channel_id) == False:
         raise InputError
 
+    permission_error = token_check(token)
+
     if check_if_user_in_channel_owner(token, channel_id) == False:
-        raise AccessError
+        if permission_error['permission_id'] != 1:
+            raise AccessError
+        else:
+            pass
 
     user = u_id_check(u_id)
     channel_store = get_channel_store()
@@ -191,7 +201,7 @@ def channels_create(token, name, is_public):
     store = get_channel_store()
     
     user_store = token_check(token)
-    if user_store == None:
+    if user_store == False:
          raise InputError
 
     channel_dict['owner_members'].append({'u_id': user_store['u_id'], 'name_first': user_store['name_first'], 'name_last': user_store['name_last']})
@@ -209,7 +219,10 @@ def channels_list_all(token):
     if token_check(token) == False:
         raise InputError
     channel_store = get_channel_store()
-    return channel_store
+    empty_list = []
+    for channels in channel_store['Channels']:
+        empty_list.append({"channel_id" : channels["channel_id"], "name" : channels["name"]})
+    return empty_list
 
 def channel_list(token):
     if token_check(token) == False:

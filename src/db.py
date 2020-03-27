@@ -203,14 +203,10 @@ def token_check(token):
 
 def channel_check(channel_id):
     data = get_channel_store()
-    flag = 0
-    #print(channel_id)
     for channel in data['Channels']:
         if channel['channel_id'] == channel_id:
-            #print("Hey")
             return channel
-    #print("False")
-    return None
+    return False
 
 def password_check(password):
     data = get_user_store()
