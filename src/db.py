@@ -6,7 +6,7 @@ import jwt
 import hashlib
 import re
 from datetime import date, time, datetime
-#from user import token_check
+from random import randrange
 
 USERDATASTORE = {
     'users': []
@@ -27,6 +27,7 @@ CHANNELSTORE = {
 MESSAGESTORE = { 
     'Messages': [
         #{
+            #channel_id
             #message_id
             #user_id
             #message
@@ -37,6 +38,12 @@ MESSAGESTORE = {
     ]
 }
 
+PERMISSIONSTORE = {
+    "SLACKR_OWNER": 1,
+    "SLACKR_MEMBER": 2,
+    "CHANNEL_OWNER": 1,
+    "CHANNEL_MEMBER": 2,
+}
 
 def get_user_store():
     global USERDATASTORE
@@ -46,13 +53,17 @@ def get_channel_store():
     global CHANNELSTORE
     return CHANNELSTORE
 
-def get_messages_store(): 
+def get_messages_store():
     global MESSAGESTORE
     return MESSAGESTORE
 
+def get_permission_store():
+    global PERMISSIONSTORE
+    return PERMISSIONSTORE
 
 def make_message(message, channel_id, user_id, time_created): 
     store = get_messages_store()
+    user = u_id_check(user_id)
     message_id = len(message) #PLACEHOLDER same as channel id 
     #maybe make message_id a global variable 
     if time_created == 0: 
@@ -101,36 +112,8 @@ if ch in usr['channels_owned']:
 
 """
 
-def make_ch(name, is_public):
-    store = get_channel_store()
-    #channel_id = len(store['Channels'])
-    channel_id = name #CHANGE THIS SUCH CHAT NO 2 CHANNELS HAVE THE SAME NAME
-    store['Channels'].append({'channel_id':channel_id, 'is_public' : is_public})
-
-#def add_ch(channel_id):
-#    store = get_channel_store()
-#    store['Channels']['channel_id'].append(channel_id)
-
-def channel_add_owner(token, channel_dict):
-    store = get_user_store()
-    channel_store = get_channel_store()
-    user = token_check(token)
-    if user == None:
-         raise InputError
 
 
-    channel['owner_members'].append({'u_id': user['u_id'], 'name_first': user['name_first'], 'name_last': user['name_last']})
-    
-    channel_store['Channels']['all_members'].append({'u_id': user['u_id'], 'name_first': user['name_first'], 'name_last': user['name_last']})
-   
-
-def channel_add_all_members(handle_str):
-    store = get_user_store()
-    channel_store = get_channel_store()
-    user = handle_check(handle_str)
-    if user == None:
-         raise InputError
-    channel_store['Channels']['all_members'].append({'u_id': user['u_id'], 'name_first': user['name_first'], 'name_last': user['name_last']})
 
 
 
@@ -154,11 +137,12 @@ def make_user(email, password, name_first, name_last, u_id, perm_id):
             'permission_id': perm_id,
             'channel_id_owned': [],
             'channel_id_part': [],
+            'messages_created':[],
         }
 
 def add_user(email, password, name_first, name_last):
     store = get_user_store()
-    u_id = len(store['users'])
+    u_id = len(name_first) +len(name_last) +len(email) + randrange(100000)
     permission_id = permission_ids['SLACKR_OWNER'] if u_id == 0 else permission_ids['SLACKR_MEMBER']
     user = make_user(email, password, name_first, name_last, u_id, permission_id)
     store['users'].append(user)
@@ -170,7 +154,6 @@ def login(user):
     token = str(jwt.encode({'handle_str': user['handle_str']}, SECRET, algorithm='HS256'))
     logged_in_users[token] = user
     return token
-
 
 
 
@@ -197,11 +180,11 @@ def handle_check(handle_str):
 # for validating an Email 
 regex = '^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$'
 def email_check(email):
-    # pass the regualar expression 
-    # and the string in search() method 
-    if(re.search(regex,email)):  
-        return True  
-    else:  
+    # pass the regualar expression
+    # and the string in search() method
+    if (re.search(regex, email)):
+        return True
+    else:
         return False
     
 def email_dupe_check(email):
@@ -214,9 +197,7 @@ def email_dupe_check(email):
 def token_check(token):
     data = get_user_store()
     for user in data['users']:
-        
         if user['token'] == token:
-            
             return user
     return False
 
@@ -230,3 +211,10 @@ def channel_check(channel_id):
             return channel
     #print("False")
     return None
+
+def password_check(password):
+    data = get_user_store()
+    for user in data['users']:
+        if user['pasword'] == password:
+            return user
+    return False
