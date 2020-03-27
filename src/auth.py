@@ -6,6 +6,8 @@ from db import get_user_store, add_user, login, make_user,get_channel_store
 from db import token_check, channel_check, email_check, email_dupe_check, password_check
 from channel import channels_create, channel_details, channel_invite, channel_addowner
 from channel import channel_removeowner, channels_list_all, channel_list, channel_leave, channel_join
+from other import users_all
+from user import user_profile
 
 from error import InputError, AccessError
 
@@ -48,12 +50,12 @@ def auth_logout(token):
             return True
     return False
     
-def auth_login(email,password):
-    if email_check(email) == False:
+def auth_login(email, password):
+    if not email_check(email):
         raise InputError
-    if email_dupe_check(email) == False:
+    if not email_dupe_check(email):
         raise InputError
-    if password_check(password) == False:
+    if not password_check(password):
         raise InputError
 
     user = password_check(password)
@@ -115,5 +117,9 @@ print("")
 print(chan_id)
 print("")
 print(chan2_id)
+
+
+print(users_all(input_dict['token']))
+print(user_profile(input_dict['token'],input_dict['u_id']))
 
 
