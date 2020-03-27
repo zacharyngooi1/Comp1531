@@ -186,6 +186,7 @@ def channels_create(token, name, is_public):
         'all_members':[],
         'is_public': is_public,
         'name' : name,
+        'standup' : {'is_standup_active':False, 'time_standup_finished':0}
     }
 
     store = get_channel_store()

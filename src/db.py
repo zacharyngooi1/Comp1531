@@ -154,7 +154,14 @@ def login(user):
     logged_in_users[token] = user
     return token
 
-
+#Standup helper functions
+def is_any_other_standup_active(channel_id):
+    channel_store = get_channel_store()
+    for channel in channel_store['Channels']:
+        if channel['channel_id'] != channel_id:
+            if channel['standup']['is_standup_active'] == True:
+                return True
+    return False
 
 
 ###################################################
