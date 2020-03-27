@@ -31,7 +31,7 @@ MESSAGESTORE = {
             #message_id
             #user_id
             #message
-            #has_react
+            #react_id
             #is_pinned
             #time_created
         #}
@@ -64,16 +64,15 @@ def get_permission_store():
 def make_message(message, channel_id, user_id, time_created): 
     store = get_messages_store()
     user = u_id_check(user_id)
+    react_id = 0 #assume the message isn't reacted
     message_id = len(message) #PLACEHOLDER same as channel id 
     #maybe make message_id a global variable 
     if time_created == 0: 
         time = datetime.now()
     else: 
         time = time_created
-    dict_message = {'message_id':message_id, 'user_id': user_id, 'channel_id': channel_id, 'time_created': time}
-    print(dict_message)
-    store['Messages'].append(dict_message)
-    print(store)
+    user['messages_created'].append(message)
+    store['Messages'].append({'channel_id':channel_id, 'message_id':message_id, 'user_id': user_id, 'message': message, 'react_id': react_id, 'time_created': time, 'is_pinned' : False})
     return message_id
 
 def check_user_in_channel(u_id, channel_id): 
@@ -218,3 +217,47 @@ def password_check(password):
         if user['pasword'] == password:
             return user
     return False
+
+
+def message_check(message_id):
+    data = get_messages_store()
+   
+    for message in data['Messages']:
+        #print("data---------->",message_id['message_id'])
+        if message['message_id'] == message_id['message_id']:
+            return message
+    return None
+
+def owner_channel_check(token, channel_id):
+    user = token_check(token)   #checks if it's a valid user
+    if user == None:
+        raise AccessError
+
+    channel = channel_check(channel_id)
+    if user == None:
+        raise AccessError
+
+    for member in channel['owner_members']:     
+        if member['u_id'] == user['u_id']:
+            return True
+    return False
+
+
+
+
+def member_channel_check(token, channel_id):
+    user = token_check(token)   #checks if it's a valid user
+    if user == None:
+        raise AccessError
+    channel = channel_check(channel_id)
+    if user == None:
+        raise AccessError
+
+    for member in channel['all_members']:
+        if member['u_id'] == user['u_id']:
+            return True
+    return False
+
+    
+    
+    
