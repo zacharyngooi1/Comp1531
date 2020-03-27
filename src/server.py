@@ -23,9 +23,8 @@ APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 APP.register_error_handler(Exception, defaultHandler)
 
 
-
 #APP route
-@APP.route("workspace/reset", methods=['POST'])
+@APP.route("/workspace/reset", methods=['POST'])
 def workspace_reset():
     store = get_user_store()
     pemrission_store = get_permission_store()
@@ -54,4 +53,20 @@ def echo():
         'data': data
     })
 
+@APP.route('/echo/get', methods=['GET'])
+def echo1():
+    """ Description of function """
+    return dumps({
+        'echo' : request.args.get('echo'),
+    })
 
+@APP.route('/echo/post', methods=['POST'])
+def echo2():
+    """ Description of function """
+    return dumps({
+        'echo' : request.form.get('echo'),
+    })
+
+
+if __name__ == '__main__':
+    APP.run(port=(sys.argv[1] if len(sys.argv) > 1 else 53200))

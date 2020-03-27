@@ -19,13 +19,10 @@ APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 APP.register_error_handler(Exception, defaultHandler)
 
 if __name__ == "__main__":
-    APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
+    APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 53200))
 
 
-#APP route
-
-
-@APP.route("/user/profile/sethandle", method=["PUT"])
+@APP.route("/user/profile/sethandle/", method=["PUT"])
 def user_handle():
 
         # Request information
@@ -53,7 +50,7 @@ def user_handle():
         user['handle_str'] = set_handle
         return dumps({})
         
-@APP.route("users/all", method=["GET"])
+@APP.route("/users/all/", method=["GET"])
 def get_all():
     # Get current data inside store
     data = request.get_json()
@@ -90,7 +87,7 @@ def permission_change():
     return dumps({})
 """"
 
-@APP.route("/search", method=["GET"])
+@APP.route("/search/", method=["GET"])
 def search():
     data = request.get_json()
     token = data['token']
