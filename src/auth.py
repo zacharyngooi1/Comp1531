@@ -8,6 +8,7 @@ from channel import channels_create, channel_details, channel_invite, channel_ad
 from channel import channel_removeowner, channels_list_all, channel_list, channel_leave, channel_join
 
 from error import InputError, AccessError
+from message import message_send
 
 def sendSuccess(data):
     return dumps(data)
