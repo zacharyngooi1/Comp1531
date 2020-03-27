@@ -67,19 +67,6 @@ def auth_login(email,password):
 #Userhandle = userhandel append 1
 #and then you just keep looping until its not there anymore
 
-#@APP.route('/login', methods=['PUT'])
-def auth_login(username , password):
-    data = getData()
-    for user in data['user']:
-        if user['username'] == username and user['password'] == hashPassword(password):
-            user['token'] = generateToken(username)
-            return sendSuccess({
-                'token': user['token'],
-                'i_id' : user['u_id'],
-            })
-    return sendError('Username or password incorrect')    
-
-
 #print(auth_register('hayden@gmail', 'password', 'name_first', 'name_last'))
 
 input_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
