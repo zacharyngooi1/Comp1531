@@ -45,6 +45,10 @@ PERMISSIONSTORE = {
     "CHANNEL_MEMBER": 2,
 }
 
+STANDUPQUEUE = {
+    "final_string":""
+}
+
 def get_user_store():
     global USERDATASTORE
     return USERDATASTORE
@@ -60,6 +64,10 @@ def get_messages_store():
 def get_permission_store():
     global PERMISSIONSTORE
     return PERMISSIONSTORE
+
+def get_standup_queue():
+    global STANDUPQUEUE
+    return STANDUPQUEUE
 
 def make_message(message, channel_id, user_id, time_created): 
     store = get_messages_store()
@@ -163,8 +171,12 @@ def login(user):
     logged_in_users[token] = user
     return token
 
-
-
+#Standup helper functions
+def message_send_for_standup(u_id, message):
+    standupqueue_store = get_standup_queue()
+    user = u_id_check(u_id)
+    return_string = user['handle_str'] + ":" + message + '\n'
+    standupqueue_store["final_string"] = standupqueue_store["final_string"] + return_string
 
 ###################################################
 ##             Checking functions                ##
@@ -241,11 +253,11 @@ def message_check(message_id):
 def owner_channel_check(token, channel_id):
     user = token_check(token)   #checks if it's a valid user
     if user == False:
-        raise AccessError
+        raise InputError
 
     channel = channel_check(channel_id)
     if channel == None:
-        raise AccessError
+        raise InputError
 
     for member in channel['owner_members']:     
         if member['u_id'] == user['u_id']:
@@ -258,10 +270,10 @@ def owner_channel_check(token, channel_id):
 def member_channel_check(token, channel_id):
     user = token_check(token)   #checks if it's a valid user
     if user == False:
-        raise AccessError
+        raise InputError
     channel = channel_check(channel_id)
-    if user == None:
-        raise AccessError
+    if channel == None:
+        raise InputError
 
     for member in channel['all_members']:
         if member['u_id'] == user['u_id']:
