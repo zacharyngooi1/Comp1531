@@ -1,5 +1,5 @@
 from db import get_messages_store, get_user_store, get_channel_store, make_message 
-from db import member_channel_check, owner_channel_check
+from db import member_channel_check, owner_channel_check, react_check
 from db import token_check, channel_check, u_id_check, check_user_in_channel, message_check
 from error import InputError, AccessError
 from datetime import datetime 
@@ -61,11 +61,17 @@ def message_react(token, message_id , react_id):
         raise InputError
     if react_id != 1:   #This is assuming that there's only 1 react id (1)
         raise InputError   
-    if message['react_id'] == react_id:
-        raise InputError
-    message['react_id'] = react_id
-    return{
 
+    user = token_check(token)
+    if user == None:
+        raise AccessError
+    
+    if react_check(message_id, user['u_id'], react_id) == True:
+        raise InputError
+
+    dict_append  = { 'u_id': user['u_id'], 'react_id' : react_id  }
+    message['Reacts'].append(dict_append)
+    return{
     }
 
 def message_unreact(token, message_id , react_id): 
@@ -75,9 +81,15 @@ def message_unreact(token, message_id , react_id):
         raise InputError
     if react_id != 1:   #This is assuming that there's only 1 react id (1)
         raise InputError    
-    if message['react_id'] != react_id:
+    user = token_check(token)
+    if user == None:
+        raise AccessError
+    
+    if react_check(message_id, user['u_id'], react_id) == False:
         raise InputError
-    message['react_id'] = 0
+
+    dict_append  = { 'u_id': user['u_id'], 'react_id' : react_id  }
+    message['Reacts'].remove(dict_append)
     return{
 
     }
@@ -126,6 +138,7 @@ def message_remove(token, message_id):
     if user['u_id'] == message['user_id']:
         is_sender = True
 
+    print('is owner: ',is_owner,'is_sender:', is_sender)
     if (is_owner or is_sender) == False:
         raise AccessError
 
