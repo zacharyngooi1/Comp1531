@@ -117,9 +117,10 @@ def logout_user():
 @APP.route("/user/profile", methods=["GET"])
 def get_all():
     # Get current data inside store
-
+    token = request.args.get("token")
+    u_id = request.args.get("u_id")
     if not u_id_check(u_id):
-        raise InputError
+        raise InputError(description="wtf")
     profile = user_profile(token, u_id)
 
     return dumps({
@@ -180,6 +181,7 @@ def user_handle():
 
 @APP.route("/users/all", methods=["GET"])
 def get_all_users():
+    token = request.args.get("token")
     # Get current data inside store
     if not token_check(token):
         raise InputError(description="Invalid_token")
@@ -191,6 +193,8 @@ def get_all_users():
 
 @APP.route("/search", methods=["GET"])
 def search_message():
+    token = request.args.get("token")
+    query_str = request.args.get("query_str")
     if not token_check(token):
         raise InputError(description="Invalid_token")
     message_list = search(token, query_str)
