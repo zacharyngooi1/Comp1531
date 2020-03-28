@@ -9,7 +9,7 @@ from message import message_send, message_send_later, message_react, message_unr
 from message import message_remove,message_edit
 from db import get_messages_store
 import datetime
-
+from datetime import timezone
 #Assumptions
 #All the inputs are valid
 hayden_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
@@ -18,7 +18,6 @@ rob_dict = auth_register("rob@gmail.com", "paswword123", "Rob", "Ever")
 #channel_invite(hayden_dict['token'], chan_id["channel_id"], rob_dict["u_id"])
 
 message_id = message_send(hayden_dict['token'], chan_id['channel_id'], "Haydens Message")
-
 
 def test_message_send():
     assert get_messages_store()['Messages'][0] == {
@@ -38,7 +37,7 @@ def test_message_send_invalid_AccessError():
     with pytest.raises(AccessError):
         message_send(rob_dict['token'], chan_id['channel_id'], "Robs message")
 
-message_id1 = message_send_later(hayden_dict['token'], chan_id['channel_id'], "Haydens Message later", datetime.datetime.now()+  datetime.timedelta(0,1))
+message_id1 = message_send_later(hayden_dict['token'], chan_id['channel_id'], "Haydens Message later", (datetime.datetime.now()+  datetime.timedelta(0,1)).replace(tzinfo=timezone.utc).timestamp())
 
 
 def test_message_send_later():
@@ -53,11 +52,11 @@ def test_message_send_later():
 
 def test_message_send_later_invalid_AccessError():
     with pytest.raises(AccessError):
-        message_send_later(rob_dict['token'], chan_id['channel_id'], "Robs message",datetime.datetime(2020, 3, 28, 2, 9, 46, 184346))
+        message_send_later(rob_dict['token'], chan_id['channel_id'], "Robs message",datetime.datetime(2020, 3, 28, 2, 9, 46, 184346).replace(tzinfo=timezone.utc).timestamp())
         
 def test_message_send_later_invalid_InputError():
     with pytest.raises(InputError):
-        message_send_later(hayden_dict['token'], chan_id['channel_id'], "Hayens message",datetime.datetime(2020, 3, 28, 2, 9, 46, 184346))
+        message_send_later(hayden_dict['token'], chan_id['channel_id'], "Hayens message",datetime.datetime(2020, 3, 28, 2, 9, 46, 184346).replace(tzinfo=timezone.utc).timestamp())
 print(get_messages_store()['Messages'])
 
 
@@ -199,4 +198,3 @@ def test_message_remove():
 def test_message_remove_invalid_InputError1():
     with pytest.raises(InputError):
         message_remove(rob_dict['token'], message_id_remove2['message_id'])
-

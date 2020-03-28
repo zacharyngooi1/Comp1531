@@ -2,7 +2,8 @@ from db import get_messages_store, get_user_store, get_channel_store, make_messa
 from db import member_channel_check, owner_channel_check, react_check, member_channel_check
 from db import token_check, channel_check, u_id_check, check_user_in_channel, message_check
 from error import InputError, AccessError
-from datetime import datetime 
+import datetime
+from datetime import timezone
 import time
 
 def message_send(token, channel_id, message):
@@ -34,22 +35,23 @@ def message_send_later(token, channel_id, message, time_sent):
     channel = channel_check(channel_id)
     if channel == False: 
         raise InputError
-
     if member_channel_check(token, channel_id) == False: 
         raise AccessError
     if (len(message) > 1000): 
         raise InputError
-    if(time_sent < datetime.now()): 
+    if time_sent < datetime.datetime.now().replace(tzinfo=timezone.utc).timestamp(): 
         raise InputError
     message_store = get_messages_store()
+    
     for member in channel['all_members']: 
         if user['u_id'] == member['u_id']:
             #time.mktime(t.timetuple())
-
-            wait_time = time_sent - datetime.now() 
-            time.sleep(wait_time.total_seconds())
+            
+            wait_time = time_sent - datetime.datetime.now().replace(tzinfo=timezone.utc).timestamp() 
+            time.sleep(wait_time)
             #wait_time = time.mktime(datetime.datetime.now().timetuple()) - time.mktime(time_sent.timetuple())
             message_id = make_message(message, channel_id, user['u_id'], 0)
+            
     return {
         'message_id': message_id,
     }
@@ -150,10 +152,6 @@ def message_remove(token, message_id):
 
 
 def message_edit(token, message_id, edited_message):
-    #print(" ")
-    #print("debug-------->", message['message'])
-    #print(" ")
-    #print("")    
     message = message_check(message_id)
     if message == None:
         raise InputError
