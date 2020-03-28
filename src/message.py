@@ -99,10 +99,10 @@ def message_pin(token, message_id):
     message = message_check(message_id)
     if message == None:
         raise InputError
-    if owner_channel_check(token, message['channel_id']) == False:
-        raise InputError
     if member_channel_check(token, message['channel_id']) == False:
         raise AccessError
+    if owner_channel_check(token, message['channel_id']) == False:
+        raise InputError
     if message['is_pinned'] == True:
         raise InputError
     message['is_pinned'] = True
@@ -115,10 +115,10 @@ def message_unpin(token, message_id):
     message = message_check(message_id)
     if message == None:
         raise InputError
-    if owner_channel_check(token, message['channel_id']) == False:
-        raise InputError
     if member_channel_check(token, message['channel_id']) == False:
-        raise AccessError    
+        raise AccessError 
+    if owner_channel_check(token, message['channel_id']) == False:
+        raise InputError   
     if message['is_pinned'] == False:
         raise InputError    
     message['is_pinned'] = False 
