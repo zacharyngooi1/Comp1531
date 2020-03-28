@@ -8,7 +8,7 @@ from db import login, make_user, get_channel_store, get_messages_store, get_perm
 from db import get_user_store, add_user, create_handle, message_send_for_standup
 from db import token_check, channel_check, u_id_check, email_check, email_dupe_check
 from db import handle_check, password_check, message_check, owner_channel_check
-from db import member_channel_check, react_check
+from db import member_channel_check, react_check, reset_store
 from user import user_profile, user_profile_setemail, user_profile_sethandle
 from user import user_profile_setname
 from auth import auth_register, auth_logout, auth_login
@@ -36,8 +36,11 @@ APP.register_error_handler(Exception, defaultHandler)
 ###############################################################
 
 
-
-
+@APP.route("/reset", methods=["GET"])
+def reset():
+    reset_store()
+    return dumps({})
+    
 
 
 ###############################################################
@@ -221,4 +224,4 @@ def search_message():
 #DONT TOUCH ANYTHING BELOW THIS LINE OR ZACH WILL BEAT U UP
 ###############################################################
 if __name__ == "__main__":
-    APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 53250))
+    APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 53251))
