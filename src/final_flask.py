@@ -240,15 +240,18 @@ def c_create():
 def standup_start_flask():
     data = request.get_json()
     token = data['token']
-    channel_id = data['channel_id']
-    standup_length = data['length']
+    channel_id = int(data['channel_id'])
+    standup_length = int(data['length'])
     time_finish = standup_start(token, channel_id, standup_length)
     return dumps(time_finish)
-"""
+
 @APP.route("/standup/active", methods=['GET'])
 def standup_active_flask():
+    token = request.args.get('token')
+    channel_id = int(request.args.get('channel_id'))
+    final_answer = standup_active(token, channel_id)
     return dumps(standup_active(request.args.get('token'), request.args.get('channel_id')))
-
+"""
 @APP.route("/standup/send", methods=['POST'])
 def standup_send_flask():
     data = request.get_json()
