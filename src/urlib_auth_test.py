@@ -2,7 +2,7 @@ import json
 import requests
 import urllib
 import pytest
-from db import get_user_store
+from db import get_user_store, get_messages_store, get_channel_store
 from error import InputError, AccessError, NameException, KeyError
 
 BASE_URL = 'http://127.0.0.1:53251'
