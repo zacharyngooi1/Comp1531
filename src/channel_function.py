@@ -192,29 +192,7 @@ def c_list_all():
 #APP route
 @APP.route("/channels/create", methods=["POST"])
 def c_create():
-    #Request information 
-    data = request.get_json()
-
-    name = data['name']
-    token = data['token']
-    is_public= data['is_public']
-
-    if len(name) > 20:
-        raise InputError
-
-    channels_create(token, name, is_public)
-    return dumps({})
-
-
-
-
-    
-'''
-    
-
-if __name__ == "__main__":
-    APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
-    
+    #Request info
     
 
 
