@@ -22,7 +22,8 @@ from channel import channels_list_all, channel_list, check_if_user_in_channel_me
 from channel import check_if_user_in_channel_owner, check_if_user_in_channel_owner_uid
 from channel import check_if_user_in_channel_member_uid, check_if_channel_is_public
 
-
+#input_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
+#chan_id = channels_create(input_dict['token'], 'Hayden', True)
 
 APP = Flask(__name__)
 CORS(APP)
@@ -210,6 +211,19 @@ def search_message():
 ###############################################################
 # CHANNEL FLASK FUNCTIONS
 ###############################################################
+@APP.route("/channels/create", methods=["POST"])
+def c_create():
+    #Request information 
+    data = request.get_json()
+    name = data['name']
+    token = data['token']
+    is_public= True
+
+    if len(name) > 20:
+        raise InputError
+
+    channel_id = channels_create(token, name, is_public)
+    return dumps(channel_id)
 
 
 
@@ -218,8 +232,33 @@ def search_message():
 
 
 
+##############################################################
+# STANDUP FLASK FUNCTIONS
+##############################################################
+
+@APP.route("/standup/start", methods=['POST'])
+def standup_start_flask():
+    data = request.get_json()
+    token = data['token']
+    channel_id = data['channel_id']
+    standup_length = data['length']
+    time_finish = standup_start(token, channel_id, standup_length)
+    return dumps(time_finish)
+"""
+@APP.route("/standup/active", methods=['GET'])
+def standup_active_flask():
+    return dumps(standup_active(request.args.get('token'), request.args.get('channel_id')))
+
+@APP.route("/standup/send", methods=['POST'])
+def standup_send_flask():
+    data = request.get_json()
+    token = data['token']
+    channel_id = data['channel_id']
+    standup_length = data['length']
 
 
+    standup_send(token, channel_id, )
+"""
 ###############################################################
 #DONT TOUCH ANYTHING BELOW THIS LINE OR ZACH WILL BEAT U UP
 ###############################################################

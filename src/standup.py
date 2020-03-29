@@ -11,9 +11,10 @@ from error import AccessError, InputError
 def standup_start(token, channel_id, length):
     channel_store = get_channel_store()
     channel = channel_check(channel_id)
-    if channel == None:
+    if channel == False:
         raise InputError
     current_moment_in_time = datetime.now()
+    
     if channel['standup']['time_standup_finished'] != None:
         if current_moment_in_time.replace(tzinfo=timezone.utc).timestamp() < channel['standup']['time_standup_finished']:
             raise InputError
@@ -27,7 +28,7 @@ def standup_start(token, channel_id, length):
 def standup_active(token, channel_id):
     channel_store = get_channel_store()
     channel = channel_check(channel_id)
-    if channel == None:
+    if channel == False:
         raise InputError
     current_moment_in_time = datetime.now()
     if current_moment_in_time.replace(tzinfo=timezone.utc).timestamp() < channel['standup']['time_standup_finished']:
@@ -44,7 +45,7 @@ def standup_active(token, channel_id):
 def standup_send(token, channel_id, message):
     channel_store = get_channel_store()
     channel = channel_check(channel_id)
-    if channel == None:
+    if channel == False:
         raise InputError
     if member_channel_check(token, channel_id) == False:
         raise AccessError
