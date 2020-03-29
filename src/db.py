@@ -1,7 +1,6 @@
 import sys
 from json import dumps
 from flask import Flask, request
-#from flask_cors import CORS
 import jwt
 import hashlib
 import re
@@ -69,6 +68,20 @@ def get_permission_store():
 def get_standup_queue():
     global STANDUPQUEUE
     return STANDUPQUEUE
+
+def reset_store():
+    global USERDATASTORE
+    global CHANNELSTORE
+    global MESSAGESTORE
+    USERDATASTORE = {
+        'users' : []
+    }
+    CHANNELSTORE = {
+        'Channels' : []
+    }
+    MESSAGESTORE = {
+        'Messages' : []
+    }
 
 def make_message(message, channel_id, user_id, time_created): 
     store = get_messages_store()
