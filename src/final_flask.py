@@ -9,6 +9,7 @@ from db import get_user_store, add_user, create_handle, message_send_for_standup
 from db import token_check, channel_check, u_id_check, email_check, email_dupe_check
 from db import handle_check, password_check, message_check, owner_channel_check
 from db import member_channel_check, react_check, reset_store
+from db import get_messages_store
 from user import user_profile, user_profile_setemail, user_profile_sethandle
 from user import user_profile_setname
 from auth import auth_register, auth_logout, auth_login
@@ -21,7 +22,8 @@ from channel import channel_join, channel_addowner, channel_removeowner, channel
 from channel import channels_list_all, channel_list, check_if_user_in_channel_member
 from channel import check_if_user_in_channel_owner, check_if_user_in_channel_owner_uid
 from channel import check_if_user_in_channel_member_uid, check_if_channel_is_public
-
+import datetime
+from datetime import timezone
 #input_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
 #chan_id = channels_create(input_dict['token'], 'Hayden', True)
 
@@ -226,8 +228,107 @@ def c_create():
     return dumps(channel_id)
 
 
+##############################################################
+# MESSAGE FLASK FUNCTIONS
+##############################################################
+
+@APP.route("/message/send", methods=["POST"])
+def send():
+    
+    data = request.get_json()
+
+    token = data['token']
+    channel_id = data['channel_id']
+    message = data['message']
+
+    message_id = message_send(token, channel_id, message)
+    #message_id = {'message_id':1}
+    return dumps(message_id)
+    #return 1
 
 
+@APP.route("/message/send_later", methods=["POST"])
+def send_later():
+    data = request.get_json()
+
+    token = data['token']
+    channel_id = int(data['channel_id'])
+    message = data['message']
+    time = int(data['time'])
+    message_id = message_send_later(token, channel_id, message,time)
+    return dumps(message_id)
+
+
+@APP.route("/message/react", methods=["POST"])
+def react():
+    data = request.get_json()
+
+    token = data['token']
+    react_id = int(data['react_id'])
+    message_id = int(data['message_id'])
+
+    message_react(token,message_id , 1)
+
+    return dumps(message_id)
+
+
+@APP.route("/message/unreact", methods=["POST"])
+def unreact():
+    data = request.get_json()
+
+    token = data['token']
+    react_id = int(data['react_id'])
+    message_id = int(data['message_id'])
+    
+    message_unreact(token,message_id , 1)
+    return dumps(message_id)
+
+#message_pin(hayden_dict['token'], message_id_pin['message_id'])
+
+@APP.route("/message/pin", methods=["POST"])
+def pin():
+    data = request.get_json()
+
+    token = data['token']
+    message_id = int(data['message_id'])
+    
+    message_pin(token,message_id)
+    return dumps(message_id)
+
+
+@APP.route("/message/unpin", methods=["POST"])
+def unpin():
+    data = request.get_json()
+
+    token = data['token']
+    message_id = int(data['message_id'])
+    
+    message_unpin(token,message_id)
+    return dumps(message_id)
+
+
+
+@APP.route("/message/edit", methods=["POST"])
+def edit():
+    data = request.get_json()
+
+    token = data['token']
+    message_id = int(data['message_id'])
+    message = data['message']
+    
+    message_edit(token,message_id,message)
+    return dumps(message_id)
+
+
+@APP.route("/message/remove", methods=["POST"])
+def remove():
+    data = request.get_json()
+
+    token = data['token']
+    message_id = int(data['message_id'])
+    
+    message_remove(token,message_id)
+    return dumps(message_id)
 
 
 
