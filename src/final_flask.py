@@ -30,8 +30,8 @@ from datetime import timezone
 APP = Flask(__name__)
 CORS(APP)
 
-
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
+APP.debug = True
 APP.register_error_handler(Exception, defaultHandler)
 
 ###############################################################
@@ -89,7 +89,7 @@ def login_user():
     if not email_check(email):
         raise InputError(description="Email not valid")
     if not email_dupe_check(email):
-        raise InputError(description="Email already used")
+        raise InputError(description="Email not found")
     if not password_check(password):
         raise InputError(description="Password is wrong")
 
@@ -232,86 +232,63 @@ def c_join():
     channel_join(token, channel_id)
     return dumps({})
 
-@APP.route("/channel/addowner", methods=["POST"])
-def c_add_owner():
-    #Request information 
-    data = request.get_json()
-
-    token = data["token"]
-    u_id = int(data["u_id"])
-    channel_id = int(data["channel_id"])
-
-    if channel_check(channel_id) == False:
-        raise InputError
-
-    """if check_if_user_in_channel_owner_uid(u_id, channel_id) == True:
-        raise InputError
-
-    if check_if_user_in_channel_owner(token, channel_id) == False:
-        raise AccessError"""
-    channel_addowner(token, channel_id, u_id)
-    return dumps({})
-
-@APP.route("/channel/removeowner", methods=["POST"])
-def c_remove_owner():
-    #Request information 
-    data = request.get_json()
-
-    token = data['token']
-    u_id = int(data['u_id'])
-    channel_id = int(data['channel_id'])
-
-    if channel_check(channel_id) == False:
-        raise InputError
-
-    """if check_if_user_in_channel_owner_uid(u_id, channel_id) == False:
-        raise InputError
-
-    if check_if_user_in_channel_owner(token, channel_id) == False:
-        raise AccessError"""
-
-    channel_removeowner(token, channel_id, u_id)
-    return dumps({})
-
-@APP.route("/channels/list", methods=["GET"])
-def c_list(): 
-    #Request information 
-    data = request.get_json()
-
-    token = data['token']
-
-    if token_check(token) == False:
-        raise InputError
-
-    channel_list = channel_list(token)
-    return dumps(channel_list)
 
 @APP.route("/channels/create", methods=["POST"])
 def c_create():
-    #Request information 
+    
     data = request.get_json()
-    name = data['name']
-    token = data['token']
-    is_public= True
 
-    if len(name) > 20:
-        raise InputError
+    token = data['token']
+    name = data['name']
+    is_public = bool(data['is_public'])
 
     channel_id = channels_create(token, name, is_public)
+    print(get_channel_store())
+    #message_id = {'message_id':1}
     return dumps(channel_id)
+    #return 1
 
-@APP.route("/channels/listall", methods=["GET"])
-def c_list_all(): 
-    #Request information 
+@APP.route("/channel/invite", methods=["POST"])
+def c_invite():
+    
     data = request.get_json()
 
     token = data['token']
+    channel_id = int(data['channel_id'])
+    u_id = int(data['u_id'])
 
-    if token_check(token) == False:
-        raise InputError
+    out = channel_invite(token, channel_id, u_id)
+    return dumps(out)
+    #return 1
 
-    channel_list_all = channel_list_all(token)
-    return dumps(channel_list_all)
+@APP.route("/channel/addowner", methods=["POST"])
+def c_addowner():
+    
+    data = request.get_json()
+
+    token = data['token']
+    channel_id = int(data['channel_id'])
+    u_id = int(data['u_id'])
+
+    out = channel_addowner(token, channel_id, u_id)
+    
+    return dumps(out)
+    #return 1
+
+@APP.route("/channel/removeowner", methods=["POST"])
+def c_removeowner():
+    
+    data = request.get_json()
+
+    token = data['token']
+    channel_id = int(data['channel_id'])
+    u_id = int(data['u_id'])
+
+    out = channel_removeowner(token, channel_id, u_id)
+    
+    return dumps(out)
+    #return 1
+
 ##############################################################
 # MESSAGE FLASK FUNCTIONS
 ##############################################################
@@ -452,4 +429,4 @@ def standup_send_flask():
 #DONT TOUCH ANYTHING BELOW THIS LINE OR ZACH WILL BEAT U UP
 ###############################################################
 if __name__ == "__main__":
-    APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 53251))
+    APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 53250))
