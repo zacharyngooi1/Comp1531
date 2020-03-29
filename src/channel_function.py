@@ -12,10 +12,17 @@ from other import search
 from db import login, make_user, get_channel_store, get_messages_store
 from db import get_user_store, add_user, login, make_user
 from db import token_check, channel_check, u_id_check, handle_check, email_check, email_dupe_check
+from message import message_send
 from other import users_all
+
 
 input_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
 rob_dict =  auth_register('rob@gmail.com', 'robword', 'rob', 'yalater')
+channel_id = channels_create(input_dict['token'], "Chan1", True)
+message_id = message_send(input_dict['token'], channel_id['channel_id'], "Hey")
+message_id1 = message_send(input_dict['token'], channel_id['channel_id'], "wassup")
+message_id2 = message_send(input_dict['token'], channel_id['channel_id'], "hru")
+message_id3 = message_send(input_dict['token'], channel_id['channel_id'], "hru")
 #chan_id = channels_create(input_dict['token'], 'Hayden', True)
 print(input_dict)
 print()
@@ -86,6 +93,49 @@ def c_removeowner():
     out = channel_removeowner(token, channel_id, u_id)
     
     return dumps(out)
+    #return 1
+
+@APP.route("/channel/details", methods=["GET"])
+def c_details():
+    
+    token = request.args.get('token')
+    channel_id = int(request.args.get('channel_id'))
+    print(token)
+    return_dict = channel_details(token, channel_id)
+    print(return_dict)
+    return dumps(return_dict)
+    #return 1
+
+@APP.route("/channel/list", methods=["GET"])
+def c_list():
+    
+    token = request.args.get('token')
+    return_dict = channel_list(token)
+    print(return_dict)
+    return dumps(return_dict)
+    #return 1
+
+@APP.route("/channels/list_all", methods=["GET"])
+def c_listall():
+    
+    token = request.args.get('token')
+    return_dict = channels_list_all(token)
+    print(return_dict)
+    return dumps(return_dict)
+    #return 1
+
+@APP.route("/channel/messages", methods=["GET"])
+def c_messages():
+    
+    #token = request.args.get('token')
+    #channel_id = int(request.args.get('channel_id'))
+    #start = int(request.args.get('start'))
+    token = input_dict['token']
+    ch_id = channel_id['channel_id']
+    start = 1
+    return_dict = channel_messages(token, ch_id,start)
+    print(return_dict)
+    return dumps(return_dict)
     #return 1
 
 
