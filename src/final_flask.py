@@ -211,6 +211,79 @@ def search_message():
 ###############################################################
 # CHANNEL FLASK FUNCTIONS
 ###############################################################
+@APP.route("/channel/join", methods=["POST"])
+def c_join(): 
+    #Request information 
+
+    data = request.get_json()
+
+    channel_id = int(data["channel_id"])
+    token = data["token"]
+
+    if channel_check(channel_id) == None:
+        raise InputError
+
+    if (check_if_channel_is_public(channel_id) == True and 
+    check_if_user_in_channel_owner(token, channel_id) == False):
+        raise AccessError
+
+    channel_join(token, channel_id)
+    return dumps({})
+
+@APP.route("/channel/addowner", methods=["POST"])
+def c_add_owner():
+    #Request information 
+    data = request.get_json()
+
+    token = data["token"]
+    u_id = int(data["u_id"])
+    channel_id = int(data["channel_id"])
+
+    if channel_check(channel_id) == False:
+        raise InputError
+
+    """if check_if_user_in_channel_owner_uid(u_id, channel_id) == True:
+        raise InputError
+
+    if check_if_user_in_channel_owner(token, channel_id) == False:
+        raise AccessError"""
+    channel_addowner(token, channel_id, u_id)
+    return dumps({})
+
+@APP.route("/channel/removeowner", methods=["POST"])
+def c_remove_owner():
+    #Request information 
+    data = request.get_json()
+
+    token = data['token']
+    u_id = int(data['u_id'])
+    channel_id = int(data['channel_id'])
+
+    if channel_check(channel_id) == False:
+        raise InputError
+
+    """if check_if_user_in_channel_owner_uid(u_id, channel_id) == False:
+        raise InputError
+
+    if check_if_user_in_channel_owner(token, channel_id) == False:
+        raise AccessError"""
+
+    channel_removeowner(token, channel_id, u_id)
+    return dumps({})
+
+@APP.route("/channels/list", methods=["GET"])
+def c_list(): 
+    #Request information 
+    data = request.get_json()
+
+    token = data['token']
+
+    if token_check(token) == False:
+        raise InputError
+
+    channel_list = channel_list(token)
+    return dumps(channel_list)
+
 @APP.route("/channels/create", methods=["POST"])
 def c_create():
     #Request information 
@@ -225,7 +298,18 @@ def c_create():
     channel_id = channels_create(token, name, is_public)
     return dumps(channel_id)
 
+@APP.route("/channels/listall", methods=["GET"])
+def c_list_all(): 
+    #Request information 
+    data = request.get_json()
 
+    token = data['token']
+
+    if token_check(token) == False:
+        raise InputError
+
+    channel_list_all = channel_list_all(token)
+    return dumps(channel_list_all)
 
 
 
