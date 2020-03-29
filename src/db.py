@@ -45,7 +45,8 @@ PERMISSIONSTORE = {
 }
 
 STANDUPQUEUE = {
-    "final_string":""
+    'Standup_queues':[]
+    
 }
 
 def get_user_store():
@@ -187,9 +188,9 @@ def login(user):
 
 #Standup helper functions
 def message_send_for_standup(u_id, message):
-    standupqueue_store = get_standup_queue()
+    standupqueue_store = get_standup_queue()['Standup_queues'][len(get_standup_queue()['Standup_queues'])-1]
     user = u_id_check(u_id)
-    return_string = user['handle_str'] + ":" + message + '\n'
+    return_string = user['handle_str'] + ":" + message + ','
     standupqueue_store["final_string"] = standupqueue_store["final_string"] + return_string
 
 ###################################################

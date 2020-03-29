@@ -4,12 +4,12 @@ from flask import Flask, request
 from flask_cors import CORS
 from error import InputError
 from server import defaultHandler
-from channel import channel_messages, channel_invite, channel_details, channel_messages, channel_list, channel_list_all
-from channel import channel_leave, channel_join, channel_addowner, channel_removeowner
+from channel import channel_messages, channel_invite, channel_details, channel_messages, channel_list, channels_list_all, check_if_user_in_channel_member, check_if_channel_is_public
+from channel import channel_leave, channel_join, channel_addowner, channel_removeowner, check_if_user_in_channel_owner, check_if_user_in_channel_owner_uid
 from other import search
-from db import login, make_user, channel_add_all_members, get_channel_store, get_messages_store
-from db import get_user_store, add_user, login, make_user, check_if_user_in_channel_owner, check_if_user_in_channel_owner_uid
-from db import token_check, channel_check, u_id_check, handle_check, email_check, email_dupe_check, check_if_user_in_channel_member, check_if_channel_is_public
+from db import login, make_user, get_channel_store, get_messages_store
+from db import get_user_store, add_user, login, make_user
+from db import token_check, channel_check, u_id_check, handle_check, email_check, email_dupe_check
 from other import users_all
 
 APP = Flask(__name__)
@@ -19,12 +19,9 @@ CORS(APP)
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 APP.register_error_handler(Exception, defaultHandler)
 
-if __name__ == "__main__":
-    APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
-
 
 #APP route
-@APP.route("/channel/invite", method=["POST"])
+@APP.route("/channel/invite", methods=["POST"])
 def c_invite(): 
     # Request information
     data = request.get_json()
@@ -45,9 +42,9 @@ def c_invite():
     
     channel_invite(token, channel_id, u_id)
     return dumps({})
-
+'''
 #APP route
-@APP.route("/channel/details", method=["GET"])
+@APP.route("/channel/details", methods=["GET"])
 def c_details(): 
     # Request information
     data = request.get_json()
@@ -64,7 +61,7 @@ def c_details():
     return dumps({details_channel})
 
 #APP route
-@APP.route("/channel/messages", method=["GET"])
+@APP.route("/channel/messages", methods=["GET"])
 def c_messages(): 
     #Request information 
     data = request.get_json()
@@ -83,7 +80,7 @@ def c_messages():
     return dumps({message_dict})
 
 #APP route
-@APP.route("/channel/leave", method=["POST"])
+@APP.route("/channel/leave", methods=["POST"])
 def c_leave(): 
     #Request information 
     data = request.get_json()
@@ -101,7 +98,7 @@ def c_leave():
     return dumps({})
 
 #APP route
-@APP.route("/channel/join", method=["POST"])
+@APP.route("/channel/join", methods=["POST"])
 def c_join(): 
     #Request information 
 
@@ -121,7 +118,7 @@ def c_join():
     return dumps({})
 
 #APP route
-@APP.route("/channel/addowner", method=["POST"])
+@APP.route("/channel/addowner", methods=["POST"])
 def c_add_owner():
     #Request information 
     data = request.get_json()
@@ -143,7 +140,7 @@ def c_add_owner():
     return dumps({})
 
 #APP route
-@APP.route("/channel/removeowner", method=["POST"])
+@APP.route("/channel/removeowner", methods=["POST"])
 def c_remove_owner():
     #Request information 
     data = request.get_json()
@@ -165,7 +162,7 @@ def c_remove_owner():
     return dumps({})
 
 #APP route
-@APP.route("/channels/list", method=["GET"])
+@APP.route("/channels/list", methods=["GET"])
 def c_list(): 
     #Request information 
     data = request.get_json()
@@ -179,7 +176,7 @@ def c_list():
     return dumps({channel_list})
 
 #APP route
-@APP.route("/channels/listall", method=["GET"])
+@APP.route("/channels/listall", methods=["GET"])
 def c_list_all(): 
     #Request information 
     data = request.get_json()
@@ -193,7 +190,7 @@ def c_list_all():
     return dumps({channel_list_all})
 
 #APP route
-@APP.route("/channels/create", method=["POST"])
+@APP.route("/channels/create", methods=["POST"])
 def c_create():
     #Request information 
     data = request.get_json()
@@ -212,9 +209,11 @@ def c_create():
 
 
     
-
+'''
     
 
+if __name__ == "__main__":
+    APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
     
     
 

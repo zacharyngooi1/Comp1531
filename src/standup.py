@@ -5,19 +5,20 @@ from error import InputError
 from auth import auth_register
 from channel import channels_create
 from error import AccessError, InputError
-
+from db import get_standup_queue
 #This function is named standup_start because the standup/start wrapper will be placed around it.
 #But really all this function does is return the time_finish and check of the token and channel_id are valid.
+#"final_string":""
 def standup_start(token, channel_id, length):
     channel_store = get_channel_store()
     channel = channel_check(channel_id)
     if channel == False:
         raise InputError
     current_moment_in_time = datetime.now()
-    
     if channel['standup']['time_standup_finished'] != None:
         if current_moment_in_time.replace(tzinfo=timezone.utc).timestamp() < channel['standup']['time_standup_finished']:
             raise InputError
+    get_standup_queue()['Standup_queues'].append({"final_string":""})
     channel['standup']['is_standup_active'] = True
     time_finish = length + current_moment_in_time.replace(tzinfo=timezone.utc).timestamp()
     channel['standup']['time_standup_finished'] = time_finish
@@ -31,9 +32,11 @@ def standup_active(token, channel_id):
     if channel == False:
         raise InputError
     current_moment_in_time = datetime.now()
+    print("now:",current_moment_in_time.replace(tzinfo=timezone.utc).timestamp())
+    print("then:",channel['standup']['time_standup_finished'])
     if current_moment_in_time.replace(tzinfo=timezone.utc).timestamp() < channel['standup']['time_standup_finished']:
         return {
-            'is_active' : channel['standup']['is_standup_active'],
+            'is_active' : True,
             'time_finish' : channel['standup']['time_standup_finished']
         }
     return {
@@ -51,7 +54,7 @@ def standup_send(token, channel_id, message):
         raise AccessError
     if len(message) > 1000:
         raise InputError
-    if channel['standup']['is_standup_active'] == False:
+    if standup_active(token,channel_id)['is_active'] == False:
         raise InputError
     user = token_check(token)
     if channel['standup']['time_standup_finished'] - datetime.now().replace(tzinfo=timezone.utc).timestamp() > 0:
