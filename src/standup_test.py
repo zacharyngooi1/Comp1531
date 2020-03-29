@@ -1,80 +1,107 @@
-from error import InputError, AccessError
-from standup import standup_start, standup_active, standup_send
 import pytest
+from error import InputError, AccessError
 from auth import auth_register
-from channel import channels_create
-from datetime import time, datetime, timezone
+from channel import channels_create, channel_invite
+from standup import standup_start, standup_active, standup_send
+from db import get_messages_store, channel_check, get_channel_store, get_standup_queue, token_check
+import datetime
+from datetime import timezone
 import time
-from db import get_standup_queue
-
-hayden_dict = auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
+#Assumptions
+#All the inputs are valid
+hayden_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
 chan_id = channels_create(hayden_dict['token'], 'Hayden', True)
-rob_dict = auth_register('rob@gamil.com', 'password123', 'Rob', 'Everest')
-second_chan_id = channels_create(rob_dict['token'], 'Rob', True)
+rob_dict = auth_register("rob@gmail.com", "paswword123", "Rob", "Ever")
+gary_dict = auth_register("gary@gmail.com", "bary1234", "gary", "bary")
+channel_invite(hayden_dict['token'], chan_id["channel_id"], gary_dict["u_id"])
+
+hayden_full_dict = token_check(hayden_dict['token'])
+gary_full_dict = token_check(gary_dict['token'])
+print(hayden_dict)
+#standup_start(hayden_dict['token'], 1, 10) #invalid channel id
+
+def test_standup_start_invalid_InputError1():
+    with pytest.raises(InputError):
+        standup_start(hayden_dict['token'], 1, 10) #invalid channel id
 
 time_length = 3
 
+
+standup_start(hayden_dict['token'], chan_id['channel_id'], time_length )
+channel = channel_check(chan_id['channel_id'])
+
+final = int(time_length + datetime.datetime.now().replace(tzinfo=timezone.utc).timestamp())
 def test_standup_start():
-    final = int(time_length + datetime.now().replace(tzinfo=timezone.utc).timestamp())
-    time_finished = standup_start(hayden_dict['token'], chan_id['channel_id'], time_length)
-    assert int(time_finished["time_finish"]) == final
+    assert int(channel['standup']['time_standup_finished']) == final
 
-"""#Test if standup/start works normally
-def test_standup_start():
-    standup_started = standup_start(hayden_dict['token'], chan_id['channel_id'], 2)
-    time_finish = standup_started["time_finish"]
-    time.sleep(10)
-    # The time returned must be less than current time by a really small amount
-    time_now = datetime.now().replace(tzinfo=timezone.utc).timestamp()
-    assert time_finish <= time_now"""
 
-def test_standup_start_wrong_channel_id():
+
+def test_standup_start_invalid_InputError2():
     with pytest.raises(InputError):
-        standup_start(hayden_dict['token'], 8, time_length)
+        standup_start(hayden_dict['token'], chan_id['channel_id'], time_length )
 
-def test_standup_start_active_standup():
-    standup_started = standup_start(hayden_dict['token'], chan_id['channel_id'], time_length)
+
+
+def test_standup_active_invalid_InputError1():
     with pytest.raises(InputError):
-        standup_started = standup_start(hayden_dict['token'], chan_id['channel_id'], time_length)
+        standup_active(hayden_dict['token'], 1) #invalid channel id
 
-#Test if standup/active works normally
+
+#print(standup_info)
+
+#print(datetime.datetime.now().replace(tzinfo=timezone.utc).timestamp())
 def test_standup_active():
-    standup_started = standup_start(hayden_dict['token'], chan_id['channel_id'], time_length)
-    results_for_standup_active = standup_active(hayden['token'], chan_id['channel_id'])
-    assert results_for_standup_active["is_active"] == True
-    time.sleep(10)
-    time_now = datetime.now().replace(tzinfo=timezone.utc).timestamp()
-    assert time_finish <= time_now
+    
+    standup_info = standup_active(hayden_dict['token'], chan_id['channel_id'] )
 
-def test_standup_active_wrong_channel_id():
-    standup_started = standup_start(hayden_dict['token'], chan_id['channel_id'], time_length)
+
+    assert standup_info['is_active'] == True
+    assert int(standup_info['time_finish']) == final
+    
+
+
+
+def test_standup_send_invalid_InputError1():
+    #time.sleep(time_length)
     with pytest.raises(InputError):
-        standup_active(hayden_dict['token'], 8)
+        standup_send(hayden_dict['token'], 1, "Hey wssup helo") #invalid channel id
 
-#Testing if standup/send works normally
+
+def test_standup_send_invalid_InputError2():
+    #time.sleep(time_length)
+    with pytest.raises(InputError):
+        standup_send(hayden_dict['token'], chan_id['channel_id'], "1"*1001) #invalid channel id
+
+
 def test_standup_send():
-    standup_started = standup_start(rob_dict['token'], second_chan_id['channel_id'], time_length)
-    standup_send(rob_dict['token'], second_chan_id['channel_id'], "Hayden")
-    standup_send(rob_dict['token'], second_chan_id['channel_id'], "Smith")
-    standup_send(rob_dict['token'], second_chan_id['channel_id'], "Rob")
-    standup_queue_store = get_standup_queue()
-    assert standup_queue_store['final_string'] == 'haydensmith24200:Hayden\nhaydensmith24200:Smith\nhaydensmith24200:Rob\n'
+    
+    standup_send(hayden_dict['token'], chan_id['channel_id'], "message 1 ")
+    standup_send(hayden_dict['token'], chan_id['channel_id'], "message 2")
+    print(get_standup_queue())
+    assert get_standup_queue()['Standup_queues'][0]['final_string'] ==  hayden_full_dict['handle_str'] + ':message 1 ,'+hayden_full_dict['handle_str'] +':message 2,'
 
-def test_standup_send_wrong_channel_id():
-    standup_started = standup_start(hayden_dict['token'], chan_id['channel_id'], time_length)
-    with pytest.raises(InputError):
-        standup_send(hayden_dict['token'], 8, "Hahahaha")
+    time.sleep(time_length)
+    standup_start(hayden_dict['token'], chan_id['channel_id'], time_length )
+    standup_send(hayden_dict['token'], chan_id['channel_id'], "second time babyyy ")
+    standup_send(gary_dict['token'], chan_id['channel_id'], "Does this work")
+    standup_send(hayden_dict['token'], chan_id['channel_id'], "ofc it does")
 
-def test_standup_send_large_message():
-    standup_started = standup_start(hayden_dict['token'], chan_id['channel_id'], time_length)
-    with pytest.raises(InputError):
-        standup_send(hayden_dict['token'], chan_id['channel_id'], "Hahahaha"*100000000)
+    assert get_standup_queue()['Standup_queues'][1]['final_string'] ==  hayden_full_dict['handle_str'] + ':second time babyyy ,'+gary_full_dict['handle_str'] +':Does this work,' + hayden_full_dict['handle_str'] + ':ofc it does,'
 
-def test_standup_send_no_active_channel():
-    with pytest.raises(InputError):
-        standup_send(hayden_dict['token'], second_chan_id['channel_id'], "Hahahaha")
+#standup_send(hayden_dict['token'], chan_id['channel_id'], "message 1 ")
+#standup_send(hayden_dict['token'], chan_id['channel_id'], "message 2")
+#print(get_standup_queue())
 
-def test_standup_send_unauthorised_user():
-    standup_started = standup_start(hayden_dict['token'], chan_id['channel_id'], time_length)
+
+def test_standup_send_invalid_AccessError1():
+    #time.sleep(time_length)
     with pytest.raises(AccessError):
-        standup_send(rob_dict['token'], chan_id['channel_id'], "Hahahaha")
+        standup_send(rob_dict['token'], chan_id['channel_id'], "Hey wassup") #invalid channel id
+
+
+def test_standup_send_invalid_InputError3():
+    time.sleep(time_length)
+    with pytest.raises(InputError):
+        standup_send(hayden_dict['token'], chan_id['channel_id'], "Hey wassup") #invalid channel id
+
+
