@@ -72,62 +72,69 @@ def test_auth_invalid():
 
 
     #It raises the correct error but when i put inputerror into the .raises() it still fails
-    with pytest.raises(BadRequest):
+    with pytest.raises(requests.exceptions.HTTPError):
+
         r = requests.post(f"{BASE_URL}/auth/register", json={
         'email': 'zacharyngooi@hotmail.com',
         'password': 'password123',
         'name_first' : 'haydennn',
         'name_last' : 'smithh',
-        })
+        }).raise_for_status()
+
         r = requests.post(f"{BASE_URL}/auth/register", json={
         'email': 'zacharyngooihaicom',
         'password': 'password12',
         'name_first' : 'haydenn',
         'name_last' : 'smmith',
-        })
+        }).raise_for_status()
+        
         r = requests.post(f"{BASE_URL}/auth/register", json={
         'email': 'zachary@hotmail.com',
         'password': 'pass',
         'name_first' : 'hayden12',
         'name_last' : 'smithhh',
-        })
+        }).raise_for_status()
+
         r = requests.post(f"{BASE_URL}/auth/register", json={
         'email': 'kelly@hotmail.com',
         'password': 'password3884',
         'name_first' : '',
         'name_last' : 'smithhh',
-        })
+        }).raise_for_status()
+
         r = requests.post(f"{BASE_URL}/auth/register", json={
         'email': 'john@hotmail.com',
         'password': 'password8934',
         'name_first' : 'hayden12hayden12hayden12hayden12hayden12hayden12hayden12hayden12hayden12hayden12hayden12hayden12hayden12hayden12hayden12hayden12hayden12hayden12hayden12hayden12hayden12',
         'name_last' : 'smithhh',
-        })
+        }).raise_for_status()
+
         r = requests.post(f"{BASE_URL}/auth/register", json={
         'email': 'kelly12@hotmail.com',
         'password': 'password74',
         'name_first' : 'hayden12',
         'name_last' : '',
-        })
+        }).raise_for_status()
+        
         r = requests.post(f"{BASE_URL}/auth/register", json={
         'email': 'joh21n@hotmail.com',
         'password': 'password43',
         'name_first' : 'hayden12',
         'name_last' : 'smithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhh',
-        })
+        }).raise_for_status()
 
         r = requests.post(f"{BASE_URL}/auth/login", json={
         'email': 'zachngooiotmail.com',
         'password': 'password',
-        })
+        }).raise_for_status()
 
         r = requests.post(f"{BASE_URL}/auth/login", json={
         'email': 'kelly@hotmail.com',
         'password': 'password',
-        })
+        }).raise_for_status()
 
         r = requests.post(f"{BASE_URL}/auth/login", json={
         'email': 'zacharyngooi@hotmail.com',
         'password': 'password1234',
-        })
+        }).raise_for_status()
 
