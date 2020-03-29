@@ -213,25 +213,6 @@ def search_message():
 ###############################################################
 # CHANNEL FLASK FUNCTIONS
 ###############################################################
-@APP.route("/channel/join", methods=["POST"])
-def c_join(): 
-    #Request information 
-
-    data = request.get_json()
-
-    channel_id = int(data["channel_id"])
-    token = data["token"]
-
-    if channel_check(channel_id) == None:
-        raise InputError
-
-    if (check_if_channel_is_public(channel_id) == True and 
-    check_if_user_in_channel_owner(token, channel_id) == False):
-        raise AccessError
-
-    channel_join(token, channel_id)
-    return dumps({})
-
 
 @APP.route("/channels/create", methods=["POST"])
 def c_create():
@@ -288,6 +269,50 @@ def c_removeowner():
     
     return dumps(out)
     #return 1
+
+@APP.route("/channel/details", methods=["GET"])
+def c_details():
+    
+    token = request.args.get('token')
+    channel_id = int(request.args.get('channel_id'))
+    print(token)
+    return_dict = channel_details(token, channel_id)
+    print(return_dict)
+    return dumps(return_dict)
+    #return 1
+
+@APP.route("/channel/list", methods=["GET"])
+def c_list():
+    
+    token = request.args.get('token')
+    return_dict = channel_list(token)
+    print(return_dict)
+    return dumps(return_dict)
+    #return 1
+
+@APP.route("/channels/list_all", methods=["GET"])
+def c_listall():
+    
+    token = request.args.get('token')
+    return_dict = channels_list_all(token)
+    print(return_dict)
+    return dumps(return_dict)
+    #return 1
+
+@APP.route("/channel/messages", methods=["GET"])
+def c_messages():
+    
+    #token = request.args.get('token')
+    #channel_id = int(request.args.get('channel_id'))
+    #start = int(request.args.get('start'))
+    token = request.args.get('token')
+    ch_id = int(request.args.get('channel_id'))
+    start = int(request.args.get('start'))
+    return_dict = channel_messages(token, ch_id,start)
+    print(return_dict)
+    return dumps(return_dict)
+    #return 1
+
 
 ##############################################################
 # MESSAGE FLASK FUNCTIONS
