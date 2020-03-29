@@ -3,9 +3,13 @@ import requests
 import urllib
 import pytest
 from db import get_user_store, get_messages_store, get_channel_store
-from error import InputError, AccessError, NameException, KeyError
+from error import AccessError, NameException, KeyError
+from werkzeug.exceptions import BadRequest, HTTPException
+import warnings
 
-BASE_URL = 'http://127.0.0.1:53251'
+warnings.filterwarnings("ignore", category=DeprecationWarning) 
+
+BASE_URL = 'http://127.0.0.1:53250'
 
 
 
@@ -13,6 +17,51 @@ def test_auth():
 
     requests.get(f"{BASE_URL}/reset")
 
+    r = requests.post(f"{BASE_URL}/auth/register", json={
+    'email': 'zacharyngooi@hotmail.com',
+    'password': 'password',
+    'name_first' : 'hayden',
+    'name_last' : 'smith',
+    })
+    payload = r.json()
+    store = get_user_store()
+    for x in store['users']:
+        if x['email'] == 'zacharyngooi@hotmail.com':
+            token = x['token']
+            id = x['id']
+            assert payload['u_id'] == id
+            assert payload['token'] == token
+############################################################
+    #storing data
+    test_token = payload['token']
+    test_uid = payload['u_id']
+#########################################################
+    r = requests.post(f"{BASE_URL}/auth/logout", json={
+        'token': test_token
+    })
+    payload = r.json()
+    assert payload['is_success'] == True
+##########################################################################
+    r = requests.post(f"{BASE_URL}/auth/login", json={
+    'email': 'zacharyngooi@hotmail.com',
+    'password': 'password',
+    })
+
+    payload = r.json()
+
+    store = get_user_store()
+    for x in store['users']:
+        if x['email'] == 'zacharyngooi@hotmail.com':
+            token = x['token']
+            assert payload['u_id'] == test_uid
+            assert payload['token'] == token
+#########################################################
+
+        
+
+def test_auth_invalid():
+     
+    requests.get(f"{BASE_URL}/reset")
 
     r = requests.post(f"{BASE_URL}/auth/register", json={
     'email': 'zacharyngooi@hotmail.com',
@@ -21,12 +70,9 @@ def test_auth():
     'name_last' : 'smith',
     })
 
-    payload = r.json()
-    assert payload['u_id'] != None
-    assert payload['token'] != None
 
     #It raises the correct error but when i put inputerror into the .raises() it still fails
-    with pytest.raises():
+    with pytest.raises(BadRequest):
         r = requests.post(f"{BASE_URL}/auth/register", json={
         'email': 'zacharyngooi@hotmail.com',
         'password': 'password123',
@@ -70,13 +116,18 @@ def test_auth():
         'name_last' : 'smithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhhsmithhh',
         })
 
+        r = requests.post(f"{BASE_URL}/auth/login", json={
+        'email': 'zachngooiotmail.com',
+        'password': 'password',
+        })
 
-    r = requests.post(f"{BASE_URL}/auth/login", json={
-    'email': 'zacharyngooi@hotmail.com',
-    'password': 'password',
-    })
+        r = requests.post(f"{BASE_URL}/auth/login", json={
+        'email': 'kelly@hotmail.com',
+        'password': 'password',
+        })
 
-    payload = r.json()
-    assert payload['u_id'] != None
-    assert payload['token'] != None
+        r = requests.post(f"{BASE_URL}/auth/login", json={
+        'email': 'zacharyngooi@hotmail.com',
+        'password': 'password1234',
+        })
 

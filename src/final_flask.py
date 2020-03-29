@@ -30,8 +30,8 @@ from datetime import timezone
 APP = Flask(__name__)
 CORS(APP)
 
-
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
+APP.debug = True
 APP.register_error_handler(Exception, defaultHandler)
 
 ###############################################################
@@ -89,7 +89,7 @@ def login_user():
     if not email_check(email):
         raise InputError(description="Email not valid")
     if not email_dupe_check(email):
-        raise InputError(description="Email already used")
+        raise InputError(description="Email not found")
     if not password_check(password):
         raise InputError(description="Password is wrong")
 
@@ -452,4 +452,4 @@ def standup_send_flask():
 #DONT TOUCH ANYTHING BELOW THIS LINE OR ZACH WILL BEAT U UP
 ###############################################################
 if __name__ == "__main__":
-    APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 53251))
+    APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 53250))
