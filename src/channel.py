@@ -1,4 +1,3 @@
-
 import jwt
 from db import get_user_store, add_user, login, make_user
 from db import login, make_user, get_channel_store, get_messages_store
