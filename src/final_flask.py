@@ -212,6 +212,25 @@ def search_message():
 # CHANNEL FLASK FUNCTIONS
 ###############################################################
 
+@APP.route("/channel/join", methods=["POST"])
+def c_join(): 
+    #Request information 
+
+    data = request.get_json()
+
+    channel_id = int(data["channel_id"])
+    token = data["token"]
+
+    if channel_check(channel_id) == None:
+        raise InputError
+
+    if (check_if_channel_is_public(channel_id) == True and 
+    check_if_user_in_channel_owner(token, channel_id) == False):
+        raise AccessError
+
+    channel_join(token, channel_id)
+    return dumps({})
+
 @APP.route("/channels/create", methods=["POST"])
 def c_create():
     
