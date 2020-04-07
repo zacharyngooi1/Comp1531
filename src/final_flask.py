@@ -123,8 +123,8 @@ def logout_user():
 @APP.route("/user/profile", methods=["GET"])
 def get_all():
     # Get current data inside store
-    token = request.args.get("token")
-    u_id = request.args.get("u_id")
+    token = request.get("token")
+    u_id = request.get("u_id")
     profile = user_profile(token, u_id)
     print(profile)
     return dumps({
