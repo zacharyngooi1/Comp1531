@@ -212,7 +212,7 @@ def search_message():
 # CHANNEL FLASK FUNCTIONS
 ###############################################################
 
-@APP.route("/channel/join", methods=["POST"])
+'''@APP.route("/channel/join", methods=["POST"])
 def c_join(): 
     #Request information 
 
@@ -229,7 +229,7 @@ def c_join():
         raise AccessError
 
     channel_join(token, channel_id)
-    return dumps({})
+    return dumps({})'''
 
 @APP.route("/channels/create", methods=["POST"])
 def c_create():
@@ -246,7 +246,7 @@ def c_create():
     return dumps(channel_id)
     #return 1
 
-@APP.route("/channel/invite", methods=["POST"])
+'''@APP.route("/channel/invite", methods=["POST"])
 def c_invite():
     
     data = request.get_json()
@@ -255,9 +255,8 @@ def c_invite():
     channel_id = int(data['channel_id'])
     u_id = int(data['u_id'])
 
-<<<<<<< HEAD
 new_user = auth_register("kellykajdf@hdfa.com", "Kejgkjs", "kelly", "wolfe")
-new_chl = channels_create(new_user['token'], "name", True)
+new_chl = channels_create(new_user['token'], "name", True)'''
 
 #APP route
 @APP.route("/channel/invite", methods=["POST"])
@@ -282,7 +281,7 @@ def c_invite():
     channel_invite(token, channel_id, u_id)
     return dumps({})
 
-#APP route
+'''#APP route
 @APP.route("/channel/details/token=new_user['token']&channel_id=new_chl['channel_id']", methods=["GET"])
 def c_details(): 
     # Request information
@@ -297,8 +296,8 @@ def c_details():
         raise AccessError
 
     details_channel = channel_details(token, channel_id)
-    return dumps({details_channel})
-
+    return dumps({details_channel})'''
+'''
 #APP route
 @APP.route("/channel/messages", methods=["GET"])
 def c_messages(): 
@@ -315,7 +314,7 @@ def c_messages():
 
     message_dict = channel_messages(token, channel_id, start)
     return dumps({message_dict})
-
+'''
 #APP route
 @APP.route("/channel/leave", methods=["POST"])
 def c_leave(): 
@@ -400,7 +399,7 @@ def c_remove_owner():
 
     channel_removeowner(token, channel_id, u_id)
     return dumps({})
-
+'''
 #APP route
 @APP.route("/channels/list", methods=["GET"])
 def c_list(): 
@@ -425,16 +424,6 @@ def c_list_all():
 
     channel_list_all = channel_list_all(token)
     return dumps({channel_list_all})
-=======
-    out = channel_invite(token, channel_id, u_id)
-    return dumps(out)
-    #return 1
-
-@APP.route("/channel/addowner", methods=["POST"])
-def c_addowner():
-    
-    data = request.get_json()
->>>>>>> c8c95b55506c27ce47e89488650615f605d843e3
 
     token = data['token']
     channel_id = int(data['channel_id'])
@@ -443,7 +432,7 @@ def c_addowner():
     out = channel_addowner(token, channel_id, u_id)
     
     return dumps(out)
-    #return 1
+    #return 1'''
 
 @APP.route("/channel/removeowner", methods=["POST"])
 def c_removeowner():
