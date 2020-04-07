@@ -8,6 +8,8 @@ from random import randrange
 
 def channel_invite(token, channel_id, u_id):
 
+    ''' Invites a user to join a channel that they are not already in.'''
+
     if channel_check(channel_id) == False:
         raise InputError
 
@@ -28,6 +30,8 @@ def channel_invite(token, channel_id, u_id):
     return {} 
 
 def channel_details(token, channel_id):
+    '''Provides user with the basic information of a channel, given channel id, if 
+    user is part of channel.'''
     if channel_check(channel_id) == False:
         raise InputError
     if check_if_user_in_channel_member(token, channel_id) == False:
@@ -42,7 +46,7 @@ def channel_details(token, channel_id):
     return ch_dict
 
 def channel_messages(token, channel_id, start):
-
+    '''Returns a range of 50 messages in a channel, if user is part of that channel.'''
     if channel_check(channel_id) == False:
         raise InputError
 
@@ -85,6 +89,8 @@ def channel_messages(token, channel_id, start):
     return final_dict
 
 def channel_leave(token, channel_id):
+    '''Removes member from a channel.'''
+
     if channel_check(channel_id) == False:
         raise InputError
 
@@ -104,7 +110,7 @@ def channel_leave(token, channel_id):
 
 
 def channel_join(token, channel_id):
-
+    '''Adds a member to a channel.'''
     if channel_check(channel_id) == False:
         raise InputError
 
@@ -127,6 +133,7 @@ def channel_join(token, channel_id):
 
 
 def channel_addowner(token, channel_id, u_id):
+    '''Adds someone as owner to a channel.'''
     if channel_check(channel_id) == False:
         raise InputError
 
@@ -161,6 +168,7 @@ def channel_addowner(token, channel_id, u_id):
     }
 
 def channel_removeowner(token, channel_id, u_id):
+    '''Removes an owner from channel.'''
     if channel_check(channel_id) == False:
         raise InputError
 
@@ -190,7 +198,7 @@ def channel_removeowner(token, channel_id, u_id):
     return {}
 
 def channels_create(token, name, is_public):
-
+    '''Creates a new channel.'''
     if len(name) > 20:
         raise InputError
 
@@ -221,6 +229,7 @@ def channels_create(token, name, is_public):
     }
 
 def channels_list_all(token):
+    '''Returns all channels.'''
     if token_check(token) == False:
         raise InputError
     channel_store = get_channel_store()
@@ -230,6 +239,7 @@ def channels_list_all(token):
     return empty_list
 
 def channel_list(token):
+    '''Lists channels a user is apart of.'''
     if token_check(token) == False:
         raise InputError
     channel_store = get_channel_store()
