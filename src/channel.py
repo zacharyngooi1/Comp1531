@@ -1,8 +1,7 @@
-
 import jwt
 from db import get_user_store, add_user, login, make_user
 from db import login, make_user, get_channel_store, get_messages_store
-from db import token_check, channel_check, u_id_check
+from db import token_check, channel_check, u_id_check, member_channel_check
 from error import InputError, AccessError
 from random import randrange
 
@@ -148,8 +147,13 @@ def channel_addowner(token, channel_id, u_id):
 
     for channel in channel_store["Channels"]:
         if channel["channel_id"] == channel_id:
+            if member_channel_check(user['token'], channel_id) == False:
+                channel["all_members"].append({"u_id": user["u_id"],
+             "name_first": user['name_first'], "name_last" : user["name_last"]})
             channel["owner_members"].append({"u_id": user["u_id"],
              "name_first": user['name_first'], "name_last" : user["name_last"]})
+
+            
 
     user['channel_id_owned'].append(channel_id)
     user['channel_id_part'].append(channel_id)
