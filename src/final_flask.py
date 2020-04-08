@@ -212,28 +212,9 @@ def search_message():
 # CHANNEL FLASK FUNCTIONS
 ###############################################################
 
-'''@APP.route("/channel/join", methods=["POST"])
-def c_join(): 
-    #Request information 
-
-    data = request.get_json()
-
-    channel_id = int(data["channel_id"])
-    token = data["token"]
-
-    if channel_check(channel_id) == None:
-        raise InputError
-
-    if (check_if_channel_is_public(channel_id) == True and 
-    check_if_user_in_channel_owner(token, channel_id) == False):
-        raise AccessError
-
-    channel_join(token, channel_id)
-    return dumps({})'''
-
 @APP.route("/channels/create", methods=["POST"])
 def c_create():
-    
+
     data = request.get_json()
 
     token = data['token']
@@ -246,7 +227,7 @@ def c_create():
     return dumps(channel_id)
     #return 1
 
-'''@APP.route("/channel/invite", methods=["POST"])
+@APP.route("/channel/invite", methods=["POST"])
 def c_invite():
     
     data = request.get_json()
@@ -255,66 +236,15 @@ def c_invite():
     channel_id = int(data['channel_id'])
     u_id = int(data['u_id'])
 
-new_user = auth_register("kellykajdf@hdfa.com", "Kejgkjs", "kelly", "wolfe")
-new_chl = channels_create(new_user['token'], "name", True)'''
-
-#APP route
-@APP.route("/channel/invite", methods=["POST"])
-def c_invite(): 
-    # Request information
-    #data = request.get_json()
-
-    token = new_user['token']
-    u_id = new_user['u_id']
-
-    # Validate token first
-    if u_id_check(u_id) == False:
-        raise InputError
-
-    channel_id = new_chl['channel_id']
-    if channel_check(channel_id) == False: 
-        raise InputError
-
-    if check_if_user_in_channel_member(token,channel_id) == True: 
-        raise AccessError
-    
-    channel_invite(token, channel_id, u_id)
-    return dumps({})
-
-'''#APP route
-@APP.route("/channel/details/token=new_user['token']&channel_id=new_chl['channel_id']", methods=["GET"])
-def c_details(): 
-    # Request information
-    token = request.args.get("token")
-    channel_id = int(request.args.get("channel_id"))
-
-
     if channel_check(channel_id) == False: 
         raise InputError
 
     if check_if_user_in_channel_member(token,channel_id) == True: 
         raise AccessError
 
-    details_channel = channel_details(token, channel_id)
-    return dumps({details_channel})'''
-'''
-#APP route
-@APP.route("/channel/messages", methods=["GET"])
-def c_messages(): 
-    #Request information 
-    token = request.args.get("token")
-    channel_id = request.args.get("channel_id")
-    start = request.args.get("start")
+    out = channnel_invite(token, channel_id, u_id)
+    return dumps(out)
 
-    if channel_check(channel_id) == None:
-        raise InputError
-
-    if check_if_user_in_channel_member(token, channel_id) == False:
-        raise AccessError
-
-    message_dict = channel_messages(token, channel_id, start)
-    return dumps({message_dict})
-'''
 #APP route
 @APP.route("/channel/leave", methods=["POST"])
 def c_leave(): 
@@ -378,62 +308,6 @@ def c_add_owner():
     channel_addowner(token, channel_id, u_id)
     return dumps({})
 
-#APP route
-@APP.route("/channel/removeowner", methods=["POST"])
-def c_remove_owner():
-    #Request information 
-    data = request.get_json()
-
-    token = data['token']
-    u_id = data['u_id']
-    channel_id = data['channel_id']
-
-    if channel_check(channel_id) == False:
-        raise InputError
-
-    if check_if_user_in_channel_owner_uid(u_id, channel_id) == False:
-        raise InputError
-
-    if check_if_user_in_channel_owner(token, channel_id) == False:
-        raise AccessError
-
-    channel_removeowner(token, channel_id, u_id)
-    return dumps({})
-'''
-#APP route
-@APP.route("/channels/list", methods=["GET"])
-def c_list(): 
-    #Request information 
-    token = request.args.get("token")
-
-    if token_check(token) == False:
-        raise InputError
-
-    channel_list = channel_list(token)
-    return dumps({channel_list})
-
-#APP route
-@APP.route("/channels/listall", methods=["GET"])
-def c_list_all(): 
-    #Request information 
-    token = request.args.get("token")
-    channel_id = request.args.get("channel_id")
-
-    if token_check(token) == False:
-        raise InputError
-
-    channel_list_all = channel_list_all(token)
-    return dumps({channel_list_all})
-
-    token = data['token']
-    channel_id = int(data['channel_id'])
-    u_id = int(data['u_id'])
-
-    out = channel_addowner(token, channel_id, u_id)
-    
-    return dumps(out)
-    #return 1'''
-
 @APP.route("/channel/removeowner", methods=["POST"])
 def c_removeowner():
     
@@ -443,6 +317,14 @@ def c_removeowner():
     channel_id = int(data['channel_id'])
     u_id = int(data['u_id'])
 
+    if channel_check(channel_id) == False:
+        raise InputError
+
+    if check_if_user_in_channel_owner_uid(u_id, channel_id) == False:
+        raise InputError
+
+    if check_if_user_in_channel_owner(token, channel_id) == False:
+        raise AccessError
     out = channel_removeowner(token, channel_id, u_id)
     
     return dumps(out)
@@ -454,6 +336,11 @@ def c_details():
     token = request.args.get('token')
     channel_id = int(request.args.get('channel_id'))
     print(token)
+    if channel_check(channel_id) == False: 
+        raise InputError
+
+    if check_if_user_in_channel_member(token,channel_id) == True: 
+        raise AccessError
     return_dict = channel_details(token, channel_id)
     print(return_dict)
     return dumps(return_dict)
@@ -463,6 +350,11 @@ def c_details():
 def c_list():
     
     token = request.args.get('token')
+
+
+    if token_check(token) == False:
+        raise InputError
+
     return_dict = channel_list(token)
     print(return_dict)
     return dumps(return_dict)
@@ -470,8 +362,11 @@ def c_list():
 
 @APP.route("/channels/list_all", methods=["GET"])
 def c_listall():
-    
     token = request.args.get('token')
+
+    if token_check(token) == False:
+        raise InputError
+
     return_dict = channels_list_all(token)
     print(return_dict)
     return dumps(return_dict)
@@ -486,6 +381,13 @@ def c_messages():
     token = request.args.get('token')
     ch_id = int(request.args.get('channel_id'))
     start = int(request.args.get('start'))
+
+    if channel_check(ch_id) == None:
+        raise InputError
+
+    if check_if_user_in_channel_member(token, ch_id) == False:
+        raise AccessError
+
     return_dict = channel_messages(token, ch_id,start)
     print(return_dict)
     return dumps(return_dict)
