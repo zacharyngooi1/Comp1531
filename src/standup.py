@@ -13,8 +13,14 @@ def standup_start(token, channel_id, length):
     """ This function begins a standup.
 
     Parameters:
-    token (str): a token
+        token (str): a token which identifies a session of a user
+        channel_id (int): an integer which specifies the id of a channel
+        length (int) : an integer which specifies the length of the standup
 
+    Returns:
+        {dictionary}: a dictionary containing a float with the time that the standup
+        is going to finish at.
+    
     """
     channel_store = get_channel_store()
     channel = channel_check(channel_id)
@@ -33,6 +39,19 @@ def standup_start(token, channel_id, length):
     }
 
 def standup_active(token, channel_id):
+    """ Returns whether a channel with channel_id is active and
+    if so, what time the standup finishes
+
+    Parameters:
+        token (str): a token which identifies a session of a user
+        channel_id (int): an integer which specifies the id of a channel
+    
+    Returns:
+        (dictionary): a dictionary containing whether a standup is active and
+        what time the standup finishes. If the standup is not active, this returns
+        False and time finish as none.
+
+    """
     channel_store = get_channel_store()
     channel = channel_check(channel_id)
     if channel == False:
@@ -52,6 +71,16 @@ def standup_active(token, channel_id):
     
 
 def standup_send(token, channel_id, message):
+    """ Sending a single standup message
+    
+    Parameters:
+        token (str): a token which identifies a session of a user
+        channel_id (int): an integer which specifies the id of a channel
+        message (str): A message given by a certain channel member during the standup
+    
+    Returns:
+        (dictionary): An empty dictionary is returned.
+    """
     channel_store = get_channel_store()
     channel = channel_check(channel_id)
     if channel == False:
