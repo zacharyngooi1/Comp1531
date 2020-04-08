@@ -123,12 +123,15 @@ def logout_user():
 @APP.route("/user/profile", methods=["GET"])
 def get_all():
     # Get current data inside store
-    token = request.get("token")
-    u_id = request.get("u_id")
+    token = request.args.get("token")
+    u_id = request.args.get("u_id")
+    print(token)
+    print(u_id)
+>>>>>>> master
     profile = user_profile(token, u_id)
     print(profile)
     return dumps({
-        profile
+        'user':profile
     })
 
 @APP.route("/user/profile/setname", methods=["PUT"])
@@ -214,7 +217,7 @@ def search_message():
 
 @APP.route("/channels/create", methods=["POST"])
 def c_create():
-    
+
     data = request.get_json()
 
     token = data['token']
@@ -236,23 +239,77 @@ def c_invite():
     channel_id = int(data['channel_id'])
     u_id = int(data['u_id'])
 
-    out = channel_invite(token, channel_id, u_id)
-    return dumps(out)
-    #return 1
+    if channel_check(channel_id) == False: 
+        raise InputError
 
+    if check_if_user_in_channel_member(token,channel_id) == True: 
+        raise AccessError
+
+    out = channnel_invite(token, channel_id, u_id)
+    return dumps(out)
+
+#APP route
+@APP.route("/channel/leave", methods=["POST"])
+def c_leave(): 
+    #Request information 
+    data = request.get_json()
+
+    channel_id = data['channel_id']
+    token = data['token']
+
+    #channel_id = new_chl['channel_id']
+    #token = new_user['token']
+
+    if channel_check(channel_id) == None:
+        raise InputError
+
+    if check_if_user_in_channel_member(token, channel_id) == False:
+        raise AccessError
+
+    channel_leave(token, channel_id)
+    return dumps({})
+
+#APP route
+@APP.route("/channel/join", methods=["POST"])
+def c_join(): 
+    #Request information 
+
+    data = request.get_json()
+
+    channel_id = data['channel_id']
+    token = data['token']
+
+    if channel_check(channel_id) == None:
+        raise InputError
+
+    if (check_if_channel_is_public(channel_id) == True and 
+    check_if_user_in_channel_owner(token, channel_id) == False):
+        raise AccessError
+
+    channel_join(token, channel_id)
+    return dumps({})
+
+#APP route
 @APP.route("/channel/addowner", methods=["POST"])
-def c_addowner():
-    
+def c_add_owner():
+    #Request information 
     data = request.get_json()
 
     token = data['token']
-    channel_id = int(data['channel_id'])
-    u_id = int(data['u_id'])
+    u_id = data['u_id']
+    channel_id = data['channel_id']
 
-    out = channel_addowner(token, channel_id, u_id)
-    
-    return dumps(out)
-    #return 1
+    if channel_check(channel_id) == False:
+        raise InputError
+
+    if check_if_user_in_channel_owner_uid(u_id, channel_id) == True:
+        raise InputError
+
+    if check_if_user_in_channel_owner(token, channel_id) == False:
+        raise AccessError
+
+    channel_addowner(token, channel_id, u_id)
+    return dumps({})
 
 @APP.route("/channel/removeowner", methods=["POST"])
 def c_removeowner():
@@ -263,6 +320,14 @@ def c_removeowner():
     channel_id = int(data['channel_id'])
     u_id = int(data['u_id'])
 
+    if channel_check(channel_id) == False:
+        raise InputError
+
+    if check_if_user_in_channel_owner_uid(u_id, channel_id) == False:
+        raise InputError
+
+    if check_if_user_in_channel_owner(token, channel_id) == False:
+        raise AccessError
     out = channel_removeowner(token, channel_id, u_id)
     
     return dumps(out)
@@ -274,6 +339,11 @@ def c_details():
     token = request.args.get('token')
     channel_id = int(request.args.get('channel_id'))
     print(token)
+    if channel_check(channel_id) == False: 
+        raise InputError
+
+    if check_if_user_in_channel_member(token,channel_id) == True: 
+        raise AccessError
     return_dict = channel_details(token, channel_id)
     print(return_dict)
     return dumps(return_dict)
@@ -283,6 +353,11 @@ def c_details():
 def c_list():
     
     token = request.args.get('token')
+
+
+    if token_check(token) == False:
+        raise InputError
+
     return_dict = channel_list(token)
     print(return_dict)
     return dumps(return_dict)
@@ -290,8 +365,11 @@ def c_list():
 
 @APP.route("/channels/list_all", methods=["GET"])
 def c_listall():
-    
     token = request.args.get('token')
+
+    if token_check(token) == False:
+        raise InputError
+
     return_dict = channels_list_all(token)
     print(return_dict)
     return dumps(return_dict)
@@ -306,6 +384,13 @@ def c_messages():
     token = request.args.get('token')
     ch_id = int(request.args.get('channel_id'))
     start = int(request.args.get('start'))
+
+    if channel_check(ch_id) == None:
+        raise InputError
+
+    if check_if_user_in_channel_member(token, ch_id) == False:
+        raise AccessError
+
     return_dict = channel_messages(token, ch_id,start)
     print(return_dict)
     return dumps(return_dict)
@@ -452,4 +537,4 @@ def standup_send_flask():
 #DONT TOUCH ANYTHING BELOW THIS LINE OR ZACH WILL BEAT U UP
 ###############################################################
 if __name__ == "__main__":
-    APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 53250))
+    APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 53255))

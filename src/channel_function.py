@@ -109,6 +109,8 @@ def c_details():
 @APP.route("/channel/list", methods=["GET"])
 def c_list():
     
+<<<<<<< HEAD
+=======
     token = request.args.get('token')
     return_dict = channel_list(token)
     print(return_dict)
@@ -139,6 +141,7 @@ def c_messages():
     #return 1
 
 
+>>>>>>> c8c95b55506c27ce47e89488650615f605d843e3
 if __name__ == "__main__":
     APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
     

@@ -198,9 +198,11 @@ def message_send_for_standup(u_id, message):
 ###################################################
 
 def u_id_check(u_id):
+    print(u_id)
     data = get_user_store()
     for user in data['users']:
-        if user['u_id'] == u_id:
+        print(user['u_id'])
+        if int(user['u_id']) == int(u_id):
             return user
     return False
     
