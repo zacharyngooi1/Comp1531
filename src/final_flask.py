@@ -127,7 +127,6 @@ def get_all():
     u_id = request.args.get("u_id")
     print(token)
     print(u_id)
->>>>>>> master
     profile = user_profile(token, u_id)
     print(profile)
     return dumps({
