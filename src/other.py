@@ -22,8 +22,6 @@ def users_all(token):
         user_dict['users'].append({'u_id': indiv_user['u_id'], 'email':indiv_user['email'],
         'name_first': indiv_user['name_first'], 'name_last': indiv_user['name_last'], 
         'handle_str': indiv_user['handle_str'] })
-
-    print(user_dict)
     return user_dict
 
 def search(token, query_str):
