@@ -52,3 +52,31 @@ def test_user_profile():
     }
 
 
+
+def test_user_profile_invalid():
+    # Reset workspace
+    requests.get(f"{BASE_URL}/reset")
+     
+    # Create User 
+    r = requests.post(f"{BASE_URL}/auth/register", json={
+    'email': 'zacharyngooi@hotmail.com',
+    'password': 'password',
+    'name_first' : 'bracket',
+    'name_last' : 'smith',
+    })
+
+    payload = r.json()
+    
+    # Storing data
+     
+    test_token = payload['token']
+    # Store u_id as no-valid u_id
+    test_uid = 12345
+    
+     query = urllib.parse.urlencode({
+        'token': test_token,
+        'u_id': test_uid,
+    })
+    
+    with pytest.raises(requests.exceptions.HTTPError):
+        payload = json.load(urllib.request.urlopen(f"{BASE_URL}/user/profile?{query}")).raise_for_status()

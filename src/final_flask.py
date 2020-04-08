@@ -125,6 +125,11 @@ def get_all():
     # Get current data inside store
     token = request.args.get("token")
     u_id = request.args.get("u_id")
+    
+    # Check for valid u_id
+    if not u_id_check(u_id):
+        raise InputError(description="u_id is not valid")
+        
     profile = user_profile(token, u_id)
     return dumps({
         'user':profile
