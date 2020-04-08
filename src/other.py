@@ -5,6 +5,7 @@ from db import get_user_store, add_user, login, make_user
 from db import token_check, channel_check, u_id_check
 
 
+#works refer to this for GET functions
 def users_all(token):
 
     if not token_check(token):

@@ -7,9 +7,10 @@ from error import AccessError, NameException, KeyError
 from werkzeug.exceptions import BadRequest, HTTPException
 import warnings
 
+
 warnings.filterwarnings("ignore", category=DeprecationWarning) 
 
-BASE_URL = 'http://127.0.0.1:53250'
+BASE_URL = 'http://127.0.0.1:53255'
 
     
 def test_user_profile():
@@ -30,27 +31,28 @@ def test_user_profile():
     #storing data
     test_token = payload['token']
     test_uid = payload['u_id']
+    print(test_token)
+    print(test_uid)
 
-    test_first_name = 0
-    test_last_name = 0
-    test_handle = 0
-    test_email = 0
 #########################################################
 
     query = urllib.parse.urlencode({
         'token': test_token,
         'u_id': test_uid,
     })
+    
+    payload = json.load(urllib.request.urlopen(f"{BASE_URL}/user/profile?{query}"))
 
-    r = requests.get(f"{BASE_URL}/user/profile?{query}")
+   # requests.get('URL/user/profile', params=query).json()
+    
 
-    payload = r.json()
-    assert payload['email'] == 'zacharyngooi@hotmail.com'
-    #'u_id' : test_uid,
-   # 'email': 'zacharyngooi@hotmail.com',
-   # 'name_first': 'hayden',
-   # 'name_last': 'smith',
-    #'handle_str':'hsmith',
-  #  }
+    print(payload)
+    assert payload == {
+    'u_id' : test_uid,
+    'email': 'zacharyngooi@hotmail.com',
+    'name_first': 'hayden',
+    'name_last': 'smith',
+    'handle_str':'hsmith',
+    }
 
 

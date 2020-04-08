@@ -5,24 +5,27 @@ from db import get_user_store, add_user, login, make_user
 from db import token_check, channel_check, u_id_check, email_check, email_dupe_check, handle_check
 
 def user_profile(token, u_id):
-
     if token_check(token) == False:
         raise InputError
 
     # First we need to assert if the u_id is registered
+    print("hello")
     if u_id_check(u_id) == False:
         raise InputError
 
     # get required user dict
+
     user = u_id_check(u_id)
     # create a dict of what we need
-    user_prof_dict = {}
-    user_prof_dict['u_id'] = user['u_id']
-    user_prof_dict['email'] = user['email']
-    user_prof_dict['name_first'] = user['name_first']
-    user_prof_dict['name_last'] = user['name_last']
-    user_prof_dict['handle_str'] = user['handle_str']
 
+    user_prof_dict = {
+        'u_id': user['u_id'],
+        'email': user['email'],
+        'name_first': user['name_first'],
+        'name_last': user['name_last'],
+        'handle_str': user['handle_str']
+        }
+    print(2)
     return user_prof_dict
 
 def user_profile_setname(token, name_first, name_last):

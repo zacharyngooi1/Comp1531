@@ -125,10 +125,12 @@ def get_all():
     # Get current data inside store
     token = request.args.get("token")
     u_id = request.args.get("u_id")
+    print(token)
+    print(u_id)
     profile = user_profile(token, u_id)
     print(profile)
     return dumps({
-        profile
+        'user':profile
     })
 
 @APP.route("/user/profile/setname", methods=["PUT"])
@@ -632,4 +634,4 @@ def standup_send_flask():
 #DONT TOUCH ANYTHING BELOW THIS LINE OR ZACH WILL BEAT U UP
 ###############################################################
 if __name__ == "__main__":
-    APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 53250))
+    APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 53255))
