@@ -103,7 +103,7 @@ def check_user_in_channel(u_id, channel_id):
     channel = channel_check(channel_id)
     flag = 0
     for member in channel_iter['all_members']: 
-        if member['u_id'] == u_id: 
+        if int(member['u_id']) == int(u_id): 
             flag = 1
     if flag == 1: 
         return True
@@ -242,7 +242,7 @@ def token_check(token):
 def channel_check(channel_id):
     data = get_channel_store()
     for channel in data['Channels']:
-        if channel['channel_id'] == channel_id:
+        if int(channel['channel_id']) == int(channel_id):
             return channel
     return False
 
@@ -259,7 +259,7 @@ def message_check(message_id):
    
     for message in data['Messages']:
         print("data---------->",message_id)
-        if message['message_id'] == message_id:
+        if int(message['message_id']) == int(message_id):
             return message
     return None
 
@@ -273,7 +273,7 @@ def owner_channel_check(token, channel_id):
         raise InputError
 
     for member in channel['owner_members']:     
-        if member['u_id'] == user['u_id']:
+        if int(member['u_id']) == int(user['u_id']):
             return True
     return False
 
@@ -289,7 +289,7 @@ def member_channel_check(token, channel_id):
         raise InputError
 
     for member in channel['all_members']:
-        if member['u_id'] == user['u_id']:
+        if int(member['u_id']) == int(user['u_id']):
             return True
     return False
 
@@ -299,10 +299,10 @@ def react_check(message_id, user_id, react_id):
    
     for message in data['Messages']:
         #print("data---------->",message_id['message_id'])
-        if message['message_id'] == message_id:
+        if int(message['message_id']) == int(message_id):
             for reacts in message['Reacts']:
                 #print('Everything you need------>',reacts)
-                if reacts['u_id'] == user_id and reacts['react_id'] == react_id:
+                if int(reacts['u_id']) == int(user_id) and int(reacts['react_id']) == int(react_id):
                     return True
     return False
     #print("False")

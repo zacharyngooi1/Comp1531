@@ -10,6 +10,12 @@ from db import get_standup_queue
 #But really all this function does is return the time_finish and check of the token and channel_id are valid.
 #"final_string":""
 def standup_start(token, channel_id, length):
+    """ This function begins a standup.
+
+    Parameters:
+    token (str): a token
+
+    """
     channel_store = get_channel_store()
     channel = channel_check(channel_id)
     if channel == False:
