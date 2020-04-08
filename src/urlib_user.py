@@ -20,7 +20,7 @@ def test_user_profile():
     r = requests.post(f"{BASE_URL}/auth/register", json={
     'email': 'zacharyngooi@hotmail.com',
     'password': 'password',
-    'name_first' : 'hayden',
+    'name_first' : 'bracket',
     'name_last' : 'smith',
     })
 
@@ -48,11 +48,13 @@ def test_user_profile():
 
     print(payload)
     assert payload == {
+    'user':{
     'u_id' : test_uid,
     'email': 'zacharyngooi@hotmail.com',
-    'name_first': 'hayden',
+    'name_first': 'bracket',
     'name_last': 'smith',
-    'handle_str':'hsmith',
+    'handle_str':'bsmith',
+    }
     }
 
 
