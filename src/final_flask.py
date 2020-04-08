@@ -41,6 +41,14 @@ APP.register_error_handler(Exception, defaultHandler)
 
 @APP.route("/reset", methods=["GET"])
 def reset():
+    """ This is a flask wrapper for the reset function
+
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): Empty dictionary
+    """
     reset_store()
     return dumps({})
     
@@ -52,7 +60,14 @@ def reset():
 
 @APP.route("/auth/register", methods=["POST"])
 def register():
+    """ This is a flask wrapper for the reset function
 
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): Empty dictionary
+    """
     # Request information
     data = request.get_json()
     email = data["email"]
@@ -83,6 +98,15 @@ def register():
 
 @APP.route("/auth/login", methods=["POST"])
 def login_user():
+    """ This is a flask wrapper for the auth_login function
+
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): A dictionary containing the user id (u_id)
+        and token is returned.
+    """
     data = request.get_json()
     email = data["email"]
     password = data["password"]
@@ -106,6 +130,15 @@ def login_user():
 
 @APP.route("/auth/logout", methods=["POST"])
 def logout_user():
+    """ This is a flask wrapper for the auth_logout function
+
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): A dictionary containing a key called is_success,
+        which indicates whether logout has been successful
+    """
     data = request.get_json()
     token = data["token"]
     result = auth_logout(token)
@@ -122,6 +155,15 @@ def logout_user():
 
 @APP.route("/user/profile", methods=["GET"])
 def get_all():
+    """ This is a flask wrapper for the user_profile function
+
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): A dictionary which contains information
+        about user_id, email, first name, last name and handle
+    """
     # Get current data inside store
     token = request.args.get("token")
     u_id = request.args.get("u_id")
@@ -137,6 +179,14 @@ def get_all():
 
 @APP.route("/user/profile/setname", methods=["PUT"])
 def name_set():
+    """ This is a flask wrapper for the user_profile_setname function
+
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): Empty dictionary
+    """
     data = request.get_json()
     token = data['token']
     name_first = data['name_first']
@@ -153,6 +203,14 @@ def name_set():
 
 @APP.route("/user/profile/setemail", methods=["PUT"])
 def email_set():
+    """ This is a flask wrapper for the user_profile_setemail function
+
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): Empty dictionary
+    """
     data = request.get_json()
     token = data['token']
     email = data['email']
@@ -169,6 +227,14 @@ def email_set():
 
 @APP.route("/user/profile/sethandle", methods=["PUT"])
 def user_handle():
+    """ This is a flask wrapper for the user/profile/sethandle function
+
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): Empty dictionary
+    """
     # Request information
     data = request.get_json()
     token = data['token']
@@ -189,6 +255,15 @@ def user_handle():
 
 @APP.route("/users/all", methods=["GET"])
 def get_all_users():
+    """ This is a flask wrapper for the users_all function
+
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): A dictionary which contains a list of all
+        the users and the details that are associated with them
+    """
     token = request.args.get("token")
     # Get current data inside store
     if not token_check(token):
@@ -201,6 +276,17 @@ def get_all_users():
 
 @APP.route("/search", methods=["GET"])
 def search_message():
+    """ This is a flask wrapper for the search function
+
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): Creates a dictionary which contains a key called
+        messages which resturns a collection of the messages (which match
+        a query string) from all of the channels that the user is part of.
+        These messages are sorted from most recent to least recent.
+    """
     token = request.args.get("token")
     query_str = request.args.get("query_str")
     if not token_check(token):
@@ -218,7 +304,14 @@ def search_message():
 
 @APP.route("/channels/create", methods=["POST"])
 def c_create():
+    """ This is a flask wrapper for the channels_create function
 
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): A dictionary with the channel_id of the new channel
+    """
     data = request.get_json()
 
     token = data['token']
@@ -233,7 +326,14 @@ def c_create():
 
 @APP.route("/channel/invite", methods=["POST"])
 def c_invite():
+    """ This is a flask wrapper for the channel_invite function
+
+    Parameters:
+        No parameters
     
+    Returns:
+        (dictionary): Empty dictionary
+    """
     data = request.get_json()
 
     token = data['token']
@@ -252,6 +352,14 @@ def c_invite():
 #APP route
 @APP.route("/channel/leave", methods=["POST"])
 def c_leave(): 
+    """ This is a flask wrapper for the channel_leave function
+
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): Empty dictionary
+    """
     #Request information 
     data = request.get_json()
 
@@ -272,7 +380,15 @@ def c_leave():
 
 #APP route
 @APP.route("/channel/join", methods=["POST"])
-def c_join(): 
+def c_join():
+    """ This is a flask wrapper for the channel_join function
+
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): Empty dictionary
+    """
     #Request information 
 
     data = request.get_json()
@@ -293,6 +409,14 @@ def c_join():
 #APP route
 @APP.route("/channel/addowner", methods=["POST"])
 def c_add_owner():
+    """ This is a flask wrapper for the channel_addowner function
+
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): Empty dictionary
+    """
     #Request information 
     data = request.get_json()
 
@@ -314,6 +438,14 @@ def c_add_owner():
 
 @APP.route("/channel/removeowner", methods=["POST"])
 def c_removeowner():
+    """ This is a flask wrapper for the channel_removeowner function
+
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): Empty dictionary
+    """
     
     data = request.get_json()
 
@@ -336,7 +468,17 @@ def c_removeowner():
 
 @APP.route("/channel/details", methods=["GET"])
 def c_details():
+    """ This is a flask wrapper for the channel_details function
+
+    Parameters:
+        No parameters
     
+    Returns:
+        (dictionary): A dictionary which contains details about
+        the channel(the name of the channel, owners of the channels
+        and all the members of the channel)
+    """
+
     token = request.args.get('token')
     channel_id = int(request.args.get('channel_id'))
     print(token)
@@ -352,7 +494,16 @@ def c_details():
 
 @APP.route("/channel/list", methods=["GET"])
 def c_list():
+    """ This is a flask wrapper for the channel_list function
 
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): This dictionary contains a list of all the 
+        channels that the user is part of and their associated
+        details
+    """
     token = request.args.get('token')
 
     if token_check(token) == False:
@@ -365,6 +516,15 @@ def c_list():
 
 @APP.route("/channels/list_all", methods=["GET"])
 def c_listall():
+    """ This is a flask wrapper for the channels_list_all function
+
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): A dictionary which contains the key called
+        channels and is a list of channels and their associated details
+    """
     token = request.args.get('token')
 
     if token_check(token) == False:
@@ -377,7 +537,16 @@ def c_listall():
 
 @APP.route("/channel/messages", methods=["GET"])
 def c_messages():
+    """ This is a flask wrapper for the channel_messages function
+
+    Parameters:
+        No parameters
     
+    Returns:
+        (dictionary): A dictionary containing messages which
+        are between the start value and the end value. This dictionary
+        contains the keys of messages, start and end.
+    """
     #token = request.args.get('token')
     #channel_id = int(request.args.get('channel_id'))
     #start = int(request.args.get('start'))
@@ -403,7 +572,15 @@ def c_messages():
 
 @APP.route("/message/send", methods=["POST"])
 def send():
+    """ This is a flask wrapper for the message_send function
+
+    Parameters:
+        No parameters
     
+    Returns:
+        (dictionary): A dictionary containing the message_id
+        of the message that was sent.
+    """
     data = request.get_json()
 
     token = data['token']
@@ -418,6 +595,15 @@ def send():
 
 @APP.route("/message/send_later", methods=["POST"])
 def send_later():
+    """ This is a flask wrapper for the message_send_later function
+
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): A dictionary containing the message_id
+        of the message that was sent.
+    """
     data = request.get_json()
 
     token = data['token']
@@ -430,6 +616,14 @@ def send_later():
 
 @APP.route("/message/react", methods=["POST"])
 def react():
+    """ This is a flask wrapper for the message_react function
+
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): Empty dictionary
+    """
     data = request.get_json()
 
     token = data['token']
@@ -442,6 +636,14 @@ def react():
 
 @APP.route("/message/unreact", methods=["POST"])
 def unreact():
+    """ This is a flask wrapper for the message_unreact function
+
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): Empty dictionary.
+    """
     data = request.get_json()
 
     token = data['token']
@@ -455,6 +657,14 @@ def unreact():
 
 @APP.route("/message/pin", methods=["POST"])
 def pin():
+    """ This is a flask wrapper for the message_pin function
+
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): Empty dictionary
+    """
     data = request.get_json()
 
     token = data['token']
@@ -466,6 +676,14 @@ def pin():
 
 @APP.route("/message/unpin", methods=["POST"])
 def unpin():
+    """ This is a flask wrapper for the message_unpin function
+
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): Empty dictionary.
+    """
     data = request.get_json()
 
     token = data['token']
@@ -478,6 +696,14 @@ def unpin():
 
 @APP.route("/message/edit", methods=["POST"])
 def edit():
+    """ This is a flask wrapper for the message_edit function
+
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): Empty dictionary
+    """
     data = request.get_json()
 
     token = data['token']
@@ -490,6 +716,14 @@ def edit():
 
 @APP.route("/message/remove", methods=["POST"])
 def remove():
+    """ This is a flask wrapper for the message_remove function
+
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): Empty dictionary
+    """
     data = request.get_json()
 
     token = data['token']
@@ -508,6 +742,15 @@ def remove():
 
 @APP.route("/standup/start", methods=['POST'])
 def standup_start_flask():
+    """ This is a flask wrapper for the standup_start function
+
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): A dictionary containing the key named time_finish.
+        time_finish refers to the time that the standup finishes.
+    """
     data = request.get_json()
     token = data['token']
     channel_id = int(data['channel_id'])
@@ -518,6 +761,16 @@ def standup_start_flask():
 
 @APP.route("/standup/active", methods=['POST'])
 def standup_active_flask():
+    """ This is a flask wrapper for the standup_active function
+
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): A dictionary containing two keys called is_active
+        and time_finish. is_active lets the user know if the standup is
+        active and time_finish refers to when the standup finishes.
+    """
     data = request.get_json()
     token = data['token']
     channel_id = int(data['channel_id'])
@@ -527,6 +780,14 @@ def standup_active_flask():
 
 @APP.route("/standup/send", methods=['POST'])
 def standup_send_flask():
+    """ This is a flask wrapper for the standup_send function
+
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary):Empty dictionary.
+    """
     data = request.get_json()
     token = data['token']
     channel_id = int(data['channel_id'])
