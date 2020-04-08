@@ -242,7 +242,7 @@ def user_handle():
     set_handle = data['handle_str']
     # Validate token first
     if not token_check(token):
-        raise InputError("Invalid token")
+        raise InputError(description="Invalid token")
     # Check requirements for length
     if (len(set_handle) <= 2 or len(set_handle) >= 20):
         raise InputError(description="Invalid handle")
@@ -798,4 +798,4 @@ def standup_send_flask():
 #DONT TOUCH ANYTHING BELOW THIS LINE OR ZACH WILL BEAT U UP
 ###############################################################
 if __name__ == "__main__":
-    APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 53255))
+    APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 5324599))

@@ -204,7 +204,6 @@ def u_id_check(u_id):
     print(u_id)
     data = get_user_store()
     for user in data['users']:
-        print(user['u_id'])
         if int(user['u_id']) == int(u_id):
             return user
     return False
