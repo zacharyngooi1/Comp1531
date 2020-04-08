@@ -8,7 +8,14 @@ from random import randrange
 
 def channel_invite(token, channel_id, u_id):
 
-    ''' Invites a user to join a channel that they are not already in.'''
+    ''' Invites a user to join a channel that they are not already in
+    
+        Parameters: 
+            token (str): authorization hash 
+            channel_id (int): channel identification
+            u_id (int): unique user identification
+       
+    '''
 
     if channel_check(channel_id) == False:
         raise InputError
@@ -31,7 +38,16 @@ def channel_invite(token, channel_id, u_id):
 
 def channel_details(token, channel_id):
     '''Provides user with the basic information of a channel, given channel id, if 
-    user is part of channel.'''
+    user is part of channel.
+    
+        Parameters: 
+            token (str): authorization hash 
+            channel_id (int): channel identification
+        
+        Returns: 
+            (dict): returns details about channel 
+    
+    '''
     if channel_check(channel_id) == False:
         raise InputError
     if check_if_user_in_channel_member(token, channel_id) == False:
@@ -46,7 +62,16 @@ def channel_details(token, channel_id):
     return ch_dict
 
 def channel_messages(token, channel_id, start):
-    '''Returns a range of 50 messages in a channel, if user is part of that channel.'''
+    '''Returns a range of 50 messages in a channel, if user is part of that channel.
+   
+        Parameters: 
+            token (str): authorization hash 
+            channel_id (int): channel identification
+            start (int): which message wants to start range at 
+        
+        Returns: 
+            (list): returns list of messages from channel 
+    '''
     if channel_check(channel_id) == False:
         raise InputError
 
@@ -89,7 +114,12 @@ def channel_messages(token, channel_id, start):
     return final_dict
 
 def channel_leave(token, channel_id):
-    '''Removes member from a channel.'''
+    '''Removes member from a channel.
+
+        Parameters: 
+            token (str): authorization hash 
+            channel_id (int): channel identification
+    '''
 
     if channel_check(channel_id) == False:
         raise InputError
@@ -110,7 +140,13 @@ def channel_leave(token, channel_id):
 
 
 def channel_join(token, channel_id):
-    '''Adds a member to a channel.'''
+    '''Adds a member to a channel.
+    
+        Parameters: 
+            token (str): authorization hash 
+            channel_id (int): channel identification
+        
+    '''
     if channel_check(channel_id) == False:
         raise InputError
 
@@ -133,7 +169,14 @@ def channel_join(token, channel_id):
 
 
 def channel_addowner(token, channel_id, u_id):
-    '''Adds someone as owner to a channel.'''
+    '''Adds someone as owner to a channel.
+   
+        Parameters: 
+            token (str): authorization hash 
+            channel_id (int): channel identification
+            u_id (int): user identification 
+        
+    '''
     if channel_check(channel_id) == False:
         raise InputError
 
@@ -168,7 +211,14 @@ def channel_addowner(token, channel_id, u_id):
     }
 
 def channel_removeowner(token, channel_id, u_id):
-    '''Removes an owner from channel.'''
+    '''Removes someone from owner to a channel.
+   
+        Parameters: 
+            token (str): authorization hash 
+            channel_id (int): channel identification
+            u_id (int): user identification 
+        
+    '''
     if channel_check(channel_id) == False:
         raise InputError
 
@@ -198,7 +248,17 @@ def channel_removeowner(token, channel_id, u_id):
     return {}
 
 def channels_create(token, name, is_public):
-    '''Creates a new channel.'''
+    '''Creates a new channel.
+   
+        Parameters: 
+            token (str): authorization hash 
+            name (string): what channel will be named
+            is_public (bool): true/false for public channel
+        
+        Returns: 
+            (int): channel id 
+        
+    '''
     if len(name) > 20:
         raise InputError
 
@@ -229,7 +289,14 @@ def channels_create(token, name, is_public):
     }
 
 def channels_list_all(token):
-    '''Returns all channels.'''
+    '''Returns all channels.
+    
+        Parameters: 
+            token (str): authorization hash 
+        
+        Returns: 
+            (list):  list of channels
+    '''
     if token_check(token) == False:
         raise InputError
     channel_store = get_channel_store()
@@ -239,7 +306,16 @@ def channels_list_all(token):
     return empty_list
 
 def channel_list(token):
-    '''Lists channels a user is apart of.'''
+    '''Lists channels a user is apart of.
+
+        Parameters: 
+            token (str): authorization hash 
+            name (string): what channel will be named
+            is_public (bool): true/false for public channel
+        
+        Returns: 
+            (int): channel id 
+    '''
     if token_check(token) == False:
         raise InputError
     channel_store = get_channel_store()

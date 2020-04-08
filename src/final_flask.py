@@ -347,9 +347,8 @@ def c_details():
 
 @APP.route("/channel/list", methods=["GET"])
 def c_list():
-    
-    token = request.args.get('token')
 
+    token = request.args.get('token')
 
     if token_check(token) == False:
         raise InputError
