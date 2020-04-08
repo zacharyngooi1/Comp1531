@@ -9,7 +9,6 @@ def user_profile(token, u_id):
         raise InputError
 
     # First we need to assert if the u_id is registered
-    print("hello")
     if u_id_check(u_id) == False:
         raise InputError
 
@@ -25,7 +24,6 @@ def user_profile(token, u_id):
         'name_last': user['name_last'],
         'handle_str': user['handle_str']
         }
-    print(2)
     return user_prof_dict
 
 def user_profile_setname(token, name_first, name_last):

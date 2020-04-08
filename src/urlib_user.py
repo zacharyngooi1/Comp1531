@@ -31,8 +31,6 @@ def test_user_profile():
     #storing data
     test_token = payload['token']
     test_uid = payload['u_id']
-    print(test_token)
-    print(test_uid)
 
 #########################################################
 
@@ -43,10 +41,6 @@ def test_user_profile():
     
     payload = json.load(urllib.request.urlopen(f"{BASE_URL}/user/profile?{query}"))
 
-   # requests.get('URL/user/profile', params=query).json()
-    
-
-    print(payload)
     assert payload == {
     'user':{
     'u_id' : test_uid,

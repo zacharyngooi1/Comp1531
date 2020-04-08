@@ -125,10 +125,7 @@ def get_all():
     # Get current data inside store
     token = request.args.get("token")
     u_id = request.args.get("u_id")
-    print(token)
-    print(u_id)
     profile = user_profile(token, u_id)
-    print(profile)
     return dumps({
         'user':profile
     })
