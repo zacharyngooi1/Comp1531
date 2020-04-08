@@ -378,7 +378,7 @@ def test_user_all():
     
     payload = json.load(urllib.request.urlopen(f"{BASE_URL}/users/all?{query}"))
     
-    # Assert corresponding user profile.
+    # Assert a list of all profiles is the output
     assert payload == {
         'users':[{
         'u_id' : test_uid,
@@ -400,6 +400,7 @@ def test_user_all():
         'token': test_token2,
     })
     
+    # Assert a list of all profiles is the output
     payload2 = json.load(urllib.request.urlopen(f"{BASE_URL}/users/all?{query2}"))
     
     assert payload2 == {
