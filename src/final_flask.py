@@ -492,7 +492,7 @@ def c_details():
     return dumps(return_dict)
     #return 1
 
-@APP.route("/channel/list", methods=["GET"])
+@APP.route("/channels/list", methods=["GET"])
 def c_list():
     """ This is a flask wrapper for the channel_list function
 
@@ -514,7 +514,7 @@ def c_list():
     return dumps(return_dict)
     #return 1
 
-@APP.route("/channels/list_all", methods=["GET"])
+@APP.route("/channels/listall", methods=["GET"])
 def c_listall():
     """ This is a flask wrapper for the channels_list_all function
 
