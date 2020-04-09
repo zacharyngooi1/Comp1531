@@ -4,7 +4,7 @@ from db import login, make_user, get_channel_store, get_messages_store
 from db import token_check, channel_check, u_id_check, member_channel_check
 from error import InputError, AccessError
 from random import randrange
-
+from datetime import timezone
 
 def channel_invite(token, channel_id, u_id):
 
@@ -72,6 +72,7 @@ def channel_messages(token, channel_id, start):
         Returns: 
             (list): returns list of messages from channel 
     '''
+    print('This is start:',start)
     if channel_check(channel_id) == False:
         raise InputError
 
@@ -81,11 +82,11 @@ def channel_messages(token, channel_id, start):
     sum_of_messages = 0
     
     message_store = get_messages_store()
-
+    
     for x in message_store['Messages']:
             if x['channel_id'] == channel_id:
                 sum_of_messages += 1
-
+    
     if start > sum_of_messages:
         raise InputError
 
@@ -96,21 +97,56 @@ def channel_messages(token, channel_id, start):
     final_dict = {
         'messages':[]
     }
-    for x in message_store['Messages']:
-        if x['channel_id'] == channel_id:
-            proto_dict['messages'].append(x['message'])
+    proto_dict = get_messages_store()['Messages']
+    proto_dict.reverse()
+    #print('Messages:',get_messages_store()['Messages'])
+    #print('Proto_dict:',proto_dict)
+    counter = 0
+    if len(proto_dict) != 0:
+        print('in the if loop aye ')
+        for message in proto_dict:
+          #  print()
+           #print()
+            #print('this is it')
+            if int(message['channel_id']) == int(channel_id):
+                #print('SO CLOSE')
+                if counter >= start:
+                    #print('Ican smell it')
+                    dict_to_app = {
+                        'message_id':message['message_id'],
+                        'u_id': message['user_id'],
+                        'message': message['message'],
+                        'time_created': message['time_created'].replace(tzinfo=timezone.utc).timestamp(),
+                        'reacts': message['Reacts'],
+                        'is_pinned': message['is_pinned']
+                        
+                    }
+                    final_dict['messages'].append(dict_to_app)    
+                counter = counter + 1
+            if counter >= 50:
+                counter = -1
+                break
+    
+    final_dict['start'] = start
+    final_dict['end'] = counter
+    
+    print('This is the dictionary:',final_dict)
+    return final_dict
+    #for x in message_store['Messages']:
+    #    if x['channel_id'] == channel_id:
+    #        proto_dict['messages'].append(x['message'])
 
     # Now i reverse the list to get the most recent message as the first value
-    proto_dict['messages'].reverse()
+    #proto_dict['messages'].reverse()
 
-    for i in range(50):
-        for y in proto_dict['messages']:
-            final_dict['messages'].append(y[start + i])
-            final_dict['start'] = start
-            final_dict['end'] = start + 50
-            if start + 50 >= sum_of_messages:
-                final_dict['end'] = -1
-
+    #for i in range(50):
+    #    for y in proto_dict['messages']:
+    #        final_dict['messages'].append(y[start + i])
+    #        final_dict['start'] = start
+    #        final_dict['end'] = start + 50
+    #        if start + 50 >= sum_of_messages:
+    #            final_dict['end'] = -1
+    #print(final_dict)
     return final_dict
 
 def channel_leave(token, channel_id):
@@ -303,7 +339,7 @@ def channels_list_all(token):
     empty_list = []
     for channels in channel_store['Channels']:
         empty_list.append({"channel_id" : channels["channel_id"], "name" : channels["name"]})
-    return empty_list
+    return {'channels':empty_list}
 
 def channel_list(token):
     '''Lists channels a user is apart of.
@@ -325,7 +361,7 @@ def channel_list(token):
         for member in channels['all_members']:
             if member["u_id"] == user["u_id"]:
                 empty_list.append({"channel_id" : channels["channel_id"], "name" : channels["name"]})
-    return empty_list
+    return {'channels':empty_list}
 
 
 #####################################

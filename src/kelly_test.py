@@ -262,23 +262,23 @@ def test_channel_remove_owner_valid():
 dummy_token = auth_register("Yeshey@hotmail.com", 'itsmepaswird', 'boop', 'ilast')
 dummy = token_check(dummy_token['token'])
 def test_channels_list_zero():
-	assert(channel_list(dummy['token']) == [])
+	assert(channel_list(dummy['token']) == {'channels':[]})
 	
 
 #checks to make sure joined channel is returned 
 def test_channels_list_correct(): 
 	assert(channel_list(kelly['token']) == 
-		[
+		{'channels':[
 		{
 		'channel_id' : channel_id_kelly['channel_id'],
 		'name': 'Kelly_channel'
 		},
-		])
+		]})
 
 #tests to make sure all joined channels are returned 
 def test_channels_list_multiple(): 
 	assert(channel_list(hamish['token']) == 
-		[
+		{'channels':[
 		{
 		'channel_id' : channel_id_hamish['channel_id'],
 		'name': 'Hamish_channel'
@@ -287,12 +287,12 @@ def test_channels_list_multiple():
 		'channel_id' : channel_id_kelly['channel_id'],
 		'name': 'Kelly_channel'
 		},
-		])
+		]})
 
 #list all of the channels available 
 def test_channels_listall_joined(): 
 	assert(channels_list_all(hamish['token']) == 
-		[
+		{'channels':[
 		{
 		'channel_id' : channel_id_hamish['channel_id'],
 		'name': 'Hamish_channel'
@@ -305,7 +305,7 @@ def test_channels_listall_joined():
 		'channel_id' : channel_id_kelly['channel_id'],
 		'name': 'Kelly_channel'
 		},
-		])
+		]})
 
 
 def test_channel_leave_invalid():
@@ -318,12 +318,12 @@ def test_channel_leave_invalid():
 def test_channel_leave_valid():
 	channel_leave(hamish['token'], channel_id_kelly['channel_id'])
 	assert(channel_list(hamish['token']) == 
-		[
+		{'channels':[
 		{
 		'channel_id' : channel_id_hamish['channel_id'],
 		'name': 'Hamish_channel'
 		}
-		])
+		]})
 
 def test_channel_invite_invalid():
 	with pytest.raises(InputError):
@@ -336,7 +336,7 @@ def test_channel_invite_invalid():
 def test_channel_invite_valid():
 	channel_invite(zach['token'], channel_id_zach['channel_id'], hamish['u_id'])
 	assert(channel_list(hamish['token']) == 
-		[
+		{'channels':[
 		{
 		'channel_id' : channel_id_hamish['channel_id'],
 		'name': 'Hamish_channel'
@@ -345,7 +345,7 @@ def test_channel_invite_valid():
 		'channel_id' : channel_id_zach['channel_id'],
 		'name': 'Zach_channel'
 		}
-		])
+		]})
 
 
 
