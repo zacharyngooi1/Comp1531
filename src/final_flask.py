@@ -478,16 +478,19 @@ def c_details():
         the channel(the name of the channel, owners of the channels
         and all the members of the channel)
     """
-
+    print('1')
     token = request.args.get('token')
     channel_id = int(request.args.get('channel_id'))
     print(token)
     if channel_check(channel_id) == False: 
         raise InputError
-
-    if check_if_user_in_channel_member(token,channel_id) == True: 
+    print('2')
+    if check_if_user_in_channel_member(token,channel_id) == False: 
+        print ('in the if statement')
         raise AccessError
+    print('3')
     return_dict = channel_details(token, channel_id)
+    print('4')
     print(return_dict)
     return dumps(return_dict)
     #return 1
@@ -504,6 +507,9 @@ def c_list():
         channels that the user is part of and their associated
         details
     """
+    print("IT ENTERS THIS ATLEAST")
+    print()
+    print()
     token = request.args.get('token')
 
     if token_check(token) == False:
@@ -525,6 +531,8 @@ def c_listall():
         (dictionary): A dictionary which contains the key called
         channels and is a list of channels and their associated details
     """
+
+    
     token = request.args.get('token')
 
     if token_check(token) == False:
@@ -561,7 +569,7 @@ def c_messages():
         raise AccessError
 
     return_dict = channel_messages(token, ch_id,start)
-    print(return_dict)
+    print('bout to return this:',return_dict)
     return dumps(return_dict)
     #return 1
 
@@ -589,6 +597,7 @@ def send():
 
     message_id = message_send(token, channel_id, message)
     #message_id = {'message_id':1}
+    print(get_messages_store())
     return dumps(message_id)
     #return 1
 
@@ -759,7 +768,7 @@ def standup_start_flask():
     return dumps(time_finish)
 
 
-@APP.route("/standup/active", methods=['POST'])
+@APP.route("/standup/active", methods=['GET'])
 def standup_active_flask():
     """ This is a flask wrapper for the standup_active function
 
@@ -771,9 +780,8 @@ def standup_active_flask():
         and time_finish. is_active lets the user know if the standup is
         active and time_finish refers to when the standup finishes.
     """
-    data = request.get_json()
-    token = data['token']
-    channel_id = int(data['channel_id'])
+    token = request.args.get('token')
+    channel_id = int(request.args.get('channel_id'))
     is_active = standup_active(token, channel_id)
     return dumps(is_active)
 

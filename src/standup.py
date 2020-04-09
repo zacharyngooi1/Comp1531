@@ -52,6 +52,7 @@ def standup_active(token, channel_id):
         False and time finish as none.
 
     """
+
     channel_store = get_channel_store()
     channel = channel_check(channel_id)
     if channel == False:
@@ -59,11 +60,20 @@ def standup_active(token, channel_id):
     current_moment_in_time = datetime.now()
     print("now:",current_moment_in_time.replace(tzinfo=timezone.utc).timestamp())
     print("then:",channel['standup']['time_standup_finished'])
+    print('BEFORE THE IF STATEMENT ')
+    if channel['standup']['time_standup_finished'] == None:
+        return {
+            'is_active' : False,
+            'time_finish' : None
+        }
+    
     if current_moment_in_time.replace(tzinfo=timezone.utc).timestamp() < channel['standup']['time_standup_finished']:
+        print('RETURN FALSE')        
         return {
             'is_active' : True,
             'time_finish' : channel['standup']['time_standup_finished']
         }
+    print('RETURN TRUE')
     return {
         'is_active' : False,
         'time_finish' : None
