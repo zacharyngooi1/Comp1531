@@ -593,7 +593,7 @@ def send():
     #return 1
 
 
-@APP.route("/message/send_later", methods=["POST"])
+@APP.route("/message/sendlater", methods=["POST"])
 def send_later():
     """ This is a flask wrapper for the message_send_later function
 
