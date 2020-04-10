@@ -613,12 +613,17 @@ def send_later():
         (dictionary): A dictionary containing the message_id
         of the message that was sent.
     """
+    print('Flask1')
     data = request.get_json()
-
+    print('Flask2')
     token = data['token']
+    print('Flask3')
     channel_id = int(data['channel_id'])
+    print('Flask4')
     message = data['message']
-    time = int(data['time'])
+    print('Flask5')
+    time = (data['time_sent'])
+    print('Flask6')
     message_id = message_send_later(token, channel_id, message,time)
     return dumps(message_id)
 
@@ -703,7 +708,7 @@ def unpin():
 
 
 
-@APP.route("/message/edit", methods=["POST"])
+@APP.route("/message/edit", methods=["PUT"])
 def edit():
     """ This is a flask wrapper for the message_edit function
 
@@ -723,7 +728,7 @@ def edit():
     return dumps(message_id)
 
 
-@APP.route("/message/remove", methods=["POST"])
+@APP.route("/message/remove", methods=["DELETE"])
 def remove():
     """ This is a flask wrapper for the message_remove function
 

@@ -6,6 +6,11 @@ import datetime
 from datetime import timezone
 import time
 
+
+
+from auth import auth_register
+from channel import channels_create,channel_invite
+
 def message_send(token, channel_id, message):
     user = token_check(token)
     if user == False:  
@@ -29,20 +34,27 @@ def message_send(token, channel_id, message):
     }
 
 def message_send_later(token, channel_id, message, time_sent): 
+    print('1')
     user = token_check(token)
     if user == False:  
         raise InputError
     channel = channel_check(channel_id)
+    print('2')
     if channel == False: 
         raise InputError
+    print('3')
     if member_channel_check(token, channel_id) == False: 
         raise AccessError
     if (len(message) > 1000): 
         raise InputError
-    if time_sent < datetime.datetime.now().replace(tzinfo=timezone.utc).timestamp(): 
+    print('4')
+    print('TIME_SENT',time_sent) 
+    print('now',datetime.datetime.now().replace(tzinfo=timezone.utc).timestamp()) 
+    if int(time_sent) < int(datetime.datetime.now().replace(tzinfo=timezone.utc).timestamp()): 
+        print('ENTERS IF STATEMENT')
         raise InputError
     message_store = get_messages_store()
-    
+    print('5')
     for member in channel['all_members']: 
         if user['u_id'] == member['u_id']:
             #time.mktime(t.timetuple())
@@ -76,9 +88,22 @@ def message_react(token, message_id , react_id):
         print("react check input errroorrrrrrrr")
         raise InputError
 
-    dict_append  = { 'u_id': user['u_id'], 'react_id' : react_id  }
-    print(dict_append)
-    message['Reacts'].append(dict_append)
+    is_this_user_reacted = False;    
+
+    flag = 0
+    for reacts in message['reacts']:
+        if reacts['react_id'] == react_id:
+            reacts['u_ids'].append(int(user['u_id']))
+            flag = 1
+            if reacts['is_this_user_reacted'] == True:
+                is_this_user_reacted = True
+
+    if message['user_id'] == user['u_id']:
+        is_this_user_reacted = True
+        
+    if flag ==0:    
+        dict_append  = { 'u_ids': [int(user['u_id'])], 'react_id' : int(react_id), 'is_this_user_reacted' : is_this_user_reacted  }
+        message['reacts'].append(dict_append)
     return{
     }
 
@@ -96,8 +121,21 @@ def message_unreact(token, message_id , react_id):
     if react_check(message_id, user['u_id'], react_id) == False:
         raise InputError
 
-    dict_append  = { 'u_id': user['u_id'], 'react_id' : react_id  }
-    message['Reacts'].remove(dict_append)
+    flag = 0 
+    for reacts in message['reacts']:
+        if reacts['react_id'] == react_id:
+            if user['u_id'] in reacts['u_ids']:
+                reacts['u_ids'].remove(user['u_id'])
+                if len(reacts['u_ids']) == 0:
+                    flag = 1
+
+    if flag == 1:
+        #dict_append  = { 'u_ids': user['u_id'], 'react_id' : react_id  }
+        
+        for react in message['reacts']:
+            if react_id == react['react_id']:
+                break
+        message['reacts'].remove(react)
     return{
 
     }
@@ -179,3 +217,22 @@ def message_edit(token, message_id, edited_message):
     #message_data['Messages'].remove(message)
     return {
     }
+
+
+
+hayden_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
+chan_id = channels_create(hayden_dict['token'], 'Hayden', True)
+rob_dict = auth_register("rob@gmail.com", "paswword123", "Rob", "Ever")
+message_id = message_send(hayden_dict['token'], chan_id['channel_id'], "Haydens Message")
+
+
+print('Hayden:', hayden_dict)
+print()
+print('Rob:', rob_dict)
+print()
+print()
+print()
+message_react(hayden_dict['token'],message_id['message_id'] , 1)
+channel_invite(hayden_dict['token'], chan_id["channel_id"], rob_dict["u_id"])
+message_react(rob_dict['token'],message_id['message_id'] , 1)
+print(get_messages_store())
