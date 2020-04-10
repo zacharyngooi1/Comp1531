@@ -9,6 +9,17 @@ import time
 #from channel import channels_create,channel_invite
 
 def message_send(token, channel_id, message):
+    """ Sends a message to the designated channel 
+
+    Parameters:
+        token (string)
+        channel_id(int)
+        message(string)
+    
+    Returns:
+        (dictionary): A dictionary containing the message_id
+        of the message that was sent.
+    """
     user = token_check(token)
     if user == False:  
         raise InputError
@@ -31,6 +42,18 @@ def message_send(token, channel_id, message):
     }
 
 def message_send_later(token, channel_id, message, time_sent): 
+    """ Sends a message to the designated channel at a specified time
+
+    Parameters:
+        token (string)
+        channel_id(int)
+        message(string)
+        time_sent (datetime)
+    
+    Returns:
+        (dictionary): A dictionary containing the message_id
+        of the message that was sent.
+    """
     print('1')
     user = token_check(token)
     if user == False:  
@@ -47,26 +70,37 @@ def message_send_later(token, channel_id, message, time_sent):
     print('4')
     print('TIME_SENT',time_sent) 
     print('now',datetime.datetime.now().replace(tzinfo=timezone.utc).timestamp()) 
-    if int(time_sent) < int(datetime.datetime.now().replace(tzinfo=timezone.utc).timestamp()): 
+    #should this maybe be more ??
+    if int(time_sent) > int(datetime.datetime.now().replace(tzinfo=timezone.utc).timestamp()): 
         print('ENTERS IF STATEMENT')
         raise InputError
     message_store = get_messages_store()
     print('5')
     for member in channel['all_members']: 
+        print('got into for')
         if user['u_id'] == member['u_id']:
+            print('got into if')
             #time.mktime(t.timetuple())
             
             wait_time = time_sent - datetime.datetime.now().replace(tzinfo=timezone.utc).timestamp() 
             time.sleep(wait_time)
             #wait_time = time.mktime(datetime.datetime.now().timetuple()) - time.mktime(time_sent.timetuple())
             message_id = make_message(message, channel_id, user['u_id'], 0)
-            
+    print("got past for loop")      
     return {
         'message_id': message_id,
     }
 
 
 def message_react(token, message_id , react_id): 
+    """ Reacts to a message  
+
+    Parameters:
+        token (string)
+        message_id(int)
+        react_id(int)
+    
+    """
     message = message_check(message_id)
     print("This is message----->", message)
     if message == None:
@@ -105,6 +139,14 @@ def message_react(token, message_id , react_id):
     }
 
 def message_unreact(token, message_id , react_id): 
+    """ Removes a react from a message  
+
+    Parameters:
+        token (string)
+        message_id(int)
+        react_id(int)
+    
+    """
     message = message_check(message_id)
     #print("This is message----->", message)
     if message == None:
@@ -138,6 +180,13 @@ def message_unreact(token, message_id , react_id):
     }
 
 def message_pin(token, message_id): 
+    """ Pins a message  
+
+    Parameters:
+        token (string)
+        message_id(int)
+    
+    """
     message = message_check(message_id)
     if message == None:
         raise InputError
@@ -154,6 +203,13 @@ def message_pin(token, message_id):
 
 
 def message_unpin(token, message_id): 
+    """Unpins a message  
+
+    Parameters:
+        token (string)
+        message_id(int)
+    
+    """
     message = message_check(message_id)
     if message == None:
         raise InputError
@@ -168,6 +224,13 @@ def message_unpin(token, message_id):
 
     }
 def message_remove(token, message_id):
+    """Removes a message  
+
+    Parameters:
+        token (string)
+        message_id(int)
+    
+    """
     message = message_check(message_id)
     if message == None:
         raise InputError
@@ -192,6 +255,14 @@ def message_remove(token, message_id):
 
 
 def message_edit(token, message_id, edited_message):
+    """Edits a current message  
+
+    Parameters:
+        token (string)
+        message_id(int)
+        edited_message(string)
+    
+    """
     message = message_check(message_id)
     if message == None:
         raise InputError
