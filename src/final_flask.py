@@ -641,7 +641,7 @@ def react():
 
     message_react(token,message_id , 1)
 
-    return dumps(message_id)
+    return dumps({})
 
 @APP.route("/message/unreact", methods=["POST"])
 def unreact():
@@ -660,7 +660,7 @@ def unreact():
     message_id = int(data['message_id'])
     
     message_unreact(token,message_id , 1)
-    return dumps(message_id)
+    return dumps({})
 
 #message_pin(hayden_dict['token'], message_id_pin['message_id'])
 
