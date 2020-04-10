@@ -602,7 +602,7 @@ def send():
     #return 1
 
 
-@APP.route("/message/send_later", methods=["POST"])
+@APP.route("/message/sendlater", methods=["POST"])
 def send_later():
     """ This is a flask wrapper for the message_send_later function
 
@@ -613,12 +613,17 @@ def send_later():
         (dictionary): A dictionary containing the message_id
         of the message that was sent.
     """
+    print('Flask1')
     data = request.get_json()
-
+    print('Flask2')
     token = data['token']
+    print('Flask3')
     channel_id = int(data['channel_id'])
+    print('Flask4')
     message = data['message']
-    time = int(data['time'])
+    print('Flask5')
+    time = (data['time_sent'])
+    print('Flask6')
     message_id = message_send_later(token, channel_id, message,time)
     return dumps(message_id)
 
@@ -641,7 +646,7 @@ def react():
 
     message_react(token,message_id , 1)
 
-    return dumps(message_id)
+    return dumps({})
 
 @APP.route("/message/unreact", methods=["POST"])
 def unreact():
@@ -660,7 +665,7 @@ def unreact():
     message_id = int(data['message_id'])
     
     message_unreact(token,message_id , 1)
-    return dumps(message_id)
+    return dumps({})
 
 #message_pin(hayden_dict['token'], message_id_pin['message_id'])
 
@@ -703,7 +708,7 @@ def unpin():
 
 
 
-@APP.route("/message/edit", methods=["POST"])
+@APP.route("/message/edit", methods=["PUT"])
 def edit():
     """ This is a flask wrapper for the message_edit function
 
@@ -723,7 +728,7 @@ def edit():
     return dumps(message_id)
 
 
-@APP.route("/message/remove", methods=["POST"])
+@APP.route("/message/remove", methods=["DELETE"])
 def remove():
     """ This is a flask wrapper for the message_remove function
 

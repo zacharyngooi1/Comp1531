@@ -98,13 +98,23 @@ def channel_messages(token, channel_id, start):
         'messages':[]
     }
     proto_dict = get_messages_store()['Messages']
-    proto_dict.reverse()
+    print()
+    print('THIS IS YA PROTO DICT:',proto_dict)
+    print()
+    #proto_dict.reverse()
+    print()
+    print('THIS IS POST REVERSE:',proto_dict)
+    print()
+    
+    print()
+    print('THIS IS YA MSG STORE:',get_messages_store()['Messages'])
+    print()
     #print('Messages:',get_messages_store()['Messages'])
     #print('Proto_dict:',proto_dict)
     counter = 0
     if len(proto_dict) != 0:
         print('in the if loop aye ')
-        for message in proto_dict:
+        for message in reversed(proto_dict):
           #  print()
            #print()
             #print('this is it')
@@ -117,7 +127,7 @@ def channel_messages(token, channel_id, start):
                         'u_id': message['user_id'],
                         'message': message['message'],
                         'time_created': message['time_created'].replace(tzinfo=timezone.utc).timestamp(),
-                        'reacts': message['Reacts'],
+                        'reacts': message['reacts'],
                         'is_pinned': message['is_pinned']
                         
                     }
