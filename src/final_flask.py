@@ -363,18 +363,27 @@ def c_leave():
     #Request information 
     data = request.get_json()
 
+    print("gets to request")
+    print()
     channel_id = data['channel_id']
     token = data['token']
 
+    print("assigns data")
     #channel_id = new_chl['channel_id']
     #token = new_user['token']
 
     if channel_check(channel_id) == None:
         raise InputError
 
+    print()
+    print("gets passed first error")
+    print()
+    check = check_if_user_in_channel_member(token, channel_id)
+    print(check)
     if check_if_user_in_channel_member(token, channel_id) == False:
         raise AccessError
-
+    print('gets passed second error')
+    print("gets to channel_leave call")
     channel_leave(token, channel_id)
     return dumps({})
 

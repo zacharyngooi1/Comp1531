@@ -167,6 +167,7 @@ def channel_leave(token, channel_id):
             channel_id (int): channel identification
     '''
 
+    print("BEFORE ERROR STATEMENTS")
     if channel_check(channel_id) == False:
         raise InputError
 
@@ -174,14 +175,20 @@ def channel_leave(token, channel_id):
         raise AccessError
 
     channel = channel_check(channel_id)
+    print("TEST this is ur channel", channel)
     user = token_check(token)
+    print("TEST THIS is ur user", user)
     for inner in channel['all_members']:
         if inner['u_id'] == user['u_id']:
+            print(inner['u_id'], user['u_id'])
             channel['all_members'].remove(inner)
+            print("USER REMOVED")
 
     for leave in user['channel_id_part']:
         if leave == channel_id:
+            print(leave, channel_id)
             user['channel_id_part'].remove(leave)
+            print("CHANNEL REMOVED")
     return {}
 
 
@@ -382,10 +389,16 @@ def check_if_user_in_channel_member(token, channel_id):
     user = token_check(token)
     channel_store = get_channel_store()
     result = False
+    print("in check")
+    print(channel_store)
     for mem_check in channel_store["Channels"]:
+        print("in for loop")
         if mem_check['channel_id'] == channel_id:
+            print("gets to first if statement")
+            print()
             for mem in mem_check['all_members']:
                 if mem["u_id"] == user["u_id"]:
+                    print("gets to second if statemtn")
                     result = True
     return result
 
