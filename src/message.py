@@ -5,11 +5,8 @@ from error import InputError, AccessError
 import datetime
 from datetime import timezone
 import time
-
-
-
-from auth import auth_register
-from channel import channels_create,channel_invite
+#from auth import auth_register
+#from channel import channels_create,channel_invite
 
 def message_send(token, channel_id, message):
     user = token_check(token)
@@ -220,7 +217,7 @@ def message_edit(token, message_id, edited_message):
 
 
 
-hayden_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
+'''hayden_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
 chan_id = channels_create(hayden_dict['token'], 'Hayden', True)
 rob_dict = auth_register("rob@gmail.com", "paswword123", "Rob", "Ever")
 message_id = message_send(hayden_dict['token'], chan_id['channel_id'], "Haydens Message")
@@ -235,4 +232,4 @@ print()
 message_react(hayden_dict['token'],message_id['message_id'] , 1)
 channel_invite(hayden_dict['token'], chan_id["channel_id"], rob_dict["u_id"])
 message_react(rob_dict['token'],message_id['message_id'] , 1)
-print(get_messages_store())
+print(get_messages_store())'''
