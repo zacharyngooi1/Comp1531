@@ -71,17 +71,21 @@ def message_send_later(token, channel_id, message, time_sent):
 
 def message_react(token, message_id , react_id): 
     message = message_check(message_id)
-    #print("This is message----->", message)
+    print("This is message----->", message)
     if message == None:
+        print("no message")
         raise InputError
     if react_id != 1:   #This is assuming that there's only 1 react id (1)
+        print("react id is not one")
         raise InputError   
 
     user = token_check(token)
     if user == None:
+        print("no user")
         raise AccessError
     
     if react_check(message_id, user['u_id'], react_id) == True:
+        print("react check input errroorrrrrrrr")
         raise InputError
 
     is_this_user_reacted = False;    
