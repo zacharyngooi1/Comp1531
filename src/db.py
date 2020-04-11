@@ -4,6 +4,8 @@ from flask import Flask, request
 import jwt
 import hashlib
 import re
+import string
+import random
 from datetime import date, time, datetime
 from random import randrange
 
@@ -312,4 +314,29 @@ def react_check(message_id, user_id, react_id):
     return False
     #print("False")
 
+
+def find_email(email):
+    data = get_user_store()
+    for user in data['users']:
+        if user['email'] == email:
+            return user 
+    return False
+
+def find_code(code):
+    data = get_user_store()
+    print('code',code)
+    for user in data['users']:
+        print('is this where it shits the bed')
+        if 'reset' in user :
+            print('in here')
+            if user['reset'] == code:
+                print('final')
+                return user
+    return False
     
+##derived from https://pynative.com/python-generate-random-string/
+
+def randomString(stringLength=10):
+    """Generate a random string of fixed length """
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(stringLength))
