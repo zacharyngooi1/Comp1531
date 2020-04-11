@@ -243,6 +243,7 @@ def token_check(token):
 
 def channel_check(channel_id):
     data = get_channel_store()
+    print(data)
     for channel in data['Channels']:
         if int(channel['channel_id']) == int(channel_id):
             return channel
