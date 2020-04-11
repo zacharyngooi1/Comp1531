@@ -204,8 +204,8 @@ def channel_join(token, channel_id):
         print("enters first error")
         raise InputError
 
-    if (check_if_channel_is_public(channel_id) == False and 
-    check_if_user_in_channel_owner(token, channel_id) == False):
+    if (check_if_channel_is_public(channel_id) == False or
+    check_if_user_in_channel_member(token, channel_id) == True):
         print("enters second error")
         raise AccessError
     
