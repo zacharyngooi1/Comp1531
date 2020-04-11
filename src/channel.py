@@ -201,18 +201,24 @@ def channel_join(token, channel_id):
         
     '''
     if channel_check(channel_id) == False:
+        print("enters first error")
         raise InputError
 
     if (check_if_channel_is_public(channel_id) == False and 
     check_if_user_in_channel_owner(token, channel_id) == False):
+        print("enters second error")
         raise AccessError
     
+    print("gets passed errors")
+
     channel_store = get_channel_store()
     channel = channel_check(channel_id)
     user = token_check(token)
 
     for channel in channel_store["Channels"]:
-        if channel["channel_id"] == channel_id:
+        print("gets in for loop")
+        if channel["channel_id"] == int(channel_id):
+            print("gets in if statement")
             channel["all_members"].append({"u_id": user["u_id"], 
             "name_first": user['name_first'], "name_last" : user["name_last"]})
 
@@ -393,11 +399,20 @@ def check_if_user_in_channel_member(token, channel_id):
     print(channel_store)
     for mem_check in channel_store["Channels"]:
         print("in for loop")
-        if mem_check['channel_id'] == channel_id:
+        print(mem_check['channel_id'])
+        print()
+        print(channel_id)
+        if mem_check['channel_id'] == int(channel_id):
             print("gets to first if statement")
             print()
             for mem in mem_check['all_members']:
+                print("in second for loop")
                 if mem["u_id"] == user["u_id"]:
+                    print("gets to second if statemtn")
+                    result = True
+            for mem2 in mem_check['owner_members']:
+                print("in second for loop")
+                if mem2["u_id"] == user["u_id"]:
                     print("gets to second if statemtn")
                     result = True
     return result

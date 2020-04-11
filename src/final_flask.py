@@ -378,9 +378,10 @@ def c_leave():
     print()
     print("gets passed first error")
     print()
+    print(channel_id)
     check = check_if_user_in_channel_member(token, channel_id)
     print(check)
-    if check_if_user_in_channel_member(token, channel_id) == False:
+    if check == False:
         raise AccessError
     print('gets passed second error')
     print("gets to channel_leave call")
