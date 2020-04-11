@@ -11,13 +11,6 @@ from message import message_remove, message_edit
 from error import InputError, AccessError
 from datetime import datetime
 
-def sendSuccess(data):
-    return dumps(data)
-
-def sendError(message):
-    return dumps({
-        '_error' : message,
-    })
 
 #Assumption: Assume there are no users with the same firstname + lastname + first letter of their password
 def auth_register(email, password, name_first, name_last):
@@ -68,8 +61,4 @@ def auth_login(email, password):
         "u_id": user["u_id"],
         "token": token
     }
-
-#while user_handle is in system already:
-#Userhandle = userhandel append 1
-#and then you just keep looping until its not there anymore
 
