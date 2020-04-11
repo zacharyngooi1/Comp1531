@@ -12,7 +12,7 @@ from db import member_channel_check, react_check, reset_store
 from db import get_messages_store
 from user import user_profile, user_profile_setemail, user_profile_sethandle
 from user import user_profile_setname
-from auth import auth_register, auth_logout, auth_login
+from auth import auth_register, auth_logout, auth_login, auth_pw_request, auth_pw_reset
 from other import users_all, search
 from standup import standup_start, standup_active, standup_send
 from message import message_send, message_send_later, message_react, message_edit
@@ -147,6 +147,21 @@ def logout_user():
         'is_success': result
     })
 
+
+@APP.route("/auth/passwordreset/request", methods=["POST"])
+def auth_request_password():
+    data = request.get_json() 
+    email = data['email']
+    auth_pw_request(email)
+    return dumps({})
+
+@APP.route("/auth/passwordreset/reset", methods=["POST"])
+def auth_reset_password():
+    data = request.get_json() 
+    code = data['reset_code']
+    password = data['new_password']
+    auth_pw_reset(code,password)
+    return dumps({})
 
 
 ###############################################################
@@ -295,7 +310,6 @@ def search_message():
     return dumps({
         'Messages': message_list['messages']
     })
-
 
 
 ###############################################################

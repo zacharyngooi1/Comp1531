@@ -25,7 +25,7 @@ def test_message_send():
         'message_id': message_id['message_id'], 
         'user_id': hayden_dict['u_id'], 
         'message': 'Haydens Message', 
-        'Reacts': [], 
+        'reacts': [], 
         'time_created': get_messages_store()['Messages'][0]['time_created'], 
         'is_pinned': False}
 
@@ -46,7 +46,7 @@ def test_message_send_later():
         'message_id': message_id1['message_id'], 
         'user_id': hayden_dict['u_id'], 
         'message': 'Haydens Message later', 
-        'Reacts': [], 
+        'reacts': [], 
         'time_created': get_messages_store()['Messages'][1]['time_created'], 
         'is_pinned': False}
 
@@ -73,7 +73,7 @@ message_id_check = message_send(hayden_dict['token'], chan_id_check['channel_id'
 message_react(hayden_dict['token'],message_id_check['message_id'] , 1)
 
 def test_message_react():
-    assert get_messages_store()['Messages'][2]['Reacts'] == [{'u_id': hayden_dict['u_id'], 'react_id': 1}] 
+    assert get_messages_store()['Messages'][2]['reacts'] == [{'u_ids': [hayden_dict['u_id']], 'react_id': 1, 'is_this_user_reacted' : True}] 
 
 def test_message_react_invalid_InputError3():
     with pytest.raises(InputError):
@@ -95,7 +95,7 @@ message_react(hayden_dict['token'],message_id_unreact['message_id'] , 1)
 message_unreact(hayden_dict['token'],message_id_unreact['message_id'] , 1)
 
 def test_message_unreact():
-    assert get_messages_store()['Messages'][3]['Reacts'] == [] 
+    assert get_messages_store()['Messages'][3]['reacts'] == [] 
 
 
 def test_message_unreact_invalid_InputError3():

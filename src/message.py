@@ -71,7 +71,7 @@ def message_send_later(token, channel_id, message, time_sent):
     print('TIME_SENT',time_sent) 
     print('now',datetime.datetime.now().replace(tzinfo=timezone.utc).timestamp()) 
     #should this maybe be more ??
-    if int(time_sent) > int(datetime.datetime.now().replace(tzinfo=timezone.utc).timestamp()): 
+    if int(time_sent) < int(datetime.datetime.now().replace(tzinfo=timezone.utc).timestamp()): 
         print('ENTERS IF STATEMENT')
         raise InputError
     message_store = get_messages_store()
