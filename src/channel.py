@@ -179,13 +179,15 @@ def channel_leave(token, channel_id):
     user = token_check(token)
     print("TEST THIS is ur user", user)
     for inner in channel['all_members']:
-        if inner['u_id'] == user['u_id']:
+        if int(inner['u_id']) == int(user['u_id']):
             print(inner['u_id'], user['u_id'])
             channel['all_members'].remove(inner)
+            print(channel['all_members'])
             print("USER REMOVED")
 
     for leave in user['channel_id_part']:
-        if leave == channel_id:
+        print(leave)
+        if int(leave) == int(channel_id):
             print(leave, channel_id)
             user['channel_id_part'].remove(leave)
             print("CHANNEL REMOVED")
@@ -322,10 +324,10 @@ def channels_create(token, name, is_public):
         raise InputError
 
     channel_dict = {
-        'channel_id': len(name) + len(token) + randrange(25000),
+        'channel_id': int(len(name) + len(token) + randrange(25000)),
         'owner_members':[],
         'all_members':[],
-        'is_public': is_public,
+        'is_public': bool(is_public),
         'name' : name,
         'standup' : {'is_standup_active':False, 'time_standup_finished':None, "standup_message":""}
     }
@@ -333,8 +335,9 @@ def channels_create(token, name, is_public):
     store = get_channel_store()
     
     user_store = token_check(token)
+    print(user_store)
     if user_store == False:
-         raise InputError
+         raise InputError(description="channel create user not found")
 
     channel_dict['owner_members'].append({'u_id': user_store['u_id'], 'name_first': user_store['name_first'], 'name_last': user_store['name_last']})
     
@@ -410,11 +413,6 @@ def check_if_user_in_channel_member(token, channel_id):
                 if mem["u_id"] == user["u_id"]:
                     print("gets to second if statemtn")
                     result = True
-            for mem2 in mem_check['owner_members']:
-                print("in second for loop")
-                if mem2["u_id"] == user["u_id"]:
-                    print("gets to second if statemtn")
-                    result = True
     return result
 
 def check_if_user_in_channel_owner(token, channel_id):
@@ -452,7 +450,9 @@ def check_if_channel_is_public(channel_id):
     channel_store = get_channel_store()
     result = False
     for pub in channel_store['Channels']:
-        if pub['channel_id'] == channel_id:
+        print("hit1")
+        if pub['channel_id'] == int(channel_id):
+            print("hit2")
             if pub['is_public'] == True:
                 result = True
     return result

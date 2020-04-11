@@ -317,7 +317,7 @@ def c_create():
     token = data['token']
     name = data['name']
     is_public = bool(data['is_public'])
-
+    print(is_public)
     channel_id = channels_create(token, name, is_public)
     print(get_channel_store())
     #message_id = {'message_id':1}
@@ -382,7 +382,7 @@ def c_leave():
     check = check_if_user_in_channel_member(token, channel_id)
     print(check)
     if check == False:
-        raise AccessError
+        raise AccessError(description="False leave")
     print('gets passed second error')
     print("gets to channel_leave call")
     channel_leave(token, channel_id)
@@ -407,11 +407,12 @@ def c_join():
     token = data['token']
 
     if channel_check(channel_id) == None:
-        raise InputError
+        raise InputError(description="Wrong channel ID")
 
-    if (check_if_channel_is_public(channel_id) == True and 
-    check_if_user_in_channel_owner(token, channel_id) == False):
-        raise AccessError
+    if check_if_channel_is_public(channel_id) == False:
+        raise AccessError(description="public error")
+    if check_if_user_in_channel_member(token, channel_id) == True:
+        raise AccessError(description="Access error")
 
     channel_join(token, channel_id)
     return dumps({})
@@ -488,19 +489,15 @@ def c_details():
         the channel(the name of the channel, owners of the channels
         and all the members of the channel)
     """
-    print('1')
+
     token = request.args.get('token')
     channel_id = int(request.args.get('channel_id'))
     print(token)
     if channel_check(channel_id) == False: 
-        raise InputError
-    print('2')
+        raise InputError(description="channel id not found")
     if check_if_user_in_channel_member(token,channel_id) == False: 
-        print ('in the if statement')
-        raise AccessError
-    print('3')
+        raise AccessError(description="User in channel members not found")
     return_dict = channel_details(token, channel_id)
-    print('4')
     print(return_dict)
     return dumps(return_dict)
     #return 1
