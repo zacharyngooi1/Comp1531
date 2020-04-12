@@ -12,7 +12,7 @@ from db import member_channel_check, react_check, reset_store
 from db import get_messages_store
 from user import user_profile, user_profile_setemail, user_profile_sethandle
 from user import user_profile_setname
-from auth import auth_register, auth_logout, auth_login
+from auth import auth_register, auth_logout, auth_login, auth_pw_request, auth_pw_reset
 from other import users_all, search
 from standup import standup_start, standup_active, standup_send
 from message import message_send, message_send_later, message_react, message_edit
@@ -147,6 +147,21 @@ def logout_user():
         'is_success': result
     })
 
+
+@APP.route("/auth/passwordreset/request", methods=["POST"])
+def auth_request_password():
+    data = request.get_json() 
+    email = data['email']
+    auth_pw_request(email)
+    return dumps({})
+
+@APP.route("/auth/passwordreset/reset", methods=["POST"])
+def auth_reset_password():
+    data = request.get_json() 
+    code = data['reset_code']
+    password = data['new_password']
+    auth_pw_reset(code,password)
+    return dumps({})
 
 
 ###############################################################
@@ -297,7 +312,6 @@ def search_message():
     })
 
 
-
 ###############################################################
 # CHANNEL FLASK FUNCTIONS
 ###############################################################
@@ -317,7 +331,7 @@ def c_create():
     token = data['token']
     name = data['name']
     is_public = bool(data['is_public'])
-
+    print(is_public)
     channel_id = channels_create(token, name, is_public)
     print(get_channel_store())
     #message_id = {'message_id':1}
@@ -363,18 +377,28 @@ def c_leave():
     #Request information 
     data = request.get_json()
 
+    print("gets to request")
+    print()
     channel_id = data['channel_id']
     token = data['token']
 
+    print("assigns data")
     #channel_id = new_chl['channel_id']
     #token = new_user['token']
 
     if channel_check(channel_id) == None:
         raise InputError
 
-    if check_if_user_in_channel_member(token, channel_id) == False:
-        raise AccessError
-
+    print()
+    print("gets passed first error")
+    print()
+    print(channel_id)
+    check = check_if_user_in_channel_member(token, channel_id)
+    print(check)
+    if check == False:
+        raise AccessError(description="False leave")
+    print('gets passed second error')
+    print("gets to channel_leave call")
     channel_leave(token, channel_id)
     return dumps({})
 
@@ -397,11 +421,12 @@ def c_join():
     token = data['token']
 
     if channel_check(channel_id) == None:
-        raise InputError
+        raise InputError(description="Wrong channel ID")
 
-    if (check_if_channel_is_public(channel_id) == True and 
-    check_if_user_in_channel_owner(token, channel_id) == False):
-        raise AccessError
+    if check_if_channel_is_public(channel_id) == False:
+        raise AccessError(description="public error")
+    if check_if_user_in_channel_member(token, channel_id) == True:
+        raise AccessError(description="Access error")
 
     channel_join(token, channel_id)
     return dumps({})
@@ -483,10 +508,9 @@ def c_details():
     channel_id = int(request.args.get('channel_id'))
     print(token)
     if channel_check(channel_id) == False: 
-        raise InputError
-
-    if check_if_user_in_channel_member(token,channel_id) == True: 
-        raise AccessError
+        raise InputError(description="channel id not found")
+    if check_if_user_in_channel_member(token,channel_id) == False: 
+        raise AccessError(description="User in channel members not found")
     return_dict = channel_details(token, channel_id)
     print(return_dict)
     return dumps(return_dict)
@@ -504,6 +528,9 @@ def c_list():
         channels that the user is part of and their associated
         details
     """
+    print("IT ENTERS THIS ATLEAST")
+    print()
+    print()
     token = request.args.get('token')
 
     if token_check(token) == False:
@@ -525,6 +552,8 @@ def c_listall():
         (dictionary): A dictionary which contains the key called
         channels and is a list of channels and their associated details
     """
+
+    
     token = request.args.get('token')
 
     if token_check(token) == False:
@@ -561,7 +590,7 @@ def c_messages():
         raise AccessError
 
     return_dict = channel_messages(token, ch_id,start)
-    print(return_dict)
+    print('bout to return this:',return_dict)
     return dumps(return_dict)
     #return 1
 
@@ -589,6 +618,7 @@ def send():
 
     message_id = message_send(token, channel_id, message)
     #message_id = {'message_id':1}
+    print(get_messages_store())
     return dumps(message_id)
     #return 1
 
@@ -604,12 +634,17 @@ def send_later():
         (dictionary): A dictionary containing the message_id
         of the message that was sent.
     """
+    print('Flask1')
     data = request.get_json()
-
+    print('Flask2')
     token = data['token']
+    print('Flask3')
     channel_id = int(data['channel_id'])
+    print('Flask4')
     message = data['message']
-    time = int(data['time'])
+    print('Flask5')
+    time = (data['time_sent'])
+    print('Flask6')
     message_id = message_send_later(token, channel_id, message,time)
     return dumps(message_id)
 
@@ -632,7 +667,7 @@ def react():
 
     message_react(token,message_id , 1)
 
-    return dumps(message_id)
+    return dumps({})
 
 @APP.route("/message/unreact", methods=["POST"])
 def unreact():
@@ -651,7 +686,7 @@ def unreact():
     message_id = int(data['message_id'])
     
     message_unreact(token,message_id , 1)
-    return dumps(message_id)
+    return dumps({})
 
 #message_pin(hayden_dict['token'], message_id_pin['message_id'])
 
@@ -694,7 +729,7 @@ def unpin():
 
 
 
-@APP.route("/message/edit", methods=["POST"])
+@APP.route("/message/edit", methods=["PUT"])
 def edit():
     """ This is a flask wrapper for the message_edit function
 
@@ -714,7 +749,7 @@ def edit():
     return dumps(message_id)
 
 
-@APP.route("/message/remove", methods=["POST"])
+@APP.route("/message/remove", methods=["DELETE"])
 def remove():
     """ This is a flask wrapper for the message_remove function
 
@@ -759,7 +794,7 @@ def standup_start_flask():
     return dumps(time_finish)
 
 
-@APP.route("/standup/active", methods=['POST'])
+@APP.route("/standup/active", methods=['GET'])
 def standup_active_flask():
     """ This is a flask wrapper for the standup_active function
 
@@ -771,9 +806,8 @@ def standup_active_flask():
         and time_finish. is_active lets the user know if the standup is
         active and time_finish refers to when the standup finishes.
     """
-    data = request.get_json()
-    token = data['token']
-    channel_id = int(data['channel_id'])
+    token = request.args.get('token')
+    channel_id = int(request.args.get('channel_id'))
     is_active = standup_active(token, channel_id)
     return dumps(is_active)
 

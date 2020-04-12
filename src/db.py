@@ -4,6 +4,8 @@ from flask import Flask, request
 import jwt
 import hashlib
 import re
+import string
+import random
 from datetime import date, time, datetime
 from random import randrange
 
@@ -94,7 +96,7 @@ def make_message(message, channel_id, user_id, time_created):
     else: 
         time = time_created
     user['messages_created'].append(message)
-    store['Messages'].append({'channel_id':channel_id, 'message_id':message_id, 'user_id': user_id, 'message': message, 'Reacts': Reacts, 'time_created': time, 'is_pinned' : False})
+    store['Messages'].append({'channel_id':channel_id, 'message_id':message_id, 'user_id': user_id, 'message': message, 'reacts': Reacts, 'time_created': time, 'is_pinned' : False})
     return message_id
 
 def check_user_in_channel(u_id, channel_id): 
@@ -243,6 +245,7 @@ def token_check(token):
 
 def channel_check(channel_id):
     data = get_channel_store()
+    print(data)
     for channel in data['Channels']:
         if int(channel['channel_id']) == int(channel_id):
             return channel
@@ -302,11 +305,38 @@ def react_check(message_id, user_id, react_id):
     for message in data['Messages']:
         #print("data---------->",message_id['message_id'])
         if int(message['message_id']) == int(message_id):
-            for reacts in message['Reacts']:
+            for reacts in message['reacts']:
                 #print('Everything you need------>',reacts)
-                if int(reacts['u_id']) == int(user_id) and int(reacts['react_id']) == int(react_id):
-                    return True
+                if int(reacts['react_id']) == int(react_id):
+                    for users in reacts['u_ids']:
+                        if int(users) == user_id:
+                            return True
     return False
     #print("False")
 
+
+def find_email(email):
+    data = get_user_store()
+    for user in data['users']:
+        if user['email'] == email:
+            return user 
+    return False
+
+def find_code(code):
+    data = get_user_store()
+    print('code',code)
+    for user in data['users']:
+        print('is this where it shits the bed')
+        if 'reset' in user :
+            print('in here')
+            if user['reset'] == code:
+                print('final')
+                return user
+    return False
     
+##derived from https://pynative.com/python-generate-random-string/
+
+def randomString(stringLength=10):
+    """Generate a random string of fixed length """
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(stringLength))

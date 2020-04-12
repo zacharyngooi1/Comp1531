@@ -2,22 +2,16 @@ import jwt
 import hashlib
 from json import dumps
 from flask import Flask, request
-from db import get_user_store, add_user, login, make_user,get_channel_store, get_messages_store
-from db import token_check, channel_check, email_check, email_dupe_check, password_check
-from channel import channels_create, channel_details, channel_invite, channel_addowner
-from channel import channel_removeowner, channels_list_all, channel_list, channel_leave, channel_join
-from message import message_send, message_send_later, message_react, message_unreact, message_pin, message_unpin
-from message import message_remove, message_edit
+from db import get_user_store, add_user, login, make_user,get_channel_store, get_messages_store,randomString
+from db import token_check, channel_check, email_check, email_dupe_check, password_check, find_email, find_code
+#from channel import channels_create, channel_details, channel_invite, channel_addowner
+#from channel import channel_removeowner, channels_list_all, channel_list, channel_leave, channel_join
+#from message import message_send, message_send_later, message_react, message_unreact, message_pin, message_unpin
+#from message import message_remove, message_edit
 from error import InputError, AccessError
 from datetime import datetime
+import smtplib 
 
-def sendSuccess(data):
-    return dumps(data)
-
-def sendError(message):
-    return dumps({
-        '_error' : message,
-    })
 
 #Assumption: Assume there are no users with the same firstname + lastname + first letter of their password
 def auth_register(email, password, name_first, name_last):
@@ -69,7 +63,44 @@ def auth_login(email, password):
         "token": token
     }
 
+<<<<<<< HEAD
+=======
+def auth_pw_request(email):
+    user = find_email(email)
+    
+    content = randomString() 
+    mail = smtplib.SMTP('smtp.gmail.com',587)
+    mail.ehlo()
+    mail.starttls()
+    mail.login('cs1531Slackr@gmail.com','authReset123')
+    mail.sendmail('cs1531Slackr@gmail.com',email,content)
+    mail.close
+    user['reset'] = content
+    print(user)
+    return{}
+
+def auth_pw_reset(code, password):
+    us = find_code(code)
+    print('1')
+    if us == False:
+        print('in the if statement')
+        raise InputError
+    print('2')
+    if len(password) < 6:
+        raise InputError
+    print('3')
+    us['password'] = password
+    print('4')
+    del us['reset']
+    print(get_user_store())
+    print('5')
+    return{}
+#hayden_dict =  auth_register('moomatia8@gmail.com', 'password', 'hayden', 'smith')
+#auth_pw_request('moomatia8@gmail.com')
+#print()
+#print(get_user_store())
 #while user_handle is in system already:
 #Userhandle = userhandel append 1
 #and then you just keep looping until its not there anymore
 
+>>>>>>> 2450c3ea8bbd735662ade57916bb929285e8acc5
