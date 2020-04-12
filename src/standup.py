@@ -26,6 +26,7 @@ def standup_start(token, channel_id, length):
     channel = channel_check(channel_id)
     if channel == False:
         raise InputError
+    
     current_moment_in_time = datetime.now()
     if channel['standup']['time_standup_finished'] != None:
         if current_moment_in_time.replace(tzinfo=timezone.utc).timestamp() < channel['standup']['time_standup_finished']:
@@ -34,6 +35,14 @@ def standup_start(token, channel_id, length):
     channel['standup']['is_standup_active'] = True
     time_finish = length + current_moment_in_time.replace(tzinfo=timezone.utc).timestamp()
     channel['standup']['time_standup_finished'] = time_finish
+    
+    print()
+    print("The time that the standup finishes at is")
+    print(time_finish)
+    print("which is probably a long time")
+    print("The length of the standup is")
+    print(time_finish - datetime.now.replace(tzinfo=timezone.utc).timestamp())
+    
     return {
         'time_finish' : time_finish #This is a unix timestamp
     }

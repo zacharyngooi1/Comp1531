@@ -63,8 +63,6 @@ def auth_login(email, password):
         "token": token
     }
 
-<<<<<<< HEAD
-=======
 def auth_pw_request(email):
     user = find_email(email)
     
@@ -103,4 +101,3 @@ def auth_pw_reset(code, password):
 #Userhandle = userhandel append 1
 #and then you just keep looping until its not there anymore
 
->>>>>>> 2450c3ea8bbd735662ade57916bb929285e8acc5
