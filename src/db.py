@@ -8,6 +8,8 @@ import string
 import random
 from datetime import date, time, datetime
 from random import randrange
+import pickle
+import time
 
 USERDATASTORE = {
     'users': []
@@ -53,14 +55,35 @@ STANDUPQUEUE = {
 
 def get_user_store():
     global USERDATASTORE
+    try:
+        FILE = open('userStore.p', 'rb')
+        USERDATASTORE = pickle.load(FILE)
+    except Exception:
+        USERDATASTORE = {
+            'users' : []
+        }
     return USERDATASTORE
 
 def get_channel_store():
     global CHANNELSTORE
+    try:
+        FILE_1 = open('channelStore.p', 'rb')
+        CHANNELSTORE = pickle.load(FILE_1)
+    except Exception:
+        CHANNELSTORE = {
+            'Channels' : []
+        }
     return CHANNELSTORE
 
 def get_messages_store():
     global MESSAGESTORE
+    try:
+        FILE_2 = open('messagesStore.p', 'rb')
+        MESSAGESTORE = pickle.load(FILE_2)
+    except Exception:
+        MESSAGESTORE = {
+            'Messages' : []
+        }
     return MESSAGESTORE
 
 def get_permission_store():
@@ -75,15 +98,23 @@ def reset_store():
     global USERDATASTORE
     global CHANNELSTORE
     global MESSAGESTORE
-    USERDATASTORE = {
-        'users' : []
-    }
-    CHANNELSTORE = {
-        'Channels' : []
-    }
-    MESSAGESTORE = {
-        'Messages' : []
-    }
+    try:
+        FILE = open('userStore.p', 'rb')
+        USERDATASTORE = pickle.load(FILE)
+        FILE_1 = open('channelStore.p', 'rb')
+        CHANNELSTORE = pickle.load(FILE_1)
+        FILE_2 = open('messagesStore.p', 'rb')
+        MESSAGESTORE = pickle.load(FILE_2)
+    except Exception:
+        USERDATASTORE = {
+            'users' : []
+        }
+        CHANNELSTORE = {
+            'Channels' : []
+        }
+        MESSAGESTORE = {
+            'Messages' : []
+        }
 
 def make_message(message, channel_id, user_id, time_created): 
     store = get_messages_store()
@@ -340,3 +371,15 @@ def randomString(stringLength=10):
     """Generate a random string of fixed length """
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for i in range(stringLength))
+
+
+############Function for storing the data##################
+def store_the_data():
+    while True:
+        with open('userStore.p', 'wb') as FILE_3:
+            pickle.dump(get_user_store(), FILE_3)
+        with open('channelStore.p', 'wb') as FILE_4:
+            pickle.dump(get_channel_store(), FILE_4)
+        with open('messagesStore.p', 'wb') as FILE_5:
+            pickle.dump(get_messages_store(), FILE_5)
+        time.sleep(1)

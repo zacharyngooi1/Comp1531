@@ -10,6 +10,7 @@ from db import token_check, channel_check, u_id_check, email_check, email_dupe_c
 from db import handle_check, password_check, message_check, owner_channel_check
 from db import member_channel_check, react_check, reset_store
 from db import get_messages_store
+from db import store_the_data
 from user import user_profile, user_profile_setemail, user_profile_sethandle
 from user import user_profile_setname
 from auth import auth_register, auth_logout, auth_login, auth_pw_request, auth_pw_reset
@@ -24,6 +25,8 @@ from channel import check_if_user_in_channel_owner, check_if_user_in_channel_own
 from channel import check_if_user_in_channel_member_uid, check_if_channel_is_public
 import datetime
 from datetime import timezone
+import time
+import threading
 #input_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
 #chan_id = channels_create(input_dict['token'], 'Hayden', True)
 
@@ -833,3 +836,5 @@ def standup_send_flask():
 ###############################################################
 if __name__ == "__main__":
     APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 5324599))
+    storing_data_thread = threading.Thread(target = store_the_data)
+    storing_data_thread.start()

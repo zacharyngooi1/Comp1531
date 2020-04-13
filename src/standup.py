@@ -95,6 +95,7 @@ def standup_send(token, channel_id, message):
     """
     channel_store = get_channel_store()
     channel = channel_check(channel_id)
+    message_store = get_messages_store()
     if channel == False:
         raise InputError
     if member_channel_check(token, channel_id) == False:
@@ -104,6 +105,7 @@ def standup_send(token, channel_id, message):
     if standup_active(token,channel_id)['is_active'] == False:
         raise InputError
     user = token_check(token)
+    
     if channel['standup']['time_standup_finished'] - datetime.now().replace(tzinfo=timezone.utc).timestamp() > 0:
         message_send_for_standup(user['u_id'], message)
     return {
