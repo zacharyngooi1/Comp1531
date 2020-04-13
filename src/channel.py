@@ -17,13 +17,13 @@ def channel_invite(token, channel_id, u_id):
        
     '''
 
-    if channel_check(channel_id) == False:
+    if not channel_check(channel_id):
         raise InputError
 
-    if u_id_check(u_id) == False:
+    if not u_id_check(u_id):
         return InputError
 
-    if check_if_user_in_channel_member_uid(u_id, channel_id) == True:
+    if check_if_user_in_channel_member_uid(u_id, channel_id):
         raise AccessError
 
     channel_store = get_channel_store()
