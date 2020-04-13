@@ -12,13 +12,6 @@ from error import InputError, AccessError
 from datetime import datetime
 import smtplib 
 
-def sendSuccess(data):
-    return dumps(data)
-
-def sendError(message):
-    return dumps({
-        '_error' : message,
-    })
 
 #Assumption: Assume there are no users with the same firstname + lastname + first letter of their password
 def auth_register(email, password, name_first, name_last):

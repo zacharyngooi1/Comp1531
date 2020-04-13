@@ -17,13 +17,13 @@ def channel_invite(token, channel_id, u_id):
        
     '''
 
-    if channel_check(channel_id) == False:
+    if not channel_check(channel_id):
         raise InputError
 
-    if u_id_check(u_id) == False:
+    if not u_id_check(u_id):
         return InputError
 
-    if check_if_user_in_channel_member_uid(u_id, channel_id) == True:
+    if check_if_user_in_channel_member_uid(u_id, channel_id):
         raise AccessError
 
     channel_store = get_channel_store()
@@ -346,6 +346,7 @@ def channels_create(token, name, is_public):
     store['Channels'].append(channel_dict)
     user_store['channel_id_owned'].append(channel_dict["channel_id"])
     user_store['channel_id_part'].append(channel_dict["channel_id"])
+    #print(store)
     return {
         'channel_id' : channel_dict["channel_id"]
     }
@@ -365,7 +366,8 @@ def channels_list_all(token):
     print('doesnt raise inout error')
     channel_store = get_channel_store()
     empty_list = []
-    print('b4 for loop')
+    print("Token check returns", token_check(token))
+    print(channel_store)
     for channels in channel_store['Channels']:
         empty_list.append({"channel_id" : channels["channel_id"], "name" : channels["name"]})
     return {'channels':empty_list}

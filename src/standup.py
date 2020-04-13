@@ -26,7 +26,8 @@ def standup_start(token, channel_id, length):
     channel = channel_check(channel_id)
     if channel == False:
         raise InputError
-    current_moment_in_time = datetime.now()
+    
+    current_moment_in_time = datetime.utcnow()
     if channel['standup']['time_standup_finished'] != None:
         if current_moment_in_time.replace(tzinfo=timezone.utc).timestamp() < channel['standup']['time_standup_finished']:
             raise InputError
@@ -34,6 +35,7 @@ def standup_start(token, channel_id, length):
     channel['standup']['is_standup_active'] = True
     time_finish = length + current_moment_in_time.replace(tzinfo=timezone.utc).timestamp()
     channel['standup']['time_standup_finished'] = time_finish
+    
     return {
         'time_finish' : time_finish #This is a unix timestamp
     }
@@ -57,7 +59,7 @@ def standup_active(token, channel_id):
     channel = channel_check(channel_id)
     if channel == False:
         raise InputError
-    current_moment_in_time = datetime.now()
+    current_moment_in_time = datetime.utcnow()
     print("now:",current_moment_in_time.replace(tzinfo=timezone.utc).timestamp())
     print("then:",channel['standup']['time_standup_finished'])
     print('BEFORE THE IF STATEMENT ')
