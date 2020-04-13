@@ -346,6 +346,7 @@ def channels_create(token, name, is_public):
     store['Channels'].append(channel_dict)
     user_store['channel_id_owned'].append(channel_dict["channel_id"])
     user_store['channel_id_part'].append(channel_dict["channel_id"])
+    #print(store)
     return {
         'channel_id' : channel_dict["channel_id"]
     }
@@ -363,6 +364,8 @@ def channels_list_all(token):
         raise InputError
     channel_store = get_channel_store()
     empty_list = []
+    print("Token check returns", token_check(token))
+    print(channel_store)
     for channels in channel_store['Channels']:
         empty_list.append({"channel_id" : channels["channel_id"], "name" : channels["name"]})
     return {'channels':empty_list}
