@@ -6,7 +6,7 @@ import hashlib
 import re
 import string
 import random
-from datetime import date, time, datetime
+from datetime import date, time, datetime, timezone
 from random import randrange
 
 USERDATASTORE = {
@@ -47,7 +47,11 @@ PERMISSIONSTORE = {
 }
 
 STANDUPQUEUE = {
-    'Standup_queues':[]
+    'Standup_queues':[
+        {
+            'final_string':''
+        }
+    ]
     
 }
 
@@ -101,7 +105,7 @@ def make_message(message, channel_id, user_id, time_created):
 
 def check_user_in_channel(u_id, channel_id): 
     channel_data = get_channel_store
-    print(channel_data)
+    #print(channel_data)
     channel = channel_check(channel_id)
     flag = 0
     for member in channel_iter['all_members']: 
@@ -192,18 +196,25 @@ def login(user):
     return token
 
 #Standup helper functions
-def message_send_for_standup(u_id, message):
-    standupqueue_store = get_standup_queue()['Standup_queues'][len(get_standup_queue()['Standup_queues'])-1]
+def message_create_for_standup(u_id, message):
+    # Stadup_qeueues is []
+    
+    final_string = get_standup_queue()['Standup_queues']['final_string']
+    return_string = user['handle_str'] + ":" + message + '\n'
+    get_standup_queue()['Standup_queues']['final_string'] = final_string + return_string
+    """
+    # This gets the most recent message in the standup
+    standupqueue_store = get_standup_queue()['Standup_queues'][-1]
     user = u_id_check(u_id)
-    return_string = user['handle_str'] + ":" + message + ','
+    return_string = user['handle_str'] + ":" + message + '\n'
     standupqueue_store["final_string"] = standupqueue_store["final_string"] + return_string
-
+    """
 ###################################################
 ##             Checking functions                ##
 ###################################################
 
 def u_id_check(u_id):
-    print(u_id)
+    #print(u_id)
     data = get_user_store()
     for user in data['users']:
         if int(user['u_id']) == int(u_id):
@@ -245,7 +256,7 @@ def token_check(token):
 
 def channel_check(channel_id):
     data = get_channel_store()
-    print(data)
+    #print(data)
     for channel in data['Channels']:
         if int(channel['channel_id']) == int(channel_id):
             return channel
@@ -263,7 +274,7 @@ def message_check(message_id):
     data = get_messages_store()
    
     for message in data['Messages']:
-        print("data---------->",message_id)
+        #print("data---------->",message_id)
         if int(message['message_id']) == int(message_id):
             return message
     return None
@@ -324,13 +335,13 @@ def find_email(email):
 
 def find_code(code):
     data = get_user_store()
-    print('code',code)
+    #print('code',code)
     for user in data['users']:
-        print('is this where it shits the bed')
+        #print('is this where it shits the bed')
         if 'reset' in user :
-            print('in here')
+            #print('in here')
             if user['reset'] == code:
-                print('final')
+                #print('final')
                 return user
     return False
     

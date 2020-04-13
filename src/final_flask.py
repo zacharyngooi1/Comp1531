@@ -5,7 +5,7 @@ from flask_cors import CORS
 from error import InputError, AccessError, NameException, KeyError
 from server import defaultHandler
 from db import login, make_user, get_channel_store, get_messages_store, get_permission_store
-from db import get_user_store, add_user, create_handle, message_send_for_standup
+from db import get_user_store, add_user, create_handle, message_create_for_standup
 from db import token_check, channel_check, u_id_check, email_check, email_dupe_check
 from db import handle_check, password_check, message_check, owner_channel_check
 from db import member_channel_check, react_check, reset_store
