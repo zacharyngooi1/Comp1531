@@ -84,11 +84,18 @@ def register():
         raise InputError(description="First name is invalid")
     if len(name_last) < 1 or len(name_last) > 50:
         raise InputError(description="Last name is invalid")
-
+    #print()
+    #print('Auth register:makes it this far!!')
+    #print()    
     auth = auth_register(email, password, name_first, name_last)
     auth_token = auth['token']
     auth_uid = auth['u_id']
     
+    #print('this is auth register')
+    #print(get_user_store())
+    #print()
+    #print(auth)
+    #print()
     return dumps({
         'token': auth_token,
         'u_id': auth_uid
@@ -281,7 +288,9 @@ def get_all_users():
     """
     token = request.args.get("token")
     # Get current data inside store
+    #print('users listall:',token)
     if not token_check(token):
+        #print('invalid token')
         raise InputError(description="Invalid_token")
     user_list = users_all(token)
     return dumps({
@@ -331,9 +340,9 @@ def c_create():
     token = data['token']
     name = data['name']
     is_public = bool(data['is_public'])
-    print(is_public)
+    #print(is_public)
     channel_id = channels_create(token, name, is_public)
-    print(get_channel_store())
+    #print(get_channel_store())
     #message_id = {'message_id':1}
     return dumps(channel_id)
     #return 1
@@ -348,6 +357,7 @@ def c_invite():
     Returns:
         (dictionary): Empty dictionary
     """
+    print('ENTERS CHANNEL INVITE')
     data = request.get_json()
 
     token = data['token']
@@ -355,12 +365,16 @@ def c_invite():
     u_id = int(data['u_id'])
 
     if channel_check(channel_id) == False: 
-        raise InputError
+        print('ch invite: input error')
+        raise InputError(description="input error")
 
-    if check_if_user_in_channel_member(token,channel_id) == True: 
+    if check_if_user_in_channel_member_uid(token,channel_id) == True: 
+        print('ch invite: Access error')
         raise AccessError
 
-    out = channnel_invite(token, channel_id, u_id)
+    print()
+    print('Channel invite: passed all the errors')
+    out = channel_invite(token, channel_id, u_id)
     return dumps(out)
 
 #APP route
@@ -377,28 +391,28 @@ def c_leave():
     #Request information 
     data = request.get_json()
 
-    print("gets to request")
-    print()
+    #print("gets to request")
+    #print()
     channel_id = data['channel_id']
     token = data['token']
 
-    print("assigns data")
+    #print("assigns data")
     #channel_id = new_chl['channel_id']
     #token = new_user['token']
 
     if channel_check(channel_id) == None:
         raise InputError
 
-    print()
-    print("gets passed first error")
-    print()
-    print(channel_id)
+    #print()
+    #print("gets passed first error")
+    #print()
+    #print(channel_id)
     check = check_if_user_in_channel_member(token, channel_id)
-    print(check)
+    #print(check)
     if check == False:
         raise AccessError(description="False leave")
-    print('gets passed second error')
-    print("gets to channel_leave call")
+    #print('gets passed second error')
+    #print("gets to channel_leave call")
     channel_leave(token, channel_id)
     return dumps({})
 
@@ -528,16 +542,19 @@ def c_list():
         channels that the user is part of and their associated
         details
     """
-    print("IT ENTERS THIS ATLEAST")
-    print()
-    print()
+    #print("IT ENTERS THIS ATLEAST(list)")
+    #print()
+    #print('user database',get_user_store() )
+   # print()
     token = request.args.get('token')
-
+    #print('list token',token)
+   # print()
     if token_check(token) == False:
+       # print('LIST INPUT ERROR')
         raise InputError
-
+    #print('no input error')
     return_dict = channel_list(token)
-    print(return_dict)
+    #print(return_dict)
     return dumps(return_dict)
     #return 1
 
@@ -553,14 +570,18 @@ def c_listall():
         channels and is a list of channels and their associated details
     """
 
-    
+    #print("IT ENTERS THIS ATLEAST(listall)")
+    #print()
+    #print()
     token = request.args.get('token')
 
     if token_check(token) == False:
         raise InputError
 
+    #print('token correct')
     return_dict = channels_list_all(token)
-    print(return_dict)
+    #print('returns the channels list all function')
+    #print(return_dict)
     return dumps(return_dict)
     #return 1
 
@@ -590,7 +611,7 @@ def c_messages():
         raise AccessError
 
     return_dict = channel_messages(token, ch_id,start)
-    print('bout to return this:',return_dict)
+    #print('bout to return this:',return_dict)
     return dumps(return_dict)
     #return 1
 
