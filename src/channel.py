@@ -360,8 +360,10 @@ def channels_list_all(token):
         Returns: 
             (list):  list of channels
     '''
+    print('enter channels list all')
     if token_check(token) == False:
         raise InputError
+    print('doesnt raise inout error')
     channel_store = get_channel_store()
     empty_list = []
     print("Token check returns", token_check(token))
@@ -381,7 +383,9 @@ def channel_list(token):
         Returns: 
             (int): channel id 
     '''
+    print('channel list')
     if token_check(token) == False:
+        print('input error')
         raise InputError
     channel_store = get_channel_store()
     user = token_check(token)
@@ -408,12 +412,12 @@ def check_if_user_in_channel_member(token, channel_id):
         print(mem_check['channel_id'])
         print()
         print(channel_id)
-        if mem_check['channel_id'] == int(channel_id):
+        if int(mem_check['channel_id']) == int(channel_id):
             print("gets to first if statement")
             print()
             for mem in mem_check['all_members']:
                 print("in second for loop")
-                if mem["u_id"] == user["u_id"]:
+                if int(mem["u_id"]) == int(user["u_id"]):
                     print("gets to second if statemtn")
                     result = True
     return result
