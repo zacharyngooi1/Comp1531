@@ -69,8 +69,6 @@ def standup_active(token, channel_id):
         }
     
     if current_moment_in_time.replace(tzinfo=timezone.utc).timestamp() < channel['standup']['time_standup_finished']:
-        message_send_thread = threading.Thread(target = send_message_after_time_finish, args=(channel['standup']['time_standup_finished'], token, channel_id))
-        message_send_thread.start()
         return {
             'is_active' : True,
             'time_finish' : channel['standup']['time_standup_finished']
@@ -103,7 +101,13 @@ def standup_send(token, channel_id, message):
     if standup_active(token,channel_id)['is_active'] == False:
         raise InputError
     user = token_check(token)
-    if channel['standup']['time_standup_finished'] - datetime.now().replace(tzinfo=timezone.utc).timestamp() > 0:
+    print("time_standup_finished", channel['standup']['time_standup_finished'])
+    print("current time", datetime.now().replace(tzinfo=timezone.utc).timestamp())
+    if channel['standup']['time_standup_finished'] - int(datetime.now().replace(tzinfo=timezone.utc).timestamp()) < 0:
+        print(channel['standup']['time_standup_finished'])
+        print(int(datetime.now().replace(tzinfo=timezone.utc).timestamp()))
+        message_send_thread = threading.Thread(target = send_message_after_time_finish, args=(channel['standup']['time_standup_finished'], token, channel_id))
+        message_send_thread.start()
         message_create_for_standup(user['u_id'], message)
     return {
     
@@ -129,38 +133,14 @@ standupqueue_store = get_standup_queue()
 print(standupqueue_store)
 """
 
-# DO not put the following function in db.py. It will not work because message_send calls db.py and so db.py should not call message_send
+# Do not put the following function in db.py. It will not work because message_send calls db.py and so db.py should not call message_send
 #HELPER FUNCTION
 def send_message_after_time_finish(time_finish, token, channel_id):
     i = 0
-    print("""
     
-    
-    
-
-
-
-
-
-
-    
-    """)
-    print(type(datetime.now().replace(tzinfo=timezone.utc).timestamp()))
-    print(type(time_finish))
-    print("""
-    
-    
-    
-
-
-
-
-
-
-    
-    """)
     while (datetime.now().replace(tzinfo=timezone.utc).timestamp() < time_finish):
         i += 1
+    #time.sleep(time_finish - datetime.now().replace(tzinfo=timezone.utc).timestamp())
     #standupqueue_store = get_standup_queue()
     final_string = get_standup_queue()['Standup_queues'][0]['final_string']
     message_send(token, channel_id, final_string)

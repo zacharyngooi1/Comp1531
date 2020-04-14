@@ -106,11 +106,7 @@ def make_message(message, channel_id, user_id, time_created):
 
 def check_user_in_channel(u_id, channel_id): 
     channel_data = get_channel_store
-<<<<<<< HEAD
-    #print(channel_data)
-=======
     print("ENTER CHEKC",channel_data)
->>>>>>> master
     channel = channel_check(channel_id)
     flag = 0
     for member in channel_iter['all_members']: 
@@ -210,10 +206,12 @@ def login(user):
 #Standup helper functions
 def message_create_for_standup(u_id, message):
     # Stadup_qeueues is []
-    
-    final_string = get_standup_queue()['Standup_queues']['final_string']
+    user = u_id_check(u_id)
+    final_string = get_standup_queue()['Standup_queues'][0]['final_string']
+    print("Final string is = ", final_string)
     return_string = user['handle_str'] + ":" + message + '\n'
-    get_standup_queue()['Standup_queues']['final_string'] = final_string + return_string
+    print("Return string is = ", return_string)
+    get_standup_queue()['Standup_queues'][0]['final_string'] = final_string + return_string
     """
     # This gets the most recent message in the standup
     standupqueue_store = get_standup_queue()['Standup_queues'][-1]
@@ -278,8 +276,8 @@ def channel_check(channel_id):
     data = get_channel_store()
     #print(data)
     for channel in data['Channels']:
-        print('CHANNEL CHECK:',channel_id)
-        print('CHANNEL CHECK:',channel['channel_id'])
+        #print('CHANNEL CHECK:',channel_id)
+        #print('CHANNEL CHECK:',channel['channel_id'])
         if int(channel['channel_id']) == int(channel_id):
             return channel
     return False
