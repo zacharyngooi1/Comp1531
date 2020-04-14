@@ -253,6 +253,10 @@ def user_handle():
 
     return dumps({})
 
+@APP.route("/user/profile/uploadphoto", methods=["POST"])
+def uploadphoto(): 
+    
+
 @APP.route("/users/all", methods=["GET"])
 def get_all_users():
     """ This is a flask wrapper for the users_all function
@@ -272,6 +276,7 @@ def get_all_users():
     return dumps({
         'users': user_list['users']
     })
+
 
 
 @APP.route("/search", methods=["GET"])
@@ -363,28 +368,19 @@ def c_leave():
     #Request information 
     data = request.get_json()
 
-    print("gets to request")
-    print()
     channel_id = data['channel_id']
     token = data['token']
 
-    print("assigns data")
     #channel_id = new_chl['channel_id']
     #token = new_user['token']
 
     if channel_check(channel_id) == None:
         raise InputError
 
-    print()
-    print("gets passed first error")
-    print()
-    print(channel_id)
     check = check_if_user_in_channel_member(token, channel_id)
-    print(check)
+
     if check == False:
         raise AccessError
-    print('gets passed second error')
-    print("gets to channel_leave call")
     channel_leave(token, channel_id)
     return dumps({})
 
@@ -488,20 +484,18 @@ def c_details():
         the channel(the name of the channel, owners of the channels
         and all the members of the channel)
     """
-    print('1')
     token = request.args.get('token')
     channel_id = int(request.args.get('channel_id'))
-    print(token)
+ 
     if channel_check(channel_id) == False: 
         raise InputError
-    print('2')
+ 
     if check_if_user_in_channel_member(token,channel_id) == False: 
         print ('in the if statement')
         raise AccessError
-    print('3')
+  
     return_dict = channel_details(token, channel_id)
-    print('4')
-    print(return_dict)
+
     return dumps(return_dict)
     #return 1
 
@@ -517,16 +511,12 @@ def c_list():
         channels that the user is part of and their associated
         details
     """
-    print("IT ENTERS THIS ATLEAST")
-    print()
-    print()
     token = request.args.get('token')
 
     if token_check(token) == False:
         raise InputError
 
     return_dict = channel_list(token)
-    print(return_dict)
     return dumps(return_dict)
     #return 1
 
@@ -623,17 +613,11 @@ def send_later():
         (dictionary): A dictionary containing the message_id
         of the message that was sent.
     """
-    print('Flask1')
     data = request.get_json()
-    print('Flask2')
     token = data['token']
-    print('Flask3')
     channel_id = int(data['channel_id'])
-    print('Flask4')
     message = data['message']
-    print('Flask5')
     time = (data['time_sent'])
-    print('Flask6')
     message_id = message_send_later(token, channel_id, message,time)
     return dumps(message_id)
 
