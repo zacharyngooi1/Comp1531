@@ -5,7 +5,7 @@ from flask_cors import CORS
 from error import InputError, AccessError, NameException, KeyError
 from server import defaultHandler
 from db import login, make_user, get_channel_store, get_messages_store, get_permission_store
-from db import get_user_store, add_user, create_handle, message_send_for_standup
+from db import get_user_store, add_user, create_handle, message_create_for_standup
 from db import token_check, channel_check, u_id_check, email_check, email_dupe_check
 from db import handle_check, password_check, message_check, owner_channel_check
 from db import member_channel_check, react_check, reset_store
@@ -22,11 +22,11 @@ from channel import channel_invite, channel_details, channel_messages, channel_l
 from channel import channel_join, channel_addowner, channel_removeowner, channels_create
 from channel import channels_list_all, channel_list, check_if_user_in_channel_member
 from channel import check_if_user_in_channel_owner, check_if_user_in_channel_owner_uid
-from channel import check_if_user_in_channel_member_uid, check_if_channel_is_public
-import datetime
-from datetime import timezone
-import time
+from channel import check_if_user_in_channel_member_uid, check_if_channel_is_public, check_if_channel_exists
+from datetime import timezone, datetime
 import threading
+from hangman import play_hangman
+
 #input_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
 #chan_id = channels_create(input_dict['token'], 'Hayden', True)
 
@@ -60,6 +60,8 @@ def reset():
 ###############################################################
 # AUTH FLASK FUNCTIONS
 ###############################################################
+auth_register("rob@gmail.com", "password123", "Rob", "Ever")
+
 
 @APP.route("/auth/register", methods=["POST"])
 def register():
@@ -87,11 +89,18 @@ def register():
         raise InputError(description="First name is invalid")
     if len(name_last) < 1 or len(name_last) > 50:
         raise InputError(description="Last name is invalid")
-
+    #print()
+    #print('Auth register:makes it this far!!')
+    #print()    
     auth = auth_register(email, password, name_first, name_last)
     auth_token = auth['token']
     auth_uid = auth['u_id']
     
+    #print('this is auth register')
+    #print(get_user_store())
+    #print()
+    #print(auth)
+    #print()
     return dumps({
         'token': auth_token,
         'u_id': auth_uid
@@ -284,7 +293,9 @@ def get_all_users():
     """
     token = request.args.get("token")
     # Get current data inside store
+    #print('users listall:',token)
     if not token_check(token):
+        #print('invalid token')
         raise InputError(description="Invalid_token")
     user_list = users_all(token)
     return dumps({
@@ -334,9 +345,9 @@ def c_create():
     token = data['token']
     name = data['name']
     is_public = bool(data['is_public'])
-    print(is_public)
+    #print(is_public)
     channel_id = channels_create(token, name, is_public)
-    print(get_channel_store())
+    #print(get_channel_store())
     #message_id = {'message_id':1}
     return dumps(channel_id)
     #return 1
@@ -351,6 +362,7 @@ def c_invite():
     Returns:
         (dictionary): Empty dictionary
     """
+    print('ENTERS CHANNEL INVITE')
     data = request.get_json()
 
     token = data['token']
@@ -358,12 +370,16 @@ def c_invite():
     u_id = int(data['u_id'])
 
     if channel_check(channel_id) == False: 
-        raise InputError
+        print('ch invite: input error')
+        raise InputError(description="input error")
 
-    if check_if_user_in_channel_member(token,channel_id) == True: 
+    if check_if_user_in_channel_member_uid(token,channel_id) == True: 
+        print('ch invite: Access error')
         raise AccessError
 
-    out = channnel_invite(token, channel_id, u_id)
+    print()
+    print('Channel invite: passed all the errors')
+    out = channel_invite(token, channel_id, u_id)
     return dumps(out)
 
 #APP route
@@ -380,28 +396,28 @@ def c_leave():
     #Request information 
     data = request.get_json()
 
-    print("gets to request")
-    print()
+    #print("gets to request")
+    #print()
     channel_id = data['channel_id']
     token = data['token']
 
-    print("assigns data")
+    #print("assigns data")
     #channel_id = new_chl['channel_id']
     #token = new_user['token']
 
     if channel_check(channel_id) == None:
         raise InputError
 
-    print()
-    print("gets passed first error")
-    print()
-    print(channel_id)
+    #print()
+    #print("gets passed first error")
+    #print()
+    #print(channel_id)
     check = check_if_user_in_channel_member(token, channel_id)
-    print(check)
+    #print(check)
     if check == False:
         raise AccessError(description="False leave")
-    print('gets passed second error')
-    print("gets to channel_leave call")
+    #print('gets passed second error')
+    #print("gets to channel_leave call")
     channel_leave(token, channel_id)
     return dumps({})
 
@@ -531,18 +547,17 @@ def c_list():
         channels that the user is part of and their associated
         details
     """
-    print("IT ENTERS THIS ATLEAST")
-    print()
-    print()
+
     token = request.args.get('token')
 
     if token_check(token) == False:
+
         raise InputError
 
     return_dict = channel_list(token)
-    print(return_dict)
+
     return dumps(return_dict)
-    #return 1
+
 
 @APP.route("/channels/listall", methods=["GET"])
 def c_listall():
@@ -556,14 +571,18 @@ def c_listall():
         channels and is a list of channels and their associated details
     """
 
-    
+    #print("IT ENTERS THIS ATLEAST(listall)")
+    #print()
+    #print()
     token = request.args.get('token')
 
     if token_check(token) == False:
         raise InputError
 
+    #print('token correct')
     return_dict = channels_list_all(token)
-    print(return_dict)
+    #print('returns the channels list all function')
+    #print(return_dict)
     return dumps(return_dict)
     #return 1
 
@@ -593,7 +612,7 @@ def c_messages():
         raise AccessError
 
     return_dict = channel_messages(token, ch_id,start)
-    print('bout to return this:',return_dict)
+    #print('bout to return this:',return_dict)
     return dumps(return_dict)
     #return 1
 
@@ -618,7 +637,10 @@ def send():
     token = data['token']
     channel_id = data['channel_id']
     message = data['message']
-
+    if len(message) >= 1000:
+        raise InputError(description="Message is too long")
+    if not check_if_user_in_channel_member(token, channel_id):
+        raise AccessError(description="User not member of channel")
     message_id = message_send(token, channel_id, message)
     #message_id = {'message_id':1}
     print(get_messages_store())
@@ -637,17 +659,19 @@ def send_later():
         (dictionary): A dictionary containing the message_id
         of the message that was sent.
     """
-    print('Flask1')
     data = request.get_json()
-    print('Flask2')
     token = data['token']
-    print('Flask3')
     channel_id = int(data['channel_id'])
-    print('Flask4')
     message = data['message']
-    print('Flask5')
     time = (data['time_sent'])
-    print('Flask6')
+    if len(message) >= 1000:
+        raise InputError(description="Message is too long")
+    if not check_if_channel_exists(channel_id):
+        raise InputError(description="Channel does not exist")
+    if int(time) < int(datetime.datetime.now().replace(tzinfo=timezone.utc).timestamp()):
+        raise InputError(description="Invalid time")
+    if not check_if_user_in_channel_member(token, channel_id):
+        raise AccessError(description="User not member of channel")
     message_id = message_send_later(token, channel_id, message,time)
     return dumps(message_id)
 
@@ -668,7 +692,17 @@ def react():
     react_id = int(data['react_id'])
     message_id = int(data['message_id'])
 
-    message_react(token,message_id , 1)
+    if react_id != 1:
+        raise InputError(description="Invalid react id")
+    if not token_check(token):
+        raise AccessError(description="Invalid user")
+    user = token_check(token)
+    if react_check(message_id, user['u_id'], react_id):
+        raise InputError(description="Already reacted")
+
+    is_this_user_reacted = False;
+
+    message_react(token, message_id, 1)
 
     return dumps({})
 
@@ -687,8 +721,14 @@ def unreact():
     token = data['token']
     react_id = int(data['react_id'])
     message_id = int(data['message_id'])
-    
-    message_unreact(token,message_id , 1)
+    if react_id != 1:
+        raise InputError(description="Invalid react id")
+    if not token_check(token):
+        raise AccessError(description="Invalid user")
+    user = token_check(token)
+    if not react_check(message_id, user['u_id'], react_id):
+        raise InputError(description="Already reacted")
+    message_unreact(token, message_id, 1)
     return dumps({})
 
 #message_pin(hayden_dict['token'], message_id_pin['message_id'])
@@ -707,7 +747,15 @@ def pin():
 
     token = data['token']
     message_id = int(data['message_id'])
-    
+    if message_check(message_id) == None:
+        raise InputError(description="Invalid id")
+    message = message_check(message_id)
+    if message['is_pinned']:
+        raise InputError(description="Already pinned")
+    if not check_if_user_in_channel_member(token, message['channel_id']):
+        raise AccessError(description="User not member")
+    if not check_if_user_in_channel_owner(token, message['channel_id']):
+        raise AccessError(description="User not Owner")
     message_pin(token,message_id)
     return dumps(message_id)
 
@@ -727,7 +775,17 @@ def unpin():
     token = data['token']
     message_id = int(data['message_id'])
     
-    message_unpin(token,message_id)
+    if message_check(message_id) == None:
+        raise InputError(description="Invalid id")
+    message = message_check(message_id)
+    if not message['is_pinned']:
+        raise InputError(description="Already unpinned")
+    if not check_if_user_in_channel_member(token, message['channel_id']):
+        raise AccessError(description="User not member")
+    if not check_if_user_in_channel_owner(token, message['channel_id']):
+        raise AccessError(description="User not Owner")
+
+    message_unpin(token, message_id)
     return dumps(message_id)
 
 
@@ -747,8 +805,16 @@ def edit():
     token = data['token']
     message_id = int(data['message_id'])
     message = data['message']
+
+    message_probe = message_check(message_id)
+    user = token_check(token)
+   
+    if not check_if_user_in_channel_owner(token, message['channel_id']):
+        raise AccessError(description="User not owner")
+    if user['u_id'] != message_probe['user_id']:
+        raise AccessError(description="User not sender")
     
-    message_edit(token,message_id,message)
+    message_edit(token, message_id, message)
     return dumps(message_id)
 
 
@@ -767,6 +833,16 @@ def remove():
     token = data['token']
     message_id = int(data['message_id'])
     
+    message_probe = message_check(message_id)
+    user = token_check(token)
+    if message_probe == None:
+        raise InputError(description="Message not found")
+    if not check_if_user_in_channel_owner(token, message['channel_id']):
+        raise AccessError(description="User not owner")
+    if user['u_id'] != message_probe['user_id']:
+        raise AccessError(description="User not sender")
+
+
     message_remove(token,message_id)
     return dumps(message_id)
 
@@ -831,8 +907,46 @@ def standup_send_flask():
     message = data['message']
     out = standup_send(token, channel_id, message)   
     return dumps(out)
+
+# update message function
+# Step 1: Check if standup is running
+# Step 2: If running, send the standup message using message_send (time_now >time_sent) 
+def update_message():
+    channel_store = get_channel_store()
+    # The following piece of code does the following:
+    # 1. Loop through each of the channels
+    # 2. Check if message at the end of statdup is sent
+    # 3. If not send the message
+    for channel in channel_store['Channels']:
+        if ((channel['standup']['is_message_sent'] == False) and (channel['standup']['time_standup_finished'] != None)):
+            user = u_id_check(channel['standup']['u_id_standup_started'])
+            if (int(datetime.utcnow().replace(tzinfo=timezone.utc).timestamp()) > int(channel['standup']['time_standup_finished'])):
+                message_send(user['token'], channel['channel_id'], channel['standup']['standup_message'])
+    return
+
+def update_standup():
+    channel_store = get_channel_store()
+    for channel in channel_store['Channels']:
+        if ((channel['standup']['is_message_sent'] == False) and (channel['standup']['time_standup_finished'] != None)):
+            if (int(datetime.utcnow().replace(tzinfo=timezone.utc).timestamp()) > int(channel['standup']['time_standup_finished'])):
+                channel['standup']['is_standup_active'] = False
+                channel['standup']['time_standup_finished'] = None
+                channel['standup']['u_id_standup_started'] = 0
+                channel['standup']['is_message_sent'] = True
+                channel['standup']["standup_message"] = ""
+    return
+
+def timer_action():
+	timer = threading.Timer(1.0, timer_action)
+	timer.start()
+	update_message()
+	update_standup()
+
+# DONT REMOVE THE FOLLOWING LINE. IT IS IMPORTANT FOR MAKING STANDUPS WORK
+timer_action()
+
 ###############################################################
-#DONT TOUCH ANYTHING BELOW THIS LINE OR ZACH WILL BEAT U UP
+#DONT TOUCH ANYTHING BELOW THIS LINE
 ###############################################################
 if __name__ == "__main__":
     APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 5324599))

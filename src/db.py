@@ -6,7 +6,7 @@ import hashlib
 import re
 import string
 import random
-from datetime import date, time, datetime
+from datetime import date, time, datetime, timezone
 from random import randrange
 import pickle
 import time
@@ -23,8 +23,9 @@ CHANNELSTORE = {
         #'owner_memmbers':[],
         #'all_members':[],
         #'is_public': Boolean
+        # 'standup' : {'is_standup_active':False, 'time_standup_finished':None, 'standup_message':"", 'u_id_standup_started': 0}
     #},
-    ]
+    ],
 }
 
 MESSAGESTORE = { 
@@ -38,7 +39,11 @@ MESSAGESTORE = {
             #is_pinned
             #time_created
         #}
-    ]
+    ],
+    
+   
+    
+    
 }
 
 PERMISSIONSTORE = {
@@ -46,11 +51,6 @@ PERMISSIONSTORE = {
     "SLACKR_MEMBER": 2,
     "CHANNEL_OWNER": 1,
     "CHANNEL_MEMBER": 2,
-}
-
-STANDUPQUEUE = {
-    'Standup_queues':[]
-    
 }
 
 def get_user_store():
@@ -90,10 +90,6 @@ def get_permission_store():
     global PERMISSIONSTORE
     return PERMISSIONSTORE
 
-def get_standup_queue():
-    global STANDUPQUEUE
-    return STANDUPQUEUE
-
 def reset_store():
     global USERDATASTORE
     global CHANNELSTORE
@@ -123,7 +119,8 @@ def make_message(message, channel_id, user_id, time_created):
     message_id = len(message) + randrange(25000)
     #maybe make message_id a global variable 
     if time_created == 0: 
-        time = datetime.now()
+        time = datetime.utcnow()
+        
     else: 
         time = time_created
     user['messages_created'].append(message)
@@ -132,11 +129,12 @@ def make_message(message, channel_id, user_id, time_created):
 
 def check_user_in_channel(u_id, channel_id): 
     channel_data = get_channel_store
-    print(channel_data)
+   
     channel = channel_check(channel_id)
     flag = 0
     for member in channel_iter['all_members']: 
         if int(member['u_id']) == int(u_id): 
+            
             flag = 1
     if flag == 1: 
         return True
@@ -172,6 +170,12 @@ if ch in usr['channels_owned']:
 
 
 logged_in_users = {}
+
+def get_logged_in_users():
+    global logged_in_users
+    return logged_in_users
+
+
 permission_ids = {
     "SLACKR_OWNER": 1,
     "SLACKR_MEMBER": 2,
@@ -223,18 +227,23 @@ def login(user):
     return token
 
 #Standup helper functions
-def message_send_for_standup(u_id, message):
-    standupqueue_store = get_standup_queue()['Standup_queues'][len(get_standup_queue()['Standup_queues'])-1]
+def message_create_for_standup(channel_id, u_id, message):
+    # Stadup_qeueues is []
+    channel_store = get_channel_store()
     user = u_id_check(u_id)
-    return_string = user['handle_str'] + ":" + message + ','
-    standupqueue_store["final_string"] = standupqueue_store["final_string"] + return_string
-
+    channel = channel_check(channel_id)
+    final_string = channel["standup"]["standup_message"]
+    print("Final string is = ", final_string)
+    return_string = user['handle_str'] + ":" + message + '\n'
+    print("Return string is = ", return_string)
+    channel["standup"]["standup_message"] = final_string + return_string
+    
 ###################################################
 ##             Checking functions                ##
 ###################################################
 
 def u_id_check(u_id):
-    print(u_id)
+    #print(u_id)
     data = get_user_store()
     for user in data['users']:
         if int(user['u_id']) == int(u_id):
@@ -268,16 +277,19 @@ def email_dupe_check(email):
     return False
 
 def token_check(token):
-    data = get_user_store()
-    for user in data['users']:
-        if user['token'] == token:
-            return user
+    data = logged_in_users
+
+    if token in data:
+        return data[token]
+
     return False
 
 def channel_check(channel_id):
     data = get_channel_store()
-    print(data)
+    #print(data)
     for channel in data['Channels']:
+        #print('CHANNEL CHECK:',channel_id)
+        #print('CHANNEL CHECK:',channel['channel_id'])
         if int(channel['channel_id']) == int(channel_id):
             return channel
     return False
@@ -294,7 +306,7 @@ def message_check(message_id):
     data = get_messages_store()
    
     for message in data['Messages']:
-        print("data---------->",message_id)
+        #print("data---------->",message_id)
         if int(message['message_id']) == int(message_id):
             return message
     return None
@@ -355,13 +367,13 @@ def find_email(email):
 
 def find_code(code):
     data = get_user_store()
-    print('code',code)
+   
     for user in data['users']:
-        print('is this where it shits the bed')
+      
         if 'reset' in user :
-            print('in here')
+           
             if user['reset'] == code:
-                print('final')
+              
                 return user
     return False
     
