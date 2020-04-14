@@ -838,3 +838,12 @@ if __name__ == "__main__":
     APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 5324599))
     storing_data_thread = threading.Thread(target = store_the_data)
     storing_data_thread.start()
+
+def timer_action():
+	timer = threading.Timer(1.0, timer_action)
+	timer.start()
+	update_message()
+	update_standup()
+    update_users()
+    update_channels()
+    

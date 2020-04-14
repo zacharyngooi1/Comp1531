@@ -383,3 +383,7 @@ def store_the_data():
         with open('messagesStore.p', 'wb') as FILE_5:
             pickle.dump(get_messages_store(), FILE_5)
         time.sleep(1)
+
+def store_users():
+    with open('userStore.p', 'wb') as FILE_3:
+        pickle.dump(get_user_store(), FILE_3)
