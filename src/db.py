@@ -215,7 +215,7 @@ def message_send_for_standup(u_id, message):
 ###################################################
 
 def u_id_check(u_id):
-    print(u_id)
+    #print(u_id)
     data = get_user_store()
     for user in data['users']:
         if int(user['u_id']) == int(u_id):
@@ -258,10 +258,10 @@ def token_check(token):
 
 def channel_check(channel_id):
     data = get_channel_store()
-    print(data)
+    #print(data)
     for channel in data['Channels']:
-        print('CHANNEL CHECK:',channel_id)
-        print('CHANNEL CHECK:',channel['channel_id'])
+        #print('CHANNEL CHECK:',channel_id)
+        #print('CHANNEL CHECK:',channel['channel_id'])
         if int(channel['channel_id']) == int(channel_id):
             return channel
     return False
@@ -278,7 +278,7 @@ def message_check(message_id):
     data = get_messages_store()
    
     for message in data['Messages']:
-        print("data---------->",message_id)
+        #print("data---------->",message_id)
         if int(message['message_id']) == int(message_id):
             return message
     return None

@@ -101,7 +101,7 @@ def channel_messages(token, channel_id, start):
    
     counter = 0
     if len(proto_dict) != 0:
-        print('in the if loop aye ')
+        #print('in the if loop aye ')
         for message in reversed(proto_dict):
   
             if int(message['channel_id']) == int(channel_id):
@@ -126,7 +126,8 @@ def channel_messages(token, channel_id, start):
     final_dict['start'] = start
     final_dict['end'] = counter
     
-    print('This is the dictionary:',final_dict)
+    print ('channels:',get_channel_store())
+    #print('This is the dictionary:',final_dict)
     return final_dict
     #for x in message_store['Messages']:
     #    if x['channel_id'] == channel_id:
@@ -202,9 +203,9 @@ def channel_join(token, channel_id):
     user = token_check(token)
 
     for channel in channel_store["Channels"]:
-        print("gets in for loop")
+        #print("gets in for loop")
         if channel["channel_id"] == int(channel_id):
-            print("gets in if statement")
+            #print("gets in if statement")
             channel["all_members"].append({"u_id": user["u_id"], 
             "name_first": user['name_first'], "name_last" : user["name_last"]})
 

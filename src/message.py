@@ -47,7 +47,13 @@ def message_send(token, channel_id, message):
         
         #print(play_hangman(message[7]))
         hangman = play_hangman(message[7])
-        make_message(hangman['hang_man_drawing']+hangman['current_word'], channel_id, user['u_id'], 0)
+        print('full hang',hangman)
+        print('this is whats being used to print')  
+        print('current word:',hangman['current_word'])
+        print('Hangman drwing:',hangman['hang_man_drawing'])
+        if len(hangman['final'])!= 0:
+            channel['Hangman']['is_hangman_active'] = False
+        make_message(hangman['hang_man_drawing']+hangman['print_word'] +hangman['final'], channel_id, user['u_id'], 0)
     return {
         'message_id': message_id,
     }
@@ -254,7 +260,7 @@ def message_remove(token, message_id):
     if user['u_id'] == message['user_id']:
         is_sender = True
 
-    print('is owner: ',is_owner,'is_sender:', is_sender)
+    #print('is owner: ',is_owner,'is_sender:', is_sender)
     if (is_owner or is_sender) == False:
         raise AccessError
 
