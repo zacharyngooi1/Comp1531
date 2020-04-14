@@ -60,6 +60,8 @@ def reset():
 # AUTH FLASK FUNCTIONS
 ###############################################################
 auth_register("rob@gmail.com", "password123", "Rob", "Ever")
+
+
 @APP.route("/auth/register", methods=["POST"])
 def register():
     """ This is a flask wrapper for the reset function
