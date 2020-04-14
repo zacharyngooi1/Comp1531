@@ -11,7 +11,7 @@ from db import handle_check, password_check, message_check, owner_channel_check
 from db import member_channel_check, react_check, reset_store
 from db import get_messages_store
 from user import user_profile, user_profile_setemail, user_profile_sethandle
-from user import user_profile_setname
+from user import user_profile_setname, user_profile_uploadphoto
 from auth import auth_register, auth_logout, auth_login, auth_pw_request, auth_pw_reset
 from other import users_all, search
 from standup import standup_start, standup_active, standup_send
@@ -281,7 +281,31 @@ def user_handle():
 
 @APP.route("/user/profile/uploadphoto", methods=["POST"])
 def uploadphoto(): 
+    """ This is a flask wrapper for the user/profile/uploadphoto function
+
+    Parameters:
+        No parameters
     
+    Returns:
+        (dictionary): Empty dictionary
+    """
+    #request data 
+    data = request.get_json()
+    #save data  
+    token = data['token']
+    img_url = data['img_url']
+    x_start = data['x_start']
+    y_start = data['y_start']
+    x_end = data['x_end']
+    y_end = data['y_end']
+
+    #this is where the input testing will go 
+    #test img_url 
+    #test dimensions 
+    #test jpg 
+
+    user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end)
+    return dumps({})
 
 @APP.route("/users/all", methods=["GET"])
 def get_all_users():

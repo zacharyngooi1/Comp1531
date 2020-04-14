@@ -2,6 +2,7 @@ import re
 from error import InputError
 from db import login, make_user, get_channel_store, get_messages_store
 from db import get_user_store, add_user, login, make_user
+from PIL import Image
 from db import token_check, channel_check, u_id_check, email_check, email_dupe_check, handle_check
 
 def user_profile(token, u_id):
@@ -84,5 +85,11 @@ def user_profile_sethandle(token, handle_str):
     return {}
 
 def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
-    
+    #need to complete checks 
+
+    store = get_user_store()
+    for user in store: 
+        if user['token'] == token: 
+            user['profile_img_url'] = img_url
+            
 
