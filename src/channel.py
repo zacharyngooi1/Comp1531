@@ -329,7 +329,7 @@ def channels_create(token, name, is_public):
         'all_members':[],
         'is_public': bool(is_public),
         'name' : name,
-        'standup' : {'is_standup_active':False, 'time_standup_finished':None, "standup_message":""}
+        'standup' : {'is_standup_active':False, 'time_standup_finished':None, "standup_message":"", 'u_id_standup_started': 0, 'is_message_sent': True}
     }
 
     store = get_channel_store()

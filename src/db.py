@@ -21,6 +21,7 @@ CHANNELSTORE = {
         #'owner_memmbers':[],
         #'all_members':[],
         #'is_public': Boolean
+        # 'standup' : {'is_standup_active':False, 'time_standup_finished':None, 'standup_message':"", 'u_id_standup_started': 0}
     #},
     ]
 }
@@ -46,15 +47,6 @@ PERMISSIONSTORE = {
     "CHANNEL_MEMBER": 2,
 }
 
-STANDUPQUEUE = {
-    'Standup_queues':[
-        {
-            'final_string':''
-        }
-    ]
-    
-}
-
 def get_user_store():
     global USERDATASTORE
     return USERDATASTORE
@@ -70,10 +62,6 @@ def get_messages_store():
 def get_permission_store():
     global PERMISSIONSTORE
     return PERMISSIONSTORE
-
-def get_standup_queue():
-    global STANDUPQUEUE
-    return STANDUPQUEUE
 
 def reset_store():
     global USERDATASTORE
@@ -204,21 +192,17 @@ def login(user):
     return token
 
 #Standup helper functions
-def message_create_for_standup(u_id, message):
+def message_create_for_standup(channel_id, u_id, message):
     # Stadup_qeueues is []
+    channel_store = get_channel_store()
     user = u_id_check(u_id)
-    final_string = get_standup_queue()['Standup_queues'][0]['final_string']
+    channel = channel_check(channel_id)
+    final_string = channel["standup"]["standup_message"]
     print("Final string is = ", final_string)
     return_string = user['handle_str'] + ":" + message + '\n'
     print("Return string is = ", return_string)
-    get_standup_queue()['Standup_queues'][0]['final_string'] = final_string + return_string
-    """
-    # This gets the most recent message in the standup
-    standupqueue_store = get_standup_queue()['Standup_queues'][-1]
-    user = u_id_check(u_id)
-    return_string = user['handle_str'] + ":" + message + '\n'
-    standupqueue_store["final_string"] = standupqueue_store["final_string"] + return_string
-    """
+    channel["standup"]["standup_message"] = final_string + return_string
+    
 ###################################################
 ##             Checking functions                ##
 ###################################################
