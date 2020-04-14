@@ -10,7 +10,9 @@ from datetime import date, time, datetime, timezone
 from random import randrange
 
 USERDATASTORE = {
-    'users': []
+    'users': [
+        #profile_img_url: ""
+    ]
 }
 
 
@@ -165,6 +167,7 @@ def make_user(email, password, name_first, name_last, u_id, perm_id):
             'channel_id_owned': [],
             'channel_id_part': [],
             'messages_created':[],
+            'profile_img_url': "",
         }
 
 def create_handle(first_name, last_name):
