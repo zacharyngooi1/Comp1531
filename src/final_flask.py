@@ -24,6 +24,7 @@ from channel import check_if_user_in_channel_owner, check_if_user_in_channel_own
 from channel import check_if_user_in_channel_member_uid, check_if_channel_is_public
 import datetime
 from datetime import timezone
+from hangman import play_hangman
 #input_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
 #chan_id = channels_create(input_dict['token'], 'Hayden', True)
 
@@ -57,7 +58,7 @@ def reset():
 ###############################################################
 # AUTH FLASK FUNCTIONS
 ###############################################################
-
+auth_register("rob@gmail.com", "password123", "Rob", "Ever")
 @APP.route("/auth/register", methods=["POST"])
 def register():
     """ This is a flask wrapper for the reset function
@@ -636,7 +637,7 @@ def send():
     token = data['token']
     channel_id = data['channel_id']
     message = data['message']
-
+    
     message_id = message_send(token, channel_id, message)
     #message_id = {'message_id':1}
     print(get_messages_store())

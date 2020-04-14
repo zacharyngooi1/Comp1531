@@ -329,7 +329,8 @@ def channels_create(token, name, is_public):
         'all_members':[],
         'is_public': bool(is_public),
         'name' : name,
-        'standup' : {'is_standup_active':False, 'time_standup_finished':None, "standup_message":""}
+        'standup' : {'is_standup_active':False, 'time_standup_finished':None, "standup_message":""},
+        'Hangman' : {'is_hangman_active': False, 'Guess':""}
     }
 
     store = get_channel_store()

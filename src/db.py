@@ -22,7 +22,7 @@ CHANNELSTORE = {
         #'all_members':[],
         #'is_public': Boolean
     #},
-    ]
+    ],
 }
 
 MESSAGESTORE = { 
@@ -36,7 +36,11 @@ MESSAGESTORE = {
             #is_pinned
             #time_created
         #}
-    ]
+    ],
+    
+   
+    
+    
 }
 
 PERMISSIONSTORE = {
