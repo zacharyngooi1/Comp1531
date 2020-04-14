@@ -5,7 +5,7 @@ from flask_cors import CORS
 from error import InputError, AccessError, NameException, KeyError
 from server import defaultHandler
 from db import login, make_user, get_channel_store, get_messages_store, get_permission_store
-from db import get_user_store, add_user, create_handle, message_send_for_standup
+from db import get_user_store, add_user, create_handle, message_create_for_standup
 from db import token_check, channel_check, u_id_check, email_check, email_dupe_check
 from db import handle_check, password_check, message_check, owner_channel_check
 from db import member_channel_check, react_check, reset_store
@@ -22,9 +22,10 @@ from channel import channel_join, channel_addowner, channel_removeowner, channel
 from channel import channels_list_all, channel_list, check_if_user_in_channel_member
 from channel import check_if_user_in_channel_owner, check_if_user_in_channel_owner_uid
 from channel import check_if_user_in_channel_member_uid, check_if_channel_is_public
-import datetime
-from datetime import timezone
+from datetime import timezone, datetime
+import threading
 from hangman import play_hangman
+
 #input_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
 #chan_id = channels_create(input_dict['token'], 'Hayden', True)
 
@@ -848,8 +849,46 @@ def standup_send_flask():
     message = data['message']
     out = standup_send(token, channel_id, message)   
     return dumps(out)
+
+# update message function
+# Step 1: Check if standup is running
+# Step 2: If running, send the standup message using message_send (time_now >time_sent) 
+def update_message():
+    channel_store = get_channel_store()
+    # The following piece of code does the following:
+    # 1. Loop through each of the channels
+    # 2. Check if message at the end of statdup is sent
+    # 3. If not send the message
+    for channel in channel_store['Channels']:
+        if ((channel['standup']['is_message_sent'] == False) and (channel['standup']['time_standup_finished'] != None)):
+            user = u_id_check(channel['standup']['u_id_standup_started'])
+            if (int(datetime.utcnow().replace(tzinfo=timezone.utc).timestamp()) > int(channel['standup']['time_standup_finished'])):
+                message_send(user['token'], channel['channel_id'], channel['standup']['standup_message'])
+    return
+
+def update_standup():
+    channel_store = get_channel_store()
+    for channel in channel_store['Channels']:
+        if ((channel['standup']['is_message_sent'] == False) and (channel['standup']['time_standup_finished'] != None)):
+            if (int(datetime.utcnow().replace(tzinfo=timezone.utc).timestamp()) > int(channel['standup']['time_standup_finished'])):
+                channel['standup']['is_standup_active'] = False
+                channel['standup']['time_standup_finished'] = None
+                channel['standup']['u_id_standup_started'] = 0
+                channel['standup']['is_message_sent'] = True
+                channel['standup']["standup_message"] = ""
+    return
+
+def timer_action():
+	timer = threading.Timer(1.0, timer_action)
+	timer.start()
+	update_message()
+	update_standup()
+
+# DONT REMOVE THE FOLLOWING LINE. IT IS IMPORTANT FOR MAKING STANDUPS WORK
+timer_action()
+
 ###############################################################
-#DONT TOUCH ANYTHING BELOW THIS LINE OR ZACH WILL BEAT U UP
+#DONT TOUCH ANYTHING BELOW THIS LINE
 ###############################################################
 if __name__ == "__main__":
     APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 5324599))

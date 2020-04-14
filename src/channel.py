@@ -126,7 +126,6 @@ def channel_messages(token, channel_id, start):
     final_dict['start'] = start
     final_dict['end'] = counter
     
-    print ('channels:',get_channel_store())
     #print('This is the dictionary:',final_dict)
     return final_dict
     #for x in message_store['Messages']:
@@ -314,7 +313,7 @@ def channels_create(token, name, is_public):
         'all_members':[],
         'is_public': bool(is_public),
         'name' : name,
-        'standup' : {'is_standup_active':False, 'time_standup_finished':None, "standup_message":""},
+        'standup' : {'is_standup_active':False, 'time_standup_finished':None, "standup_message":"", 'u_id_standup_started': 0, 'is_message_sent': True},
         'Hangman' : {'is_hangman_active': False, 'Guess':""}
     }
 
