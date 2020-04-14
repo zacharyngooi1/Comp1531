@@ -543,21 +543,17 @@ def c_list():
         channels that the user is part of and their associated
         details
     """
-    #print("IT ENTERS THIS ATLEAST(list)")
-    #print()
-    #print('user database',get_user_store() )
-   # print()
+
     token = request.args.get('token')
-    #print('list token',token)
-   # print()
+
     if token_check(token) == False:
-       # print('LIST INPUT ERROR')
+
         raise InputError
-    #print('no input error')
+
     return_dict = channel_list(token)
-    #print(return_dict)
+
     return dumps(return_dict)
-    #return 1
+
 
 @APP.route("/channels/listall", methods=["GET"])
 def c_listall():

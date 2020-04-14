@@ -69,13 +69,13 @@ HANGMANDRAWINGS = [
  =========''']
  
  
-WRONGWORD = []
+WORD = ""
 
 CURRENTSTATUS = {
-   "hang_man_drawing": [],
+   "hang_man_drawing": "",
    "wrong_word":[],
-   'ascii': set(ascii_lowercase),
    'current_word':"",
+   
 }
 
 BATSTORE = set(ascii_lowercase)
@@ -91,6 +91,9 @@ def get_bat_store():
     global BATSTORE
     return BATSTORE
 
+def get_correct_word():
+    global WORD
+    return WORD
 
 
 def get_display_word(word, idxs):
@@ -125,11 +128,17 @@ def play_hangman(guess):
     """
     # Let player specify difficulty
     print('Starting a game of Hangman...')
-
+    status = get_current_status()
+    correct_ans = get_correct_word()
     # Randomly select a word
     print('Selecting a word...')
-    word = random_titles(max_titles=1)
-    string = word[0]
+    if status['current_word'] == "": 
+        word = random_titles(max_titles=1)
+        string = word[0]
+        status['current_word'] = string
+        correct_ans = string
+    else:
+        string = correct_ans
     print()
 
     # Initialize game state variables
@@ -137,7 +146,7 @@ def play_hangman(guess):
     remaining_letters = get_bat_store()
     #wrong_letters = get_wrong_word()
     hangman = get_hangman_store()
-    status = get_current_status()
+
     print(status)
     word_solved = False
 
@@ -153,6 +162,7 @@ def play_hangman(guess):
 
         # Check if letter guess is in word
         if next_letter in string:
+        
             # Guessed correctly
             print('{0} is in the word!'.format(next_letter))
 

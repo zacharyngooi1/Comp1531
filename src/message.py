@@ -42,9 +42,9 @@ def message_send(token, channel_id, message):
             message_id = make_message(message, channel_id, user['u_id'], 0)
     if message == "/hangman":
         channel['Hangman']['is_hangman_active'] = True
-    print(message[0:6])
+    
     if message[0:6] == "/guess" and channel['Hangman']['is_hangman_active'] == True:
-        print("HANGMAN MESSAGE")
+        
         #print(play_hangman(message[7]))
         hangman = play_hangman(message[7])
         make_message(hangman['hang_man_drawing']+hangman['current_word'], channel_id, user['u_id'], 0)

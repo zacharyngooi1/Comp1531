@@ -97,7 +97,7 @@ def make_message(message, channel_id, user_id, time_created):
     #maybe make message_id a global variable 
     if time_created == 0: 
         time = datetime.utcnow()
-        print('current time:',time)
+        
     else: 
         time = time_created
     user['messages_created'].append(message)
@@ -106,12 +106,12 @@ def make_message(message, channel_id, user_id, time_created):
 
 def check_user_in_channel(u_id, channel_id): 
     channel_data = get_channel_store
-    print("ENTER CHEKC",channel_data)
+   
     channel = channel_check(channel_id)
     flag = 0
     for member in channel_iter['all_members']: 
         if int(member['u_id']) == int(u_id): 
-            print('surely this doesnt happen',member['u_id'],u_id)
+            
             flag = 1
     if flag == 1: 
         return True
@@ -250,17 +250,10 @@ def email_dupe_check(email):
 
 def token_check(token):
     data = logged_in_users
-    #print('inside token check')
-    #print('this is wassup:',data)
-    #print('token check 1')
+
     if token in data:
         return data[token]
-    #for user in data:
-    #    print('token check 2')
-    #    if user['token'] == token:
-    #        print('token check 3')
-    #        return user
-    #print('returns false')
+
     return False
 
 def channel_check(channel_id):
@@ -346,13 +339,13 @@ def find_email(email):
 
 def find_code(code):
     data = get_user_store()
-    print('code',code)
+   
     for user in data['users']:
-        print('is this where it shits the bed')
+      
         if 'reset' in user :
-            print('in here')
+           
             if user['reset'] == code:
-                print('final')
+              
                 return user
     return False
     

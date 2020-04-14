@@ -72,7 +72,7 @@ def channel_messages(token, channel_id, start):
         Returns: 
             (list): returns list of messages from channel 
     '''
-    print('This is start:',start)
+   
     if channel_check(channel_id) == False:
         raise InputError
 
@@ -98,30 +98,16 @@ def channel_messages(token, channel_id, start):
         'messages':[]
     }
     proto_dict = get_messages_store()['Messages']
-    print()
-    print('THIS IS YA PROTO DICT:',proto_dict)
-    print()
-    #proto_dict.reverse()
-    print()
-    print('THIS IS POST REVERSE:',proto_dict)
-    print()
-    
-    print()
-    print('THIS IS YA MSG STORE:',get_messages_store()['Messages'])
-    print()
-    #print('Messages:',get_messages_store()['Messages'])
-    #print('Proto_dict:',proto_dict)
+   
     counter = 0
     if len(proto_dict) != 0:
         print('in the if loop aye ')
         for message in reversed(proto_dict):
-          #  print()
-           #print()
-            #print('this is it')
+  
             if int(message['channel_id']) == int(channel_id):
-                #print('SO CLOSE')
+             
                 if counter >= start:
-                    #print('Ican smell it')
+                  
                     dict_to_app = {
                         'message_id':message['message_id'],
                         'u_id': message['user_id'],
@@ -167,7 +153,7 @@ def channel_leave(token, channel_id):
             channel_id (int): channel identification
     '''
 
-    print("BEFORE ERROR STATEMENTS")
+  
     if channel_check(channel_id) == False:
         raise InputError
 
@@ -175,22 +161,21 @@ def channel_leave(token, channel_id):
         raise AccessError
 
     channel = channel_check(channel_id)
-    print("TEST this is ur channel", channel)
+    
     user = token_check(token)
-    print("TEST THIS is ur user", user)
+    
     for inner in channel['all_members']:
         if int(inner['u_id']) == int(user['u_id']):
-            print(inner['u_id'], user['u_id'])
+           
             channel['all_members'].remove(inner)
-            print(channel['all_members'])
-            print("USER REMOVED")
+         
 
     for leave in user['channel_id_part']:
-        print(leave)
+       
         if int(leave) == int(channel_id):
-            print(leave, channel_id)
+       
             user['channel_id_part'].remove(leave)
-            print("CHANNEL REMOVED")
+        
     return {}
 
 
@@ -203,15 +188,14 @@ def channel_join(token, channel_id):
         
     '''
     if channel_check(channel_id) == False:
-        print("enters first error")
+    
         raise InputError
 
     if (check_if_channel_is_public(channel_id) == False or
     check_if_user_in_channel_member(token, channel_id) == True):
-        print("enters second error")
+       
         raise AccessError
-    
-    print("gets passed errors")
+ 
 
     channel_store = get_channel_store()
     channel = channel_check(channel_id)
@@ -336,7 +320,7 @@ def channels_create(token, name, is_public):
     store = get_channel_store()
     
     user_store = token_check(token)
-    print(user_store)
+    
     if user_store == False:
          raise InputError(description="channel create user not found")
 
@@ -347,7 +331,7 @@ def channels_create(token, name, is_public):
     store['Channels'].append(channel_dict)
     user_store['channel_id_owned'].append(channel_dict["channel_id"])
     user_store['channel_id_part'].append(channel_dict["channel_id"])
-    #print(store)
+    
     return {
         'channel_id' : channel_dict["channel_id"]
     }
@@ -361,14 +345,14 @@ def channels_list_all(token):
         Returns: 
             (list):  list of channels
     '''
-    print('enter channels list all')
+   
     if token_check(token) == False:
         raise InputError
-    print('doesnt raise inout error')
+   
     channel_store = get_channel_store()
     empty_list = []
-    print("Token check returns", token_check(token))
-    print(channel_store)
+   
+    
     for channels in channel_store['Channels']:
         empty_list.append({"channel_id" : channels["channel_id"], "name" : channels["name"]})
     return {'channels':empty_list}
@@ -384,9 +368,9 @@ def channel_list(token):
         Returns: 
             (int): channel id 
     '''
-    print('channel list')
+   
     if token_check(token) == False:
-        print('input error')
+       
         raise InputError
     channel_store = get_channel_store()
     user = token_check(token)
@@ -406,20 +390,16 @@ def check_if_user_in_channel_member(token, channel_id):
     user = token_check(token)
     channel_store = get_channel_store()
     result = False
-    print("in check")
-    print(channel_store)
+
+   
     for mem_check in channel_store["Channels"]:
-        print("in for loop")
-        print(mem_check['channel_id'])
-        print()
-        print(channel_id)
+       
         if int(mem_check['channel_id']) == int(channel_id):
-            print("gets to first if statement")
-            print()
+          
             for mem in mem_check['all_members']:
-                print("in second for loop")
+               
                 if int(mem["u_id"]) == int(user["u_id"]):
-                    print("gets to second if statemtn")
+                    
                     result = True
     return result
 
@@ -458,9 +438,9 @@ def check_if_channel_is_public(channel_id):
     channel_store = get_channel_store()
     result = False
     for pub in channel_store['Channels']:
-        print("hit1")
+        
         if pub['channel_id'] == int(channel_id):
-            print("hit2")
+          
             if pub['is_public'] == True:
                 result = True
     return result
