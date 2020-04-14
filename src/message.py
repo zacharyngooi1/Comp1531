@@ -125,18 +125,18 @@ def message_react(token, message_id , react_id):
         
         raise AccessError
     
-    if react_check(message_id, user['u_id'], react_id) == True:
+    if react_check(message_id, user['u_id'], react_id):
         print("react check input errroorrrrrrrr")
         raise InputError
 
-    is_this_user_reacted = False;    
+    is_this_user_reacted = False;
 
     flag = 0
     for reacts in message['reacts']:
         if reacts['react_id'] == react_id:
             reacts['u_ids'].append(int(user['u_id']))
             flag = 1
-            if reacts['is_this_user_reacted'] == True:
+            if reacts['is_this_user_reacted']:
                 is_this_user_reacted = True
 
     if message['user_id'] == user['u_id']:
@@ -203,7 +203,7 @@ def message_pin(token, message_id):
     if member_channel_check(token, message['channel_id']) == False:
         raise AccessError
     if owner_channel_check(token, message['channel_id']) == False:
-        raise InputError
+        raise AccessError
     if message['is_pinned'] == True:
         raise InputError
     message['is_pinned'] = True
@@ -246,7 +246,7 @@ def message_remove(token, message_id):
         raise InputError
     is_owner = owner_channel_check(token, message['channel_id'])
     user = token_check(token)
-    if user == None:
+    if user == False:
         raise AccessError
 
     is_sender = False
@@ -254,7 +254,7 @@ def message_remove(token, message_id):
     if user['u_id'] == message['user_id']:
         is_sender = True
 
-    print('is owner: ',is_owner,'is_sender:', is_sender)
+    print('is owner: ', is_owner,'is_sender:', is_sender)
     if (is_owner or is_sender) == False:
         raise AccessError
 

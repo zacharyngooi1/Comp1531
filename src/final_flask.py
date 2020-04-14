@@ -21,7 +21,7 @@ from channel import channel_invite, channel_details, channel_messages, channel_l
 from channel import channel_join, channel_addowner, channel_removeowner, channels_create
 from channel import channels_list_all, channel_list, check_if_user_in_channel_member
 from channel import check_if_user_in_channel_owner, check_if_user_in_channel_owner_uid
-from channel import check_if_user_in_channel_member_uid, check_if_channel_is_public
+from channel import check_if_user_in_channel_member_uid, check_if_channel_is_public, check_if_channel_exists
 from datetime import timezone, datetime
 import threading
 from hangman import play_hangman
@@ -634,7 +634,10 @@ def send():
     token = data['token']
     channel_id = data['channel_id']
     message = data['message']
-    
+    if len(message) >= 1000:
+        raise InputError(description="Message is too long")
+    if not check_if_user_in_channel_member(token, channel_id):
+        raise AccessError(description="User not member of channel")
     message_id = message_send(token, channel_id, message)
     #message_id = {'message_id':1}
     print(get_messages_store())
@@ -653,17 +656,19 @@ def send_later():
         (dictionary): A dictionary containing the message_id
         of the message that was sent.
     """
-    print('Flask1')
     data = request.get_json()
-    print('Flask2')
     token = data['token']
-    print('Flask3')
     channel_id = int(data['channel_id'])
-    print('Flask4')
     message = data['message']
-    print('Flask5')
     time = (data['time_sent'])
-    print('Flask6')
+    if len(message) >= 1000:
+        raise InputError(description="Message is too long")
+    if not check_if_channel_exists(channel_id):
+        raise InputError(description="Channel does not exist")
+    if int(time) < int(datetime.datetime.now().replace(tzinfo=timezone.utc).timestamp()):
+        raise InputError(description="Invalid time")
+    if not check_if_user_in_channel_member(token, channel_id):
+        raise AccessError(description="User not member of channel")
     message_id = message_send_later(token, channel_id, message,time)
     return dumps(message_id)
 
@@ -684,7 +689,17 @@ def react():
     react_id = int(data['react_id'])
     message_id = int(data['message_id'])
 
-    message_react(token,message_id , 1)
+    if react_id != 1:
+        raise InputError(description="Invalid react id")
+    if not token_check(token):
+        raise AccessError(description="Invalid user")
+    user = token_check(token)
+    if react_check(message_id, user['u_id'], react_id):
+        raise InputError(description="Already reacted")
+
+    is_this_user_reacted = False;
+
+    message_react(token, message_id, 1)
 
     return dumps({})
 
@@ -703,8 +718,14 @@ def unreact():
     token = data['token']
     react_id = int(data['react_id'])
     message_id = int(data['message_id'])
-    
-    message_unreact(token,message_id , 1)
+    if react_id != 1:
+        raise InputError(description="Invalid react id")
+    if not token_check(token):
+        raise AccessError(description="Invalid user")
+    user = token_check(token)
+    if not react_check(message_id, user['u_id'], react_id):
+        raise InputError(description="Already reacted")
+    message_unreact(token, message_id, 1)
     return dumps({})
 
 #message_pin(hayden_dict['token'], message_id_pin['message_id'])
@@ -723,7 +744,15 @@ def pin():
 
     token = data['token']
     message_id = int(data['message_id'])
-    
+    if message_check(message_id) == None:
+        raise InputError(description="Invalid id")
+    message = message_check(message_id)
+    if message['is_pinned']:
+        raise InputError(description="Already pinned")
+    if not check_if_user_in_channel_member(token, message['channel_id']):
+        raise AccessError(description="User not member")
+    if not check_if_user_in_channel_owner(token, message['channel_id']):
+        raise AccessError(description="User not Owner")
     message_pin(token,message_id)
     return dumps(message_id)
 
@@ -743,7 +772,17 @@ def unpin():
     token = data['token']
     message_id = int(data['message_id'])
     
-    message_unpin(token,message_id)
+    if message_check(message_id) == None:
+        raise InputError(description="Invalid id")
+    message = message_check(message_id)
+    if not message['is_pinned']:
+        raise InputError(description="Already unpinned")
+    if not check_if_user_in_channel_member(token, message['channel_id']):
+        raise AccessError(description="User not member")
+    if not check_if_user_in_channel_owner(token, message['channel_id']):
+        raise AccessError(description="User not Owner")
+
+    message_unpin(token, message_id)
     return dumps(message_id)
 
 
@@ -763,8 +802,16 @@ def edit():
     token = data['token']
     message_id = int(data['message_id'])
     message = data['message']
+
+    message_probe = message_check(message_id)
+    user = token_check(token)
+   
+    if not check_if_user_in_channel_owner(token, message['channel_id']):
+        raise AccessError(description="User not owner")
+    if user['u_id'] != message_probe['user_id']:
+        raise AccessError(description="User not sender")
     
-    message_edit(token,message_id,message)
+    message_edit(token, message_id, message)
     return dumps(message_id)
 
 
@@ -783,6 +830,16 @@ def remove():
     token = data['token']
     message_id = int(data['message_id'])
     
+    message_probe = message_check(message_id)
+    user = token_check(token)
+    if message_probe == None:
+        raise InputError(description="Message not found")
+    if not check_if_user_in_channel_owner(token, message['channel_id']):
+        raise AccessError(description="User not owner")
+    if user['u_id'] != message_probe['user_id']:
+        raise AccessError(description="User not sender")
+
+
     message_remove(token,message_id)
     return dumps(message_id)
 

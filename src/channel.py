@@ -385,6 +385,13 @@ def channel_list(token):
 #####################################
 ##        Checker functions        ##
 #####################################
+def check_if_channel_exists(channel_id):
+    channel_store = get_channel_store()
+    result = False
+    for id in channel_store['Channels']:
+        if id['channel_id'] == int(channel_id):
+            result = True
+    return result
 
 def check_if_user_in_channel_member(token, channel_id):
     user = token_check(token)
