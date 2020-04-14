@@ -21,6 +21,7 @@ CHANNELSTORE = {
         #'owner_memmbers':[],
         #'all_members':[],
         #'is_public': Boolean
+        # 'standup' : {'is_standup_active':False, 'time_standup_finished':None, 'standup_message':"", 'u_id_standup_started': 0}
     #},
     ],
 }
@@ -50,11 +51,6 @@ PERMISSIONSTORE = {
     "CHANNEL_MEMBER": 2,
 }
 
-STANDUPQUEUE = {
-    'Standup_queues':[]
-    
-}
-
 def get_user_store():
     global USERDATASTORE
     return USERDATASTORE
@@ -70,10 +66,6 @@ def get_messages_store():
 def get_permission_store():
     global PERMISSIONSTORE
     return PERMISSIONSTORE
-
-def get_standup_queue():
-    global STANDUPQUEUE
-    return STANDUPQUEUE
 
 def reset_store():
     global USERDATASTORE
@@ -204,18 +196,23 @@ def login(user):
     return token
 
 #Standup helper functions
-def message_send_for_standup(u_id, message):
-    standupqueue_store = get_standup_queue()['Standup_queues'][len(get_standup_queue()['Standup_queues'])-1]
+def message_create_for_standup(channel_id, u_id, message):
+    # Stadup_qeueues is []
+    channel_store = get_channel_store()
     user = u_id_check(u_id)
-    return_string = user['handle_str'] + ":" + message + ','
-    standupqueue_store["final_string"] = standupqueue_store["final_string"] + return_string
-
+    channel = channel_check(channel_id)
+    final_string = channel["standup"]["standup_message"]
+    print("Final string is = ", final_string)
+    return_string = user['handle_str'] + ":" + message + '\n'
+    print("Return string is = ", return_string)
+    channel["standup"]["standup_message"] = final_string + return_string
+    
 ###################################################
 ##             Checking functions                ##
 ###################################################
 
 def u_id_check(u_id):
-    print(u_id)
+    #print(u_id)
     data = get_user_store()
     for user in data['users']:
         if int(user['u_id']) == int(u_id):
@@ -258,10 +255,10 @@ def token_check(token):
 
 def channel_check(channel_id):
     data = get_channel_store()
-    print(data)
+    #print(data)
     for channel in data['Channels']:
-        print('CHANNEL CHECK:',channel_id)
-        print('CHANNEL CHECK:',channel['channel_id'])
+        #print('CHANNEL CHECK:',channel_id)
+        #print('CHANNEL CHECK:',channel['channel_id'])
         if int(channel['channel_id']) == int(channel_id):
             return channel
     return False
@@ -278,7 +275,7 @@ def message_check(message_id):
     data = get_messages_store()
    
     for message in data['Messages']:
-        print("data---------->",message_id)
+        #print("data---------->",message_id)
         if int(message['message_id']) == int(message_id):
             return message
     return None
