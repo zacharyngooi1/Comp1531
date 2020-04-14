@@ -279,6 +279,10 @@ def user_handle():
 
     return dumps({})
 
+@APP.route("/user/profile/uploadphoto", methods=["POST"])
+def uploadphoto(): 
+    
+
 @APP.route("/users/all", methods=["GET"])
 def get_all_users():
     """ This is a flask wrapper for the users_all function
@@ -300,6 +304,7 @@ def get_all_users():
     return dumps({
         'users': user_list['users']
     })
+
 
 
 @APP.route("/search", methods=["GET"])
@@ -524,7 +529,7 @@ def c_details():
 
     token = request.args.get('token')
     channel_id = int(request.args.get('channel_id'))
-    print(token)
+ 
     if channel_check(channel_id) == False: 
         raise InputError(description="channel id not found")
     if check_if_user_in_channel_member(token,channel_id) == False: 
