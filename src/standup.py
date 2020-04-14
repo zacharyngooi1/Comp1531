@@ -1,11 +1,12 @@
-from db import channel_check, get_channel_store, message_send_for_standup, get_standup_queue, member_channel_check, token_check
+from db import channel_check, get_channel_store, message_create_for_standup, member_channel_check, token_check, get_user_store
 from datetime import datetime, timezone
 import time
 from error import InputError
 from auth import auth_register
 from channel import channels_create
 from error import AccessError, InputError
-from db import get_standup_queue
+import threading
+from message import message_send
 #This function is named standup_start because the standup/start wrapper will be placed around it.
 #But really all this function does is return the time_finish and check of the token and channel_id are valid.
 #"final_string":""
@@ -22,18 +23,25 @@ def standup_start(token, channel_id, length):
         is going to finish at.
     
     """
+    user_store = get_user_store()
+    for user in user_store['users']:
+        if user["token"] == token:
+            needed_user = user
+    
     channel_store = get_channel_store()
     channel = channel_check(channel_id)
     if channel == False:
         raise InputError
-    current_moment_in_time = datetime.now()
+    
     if channel['standup']['time_standup_finished'] != None:
-        if current_moment_in_time.replace(tzinfo=timezone.utc).timestamp() < channel['standup']['time_standup_finished']:
+        if datetime.utcnow().replace(tzinfo=timezone.utc).timestamp() < channel['standup']['time_standup_finished']:
             raise InputError
-    get_standup_queue()['Standup_queues'].append({"final_string":""})
+    #get_standup_queue()['Standup_queues'].append({"final_string":""})
     channel['standup']['is_standup_active'] = True
-    time_finish = length + current_moment_in_time.replace(tzinfo=timezone.utc).timestamp()
+    time_finish = datetime.utcnow().replace(tzinfo=timezone.utc).timestamp() + length
     channel['standup']['time_standup_finished'] = time_finish
+    channel['standup']['u_id_standup_started'] = needed_user['u_id']
+    channel['standup']['is_message_sent'] = False
     return {
         'time_finish' : time_finish #This is a unix timestamp
     }
@@ -57,10 +65,7 @@ def standup_active(token, channel_id):
     channel = channel_check(channel_id)
     if channel == False:
         raise InputError
-    current_moment_in_time = datetime.now()
-    print("now:",current_moment_in_time.replace(tzinfo=timezone.utc).timestamp())
-    print("then:",channel['standup']['time_standup_finished'])
-    print('BEFORE THE IF STATEMENT ')
+    current_moment_in_time = datetime.utcnow()
     if channel['standup']['time_standup_finished'] == None:
         return {
             'is_active' : False,
@@ -68,12 +73,10 @@ def standup_active(token, channel_id):
         }
     
     if current_moment_in_time.replace(tzinfo=timezone.utc).timestamp() < channel['standup']['time_standup_finished']:
-        print('RETURN FALSE')        
         return {
             'is_active' : True,
             'time_finish' : channel['standup']['time_standup_finished']
         }
-    print('RETURN TRUE')
     return {
         'is_active' : False,
         'time_finish' : None
@@ -102,8 +105,9 @@ def standup_send(token, channel_id, message):
     if standup_active(token,channel_id)['is_active'] == False:
         raise InputError
     user = token_check(token)
-    if channel['standup']['time_standup_finished'] - datetime.now().replace(tzinfo=timezone.utc).timestamp() > 0:
-        message_send_for_standup(user['u_id'], message)
+    print(user)
+    if channel['standup']['time_standup_finished'] - datetime.utcnow().replace(tzinfo=timezone.utc).timestamp() > 0:
+        message_create_for_standup(channel_id, user['u_id'], message)
     return {
     
     }

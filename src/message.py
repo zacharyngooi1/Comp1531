@@ -5,8 +5,11 @@ from error import InputError, AccessError
 import datetime
 from datetime import timezone
 import time
+from auth import auth_register
+from hangman import play_hangman
 #from auth import auth_register
 #from channel import channels_create,channel_invite
+
 
 def message_send(token, channel_id, message):
     """ Sends a message to the designated channel 
@@ -20,6 +23,7 @@ def message_send(token, channel_id, message):
         (dictionary): A dictionary containing the message_id
         of the message that was sent.
     """
+    
     user = token_check(token)
     if user == False:  
         raise InputError
@@ -30,13 +34,26 @@ def message_send(token, channel_id, message):
     #    raise AccessError
     if (len(message) > 1000): 
         raise InputError
-    
     if member_channel_check(token, channel_id) == False:
         raise AccessError
    # message_store = get_messages_store()
     for member in channel['all_members']: 
         if user['u_id'] == member['u_id']: 
             message_id = make_message(message, channel_id, user['u_id'], 0)
+    if message == "/hangman":
+        channel['Hangman']['is_hangman_active'] = True
+    
+    if message[0:6] == "/guess" and channel['Hangman']['is_hangman_active'] == True:
+        
+        #print(play_hangman(message[7]))
+        hangman = play_hangman(message[7])
+        print('full hang',hangman)
+        print('this is whats being used to print')  
+        print('current word:',hangman['current_word'])
+        print('Hangman drwing:',hangman['hang_man_drawing'])
+        if len(hangman['final'])!= 0:
+            channel['Hangman']['is_hangman_active'] = False
+        make_message(hangman['hang_man_drawing']+hangman['print_word'] +hangman['final'], channel_id, user['u_id'], 0)
     return {
         'message_id': message_id,
     }
@@ -54,39 +71,38 @@ def message_send_later(token, channel_id, message, time_sent):
         (dictionary): A dictionary containing the message_id
         of the message that was sent.
     """
-    print('1')
+ 
     user = token_check(token)
     if user == False:  
         raise InputError
     channel = channel_check(channel_id)
-    print('2')
+
     if channel == False: 
         raise InputError
-    print('3')
+
     if member_channel_check(token, channel_id) == False: 
         raise AccessError
     if (len(message) > 1000): 
         raise InputError
-    print('4')
-    print('TIME_SENT',time_sent) 
-    print('now',datetime.datetime.now().replace(tzinfo=timezone.utc).timestamp()) 
+
+  
     #should this maybe be more ??
-    if int(time_sent) > int(datetime.datetime.now().replace(tzinfo=timezone.utc).timestamp()): 
-        print('ENTERS IF STATEMENT')
+    if int(time_sent) < int(datetime.datetime.now().replace(tzinfo=timezone.utc).timestamp()): 
+       
         raise InputError
     message_store = get_messages_store()
-    print('5')
+   
     for member in channel['all_members']: 
-        print('got into for')
+       
         if user['u_id'] == member['u_id']:
-            print('got into if')
-            #time.mktime(t.timetuple())
+            
+         
             
             wait_time = time_sent - datetime.datetime.now().replace(tzinfo=timezone.utc).timestamp() 
             time.sleep(wait_time)
             #wait_time = time.mktime(datetime.datetime.now().timetuple()) - time.mktime(time_sent.timetuple())
             message_id = make_message(message, channel_id, user['u_id'], 0)
-    print("got past for loop")      
+       
     return {
         'message_id': message_id,
     }
@@ -102,31 +118,31 @@ def message_react(token, message_id , react_id):
     
     """
     message = message_check(message_id)
-    print("This is message----->", message)
+  
     if message == None:
-        print("no message")
+        
         raise InputError
     if react_id != 1:   #This is assuming that there's only 1 react id (1)
-        print("react id is not one")
+       
         raise InputError   
 
     user = token_check(token)
     if user == None:
-        print("no user")
+        
         raise AccessError
     
-    if react_check(message_id, user['u_id'], react_id) == True:
+    if react_check(message_id, user['u_id'], react_id):
         print("react check input errroorrrrrrrr")
         raise InputError
 
-    is_this_user_reacted = False;    
+    is_this_user_reacted = False;
 
     flag = 0
     for reacts in message['reacts']:
         if reacts['react_id'] == react_id:
             reacts['u_ids'].append(int(user['u_id']))
             flag = 1
-            if reacts['is_this_user_reacted'] == True:
+            if reacts['is_this_user_reacted']:
                 is_this_user_reacted = True
 
     if message['user_id'] == user['u_id']:
@@ -193,7 +209,7 @@ def message_pin(token, message_id):
     if member_channel_check(token, message['channel_id']) == False:
         raise AccessError
     if owner_channel_check(token, message['channel_id']) == False:
-        raise InputError
+        raise AccessError
     if message['is_pinned'] == True:
         raise InputError
     message['is_pinned'] = True
@@ -236,7 +252,7 @@ def message_remove(token, message_id):
         raise InputError
     is_owner = owner_channel_check(token, message['channel_id'])
     user = token_check(token)
-    if user == None:
+    if user == False:
         raise AccessError
 
     is_sender = False
@@ -244,7 +260,7 @@ def message_remove(token, message_id):
     if user['u_id'] == message['user_id']:
         is_sender = True
 
-    print('is owner: ',is_owner,'is_sender:', is_sender)
+    #print('is owner: ',is_owner,'is_sender:', is_sender)
     if (is_owner or is_sender) == False:
         raise AccessError
 
@@ -287,20 +303,3 @@ def message_edit(token, message_id, edited_message):
     }
 
 
-
-'''hayden_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
-chan_id = channels_create(hayden_dict['token'], 'Hayden', True)
-rob_dict = auth_register("rob@gmail.com", "paswword123", "Rob", "Ever")
-message_id = message_send(hayden_dict['token'], chan_id['channel_id'], "Haydens Message")
-
-
-print('Hayden:', hayden_dict)
-print()
-print('Rob:', rob_dict)
-print()
-print()
-print()
-message_react(hayden_dict['token'],message_id['message_id'] , 1)
-channel_invite(hayden_dict['token'], chan_id["channel_id"], rob_dict["u_id"])
-message_react(rob_dict['token'],message_id['message_id'] , 1)
-print(get_messages_store())'''
