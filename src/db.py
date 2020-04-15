@@ -84,9 +84,8 @@ def reset_store():
 def make_message(message, channel_id, user_id, time_created): 
     store = get_messages_store()
     user = u_id_check(user_id)
-    Reacts = [] #assume the message isn't reacted
+    Reacts = []
     message_id = len(message) + randrange(25000)
-    #maybe make message_id a global variable 
     if time_created == 0: 
         time = datetime.utcnow()
         
@@ -109,34 +108,6 @@ def check_user_in_channel(u_id, channel_id):
         return True
     else: 
         return False
-    
-                
-
-"""
-channels.append(ch)
-
-
-add_channel(creator: User)
-
-
-creator.channels_joined.append(ch)
-
-
-ch = make_channel(...)
-
-
-ch = get_ch_from_id(channel_id)
-
-
-if ch in usr['channels_owned']:
-   # stuff
-
-"""
-
-
-
-
-
 
 logged_in_users = {}
 
@@ -168,13 +139,13 @@ def make_user(email, password, name_first, name_last, u_id, perm_id):
         }
 
 def create_handle(first_name, last_name):
-    sample_handle = first_name[0] + last_name
-
-    sample_handle = sample_handle.lower()
     
+    sample_handle = first_name[0] + last_name
+    sample_handle = sample_handle.lower()
+
     if handle_check(sample_handle):
         sample_handle = sample_handle + randrange(25000)
-        
+
     if len(sample_handle) > 20:
         sample_handle = sample_handle[0:20]
 
@@ -197,14 +168,10 @@ def login(user):
 
 #Standup helper functions
 def message_create_for_standup(channel_id, u_id, message):
-    # Stadup_qeueues is []
-    channel_store = get_channel_store()
     user = u_id_check(u_id)
     channel = channel_check(channel_id)
     final_string = channel["standup"]["standup_message"]
-    print("Final string is = ", final_string)
     return_string = user['handle_str'] + ":" + message + '\n'
-    print("Return string is = ", return_string)
     channel["standup"]["standup_message"] = final_string + return_string
     
 ###################################################
@@ -255,10 +222,7 @@ def token_check(token):
 
 def channel_check(channel_id):
     data = get_channel_store()
-    #print(data)
     for channel in data['Channels']:
-        #print('CHANNEL CHECK:',channel_id)
-        #print('CHANNEL CHECK:',channel['channel_id'])
         if int(channel['channel_id']) == int(channel_id):
             return channel
     return False
@@ -275,7 +239,6 @@ def message_check(message_id):
     data = get_messages_store()
    
     for message in data['Messages']:
-        #print("data---------->",message_id)
         if int(message['message_id']) == int(message_id):
             return message
     return None
@@ -315,23 +278,20 @@ def react_check(message_id, user_id, react_id):
     data = get_messages_store()
    
     for message in data['Messages']:
-        #print("data---------->",message_id['message_id'])
         if int(message['message_id']) == int(message_id):
             for reacts in message['reacts']:
-                #print('Everything you need------>',reacts)
                 if int(reacts['react_id']) == int(react_id):
                     for users in reacts['u_ids']:
                         if int(users) == user_id:
                             return True
     return False
-    #print("False")
 
 
 def find_email(email):
     data = get_user_store()
     for user in data['users']:
         if user['email'] == email:
-            return user 
+            return user
     return False
 
 def find_code(code):
@@ -339,7 +299,7 @@ def find_code(code):
    
     for user in data['users']:
       
-        if 'reset' in user :
+        if 'reset' in user:
            
             if user['reset'] == code:
               
