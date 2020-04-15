@@ -115,8 +115,6 @@ def get_logged_in_users():
 PERMISSIONSTORE = {
     "SLACKR_OWNER": 1,
     "SLACKR_MEMBER": 2,
-    "CHANNEL_OWNER": 1,
-    "CHANNEL_MEMBER": 2,
     "USER_NUM": [],
 }
 
