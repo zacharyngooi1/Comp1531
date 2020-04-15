@@ -1,4 +1,4 @@
-from db import channel_check, get_channel_store, message_create_for_standup, member_channel_check, token_check, get_user_store
+from db import channel_check, get_channel_store, message_create_for_standup, member_channel_check, token_check, get_user_store, get_messages_store
 from datetime import datetime, timezone
 import time
 from error import InputError
@@ -95,7 +95,6 @@ def standup_send(token, channel_id, message):
     """
     channel_store = get_channel_store()
     channel = channel_check(channel_id)
-    message_store = get_messages_store()
     if channel == False:
         raise InputError
     if member_channel_check(token, channel_id) == False:
