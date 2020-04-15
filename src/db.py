@@ -1,4 +1,5 @@
 import sys
+#from data import USERDATASTORE, MESSAGESTORE, CHANNELSTORE
 from json import dumps
 from flask import Flask, request
 import jwt
@@ -10,6 +11,8 @@ from datetime import date, time, datetime, timezone
 from random import randrange
 import pickle
 import time
+import threading
+#print(threading.get_ident())
 
 USERDATASTORE = {
     'users': []
@@ -40,10 +43,6 @@ MESSAGESTORE = {
             #time_created
         #}
     ],
-    
-   
-    
-    
 }
 
 PERMISSIONSTORE = {
@@ -55,54 +54,14 @@ PERMISSIONSTORE = {
 
 def get_user_store():
     global USERDATASTORE
-    try:
-        FILE = open('userStore.p', 'rb')
-        USERDATASTORE = pickle.load(FILE)
-    # except pickle.UnpicklingError as e:
-    #     # normal, somewhat expected
-    #     print("Unpickling error")
-    # #except (AttributeError,  EOFError, ImportError, IndexError) as e:
-    # #    # secondary errors
-    # #    print("Attribute Error...")
-    # except (AttributeError) as e:
-    #     # secondary errors
-    #     print("Attribute Error...")
-    # except (EOFError) as e:
-    # #    print("EOFError")
-    # #except (ImportError) as e:
-    # #    print("ImportError")
-    # #except (IndexError) as e:
-    # #    print("IndexError")
-    # #except Exception as e:
-    # #    # everything else, possibly fatal
-    # #    print("Exception as e...")
-    # #    return
-    except Exception:
-        USERDATASTORE = {
-            'users' : []
-        }
     return USERDATASTORE
 
 def get_channel_store():
     global CHANNELSTORE
-    try:
-        FILE_1 = open('channelStore.p', 'rb')
-        CHANNELSTORE = pickle.load(FILE_1)
-    except Exception:
-        CHANNELSTORE = {
-            'Channels' : []
-        }
     return CHANNELSTORE
 
 def get_messages_store():
     global MESSAGESTORE
-    try:
-        FILE_2 = open('messagesStore.p', 'rb')
-        MESSAGESTORE = pickle.load(FILE_2)
-    except Exception:
-        MESSAGESTORE = {
-            'Messages' : []
-        }
     return MESSAGESTORE
 
 def get_permission_store():
@@ -113,13 +72,17 @@ def reset_store():
     global USERDATASTORE
     global CHANNELSTORE
     global MESSAGESTORE
+#    print("calling reset")
     try:
-        FILE = open('userStore.p', 'rb')
+        FILE = open('userStore.p', 'wb')
         USERDATASTORE = pickle.load(FILE)
-        FILE_1 = open('channelStore.p', 'rb')
+        FILE_1 = open('channelStore.p', 'wb')
         CHANNELSTORE = pickle.load(FILE_1)
-        FILE_2 = open('messagesStore.p', 'rb')
+        FILE_2 = open('messagesStore.p', 'wb')
         MESSAGESTORE = pickle.load(FILE_2)
+        FILE.close()
+        FILE_1.close()
+        FILE_2.close()
     except Exception:
         USERDATASTORE = {
             'users' : []
@@ -130,6 +93,7 @@ def reset_store():
         MESSAGESTORE = {
             'Messages' : []
         }
+    return
 
 def make_message(message, channel_id, user_id, time_created): 
     store = get_messages_store()
@@ -404,25 +368,59 @@ def randomString(stringLength=10):
     return ''.join(random.choice(letters) for i in range(stringLength))
 
 
-############Functions for storing the data##################
-#def store_the_data():
-#    while True:
-#        with open('userStore.p', 'wb') as FILE_3:
-#            pickle.dump(get_user_store(), FILE_3)
-#        with open('channelStore.p', 'wb') as FILE_4:
-#            pickle.dump(get_channel_store(), FILE_4)
-#        with open('messagesStore.p', 'wb') as FILE_5:
-#            pickle.dump(get_messages_store(), FILE_5)
-#        time.sleep(1)
+############Functions for loading the data##################
 
-#def update_users_store():
-#    with open('userStore.p', 'wb') as FILE_3:
-#        pickle.dump(get_user_store(), FILE_3)
-#
-#def update_channels_store():
-#    with open('channelStore.p', 'wb') as FILE_4:
-#        pickle.dump(get_channel_store(), FILE_4)
-#
-#def update_messages_store():
-#    with open('messagesStore.p', 'wb') as FILE_5:
-#        pickle.dump(get_messages_store(), FILE_5)
+def load_user_store():
+    global USERDATASTORE
+    try:
+        FILE_2 = open('userStore.p', 'rb')
+        USERDATASTORE = pickle.load(FILE_2)
+        print(USERDATASTORE)
+        FILE_2.close()
+    except Exception:
+        print("Print to identify userdatastore")
+        USERDATASTORE = {
+            'users': []
+        }
+
+def load_channels_store():
+    global CHANNELSTORE
+    try:
+        FILE_3 = open('channelStore.p', 'rb')
+        CHANNELSTORE = pickle.load(FILE_3)
+        print(CHANNELSTORE)
+        FILE_3.close()
+    except Exception:
+        CHANNELSTORE = {
+            'Channels': [],
+        }
+
+def load_messages_store():
+    global MESSAGESTORE
+    try:
+        FILE_4 = open('messagesStore.p', 'rb')
+        MESSAGESTORE = pickle.load(FILE_4)
+        FILE_4.close()
+    except Exception:
+        MESSAGESTORE = {
+            'Messages' : []
+        }
+
+def update_users_store():
+    with open('userStore.p', 'wb') as FILE_3:
+        #print(hex(id(get_user_store())))
+        pickle.dump(get_user_store(), FILE_3)
+        FILE_3.close()
+
+def update_channels_store():
+    with open('channelStore.p', 'wb') as FILE_4:
+        #print(get_channel_store())
+        pickle.dump(get_channel_store(), FILE_4)
+        FILE_4.close()
+
+def update_messages_store():
+    with open('messagesStore.p', 'wb') as FILE_5:
+        #print(get_messages_store())
+        pickle.dump(get_messages_store(), FILE_5)
+        FILE_5.close()
+
