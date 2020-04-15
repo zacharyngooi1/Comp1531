@@ -58,6 +58,25 @@ def get_user_store():
     try:
         FILE = open('userStore.p', 'rb')
         USERDATASTORE = pickle.load(FILE)
+    # except pickle.UnpicklingError as e:
+    #     # normal, somewhat expected
+    #     print("Unpickling error")
+    # #except (AttributeError,  EOFError, ImportError, IndexError) as e:
+    # #    # secondary errors
+    # #    print("Attribute Error...")
+    # except (AttributeError) as e:
+    #     # secondary errors
+    #     print("Attribute Error...")
+    # except (EOFError) as e:
+    # #    print("EOFError")
+    # #except (ImportError) as e:
+    # #    print("ImportError")
+    # #except (IndexError) as e:
+    # #    print("IndexError")
+    # #except Exception as e:
+    # #    # everything else, possibly fatal
+    # #    print("Exception as e...")
+    # #    return
     except Exception:
         USERDATASTORE = {
             'users' : []
@@ -385,17 +404,25 @@ def randomString(stringLength=10):
     return ''.join(random.choice(letters) for i in range(stringLength))
 
 
-############Function for storing the data##################
-def store_the_data():
-    while True:
-        with open('userStore.p', 'wb') as FILE_3:
-            pickle.dump(get_user_store(), FILE_3)
-        with open('channelStore.p', 'wb') as FILE_4:
-            pickle.dump(get_channel_store(), FILE_4)
-        with open('messagesStore.p', 'wb') as FILE_5:
-            pickle.dump(get_messages_store(), FILE_5)
-        time.sleep(1)
+############Functions for storing the data##################
+#def store_the_data():
+#    while True:
+#        with open('userStore.p', 'wb') as FILE_3:
+#            pickle.dump(get_user_store(), FILE_3)
+#        with open('channelStore.p', 'wb') as FILE_4:
+#            pickle.dump(get_channel_store(), FILE_4)
+#        with open('messagesStore.p', 'wb') as FILE_5:
+#            pickle.dump(get_messages_store(), FILE_5)
+#        time.sleep(1)
 
-def store_users():
-    with open('userStore.p', 'wb') as FILE_3:
-        pickle.dump(get_user_store(), FILE_3)
+#def update_users_store():
+#    with open('userStore.p', 'wb') as FILE_3:
+#        pickle.dump(get_user_store(), FILE_3)
+#
+#def update_channels_store():
+#    with open('channelStore.p', 'wb') as FILE_4:
+#        pickle.dump(get_channel_store(), FILE_4)
+#
+#def update_messages_store():
+#    with open('messagesStore.p', 'wb') as FILE_5:
+#        pickle.dump(get_messages_store(), FILE_5)

@@ -10,7 +10,7 @@ from db import token_check, channel_check, u_id_check, email_check, email_dupe_c
 from db import handle_check, password_check, message_check, owner_channel_check
 from db import member_channel_check, react_check, reset_store
 from db import get_messages_store
-from db import store_the_data
+#from db import update_users_store, update_channels_store, update_messages_store
 from user import user_profile, user_profile_setemail, user_profile_sethandle
 from user import user_profile_setname
 from auth import auth_register, auth_logout, auth_login, auth_pw_request, auth_pw_reset
@@ -26,6 +26,7 @@ from channel import check_if_user_in_channel_member_uid, check_if_channel_is_pub
 from datetime import timezone, datetime
 import threading
 from hangman import play_hangman
+import pickle
 
 #input_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
 #chan_id = channels_create(input_dict['token'], 'Hayden', True)
@@ -60,7 +61,7 @@ def reset():
 ###############################################################
 # AUTH FLASK FUNCTIONS
 ###############################################################
-auth_register("rob@gmail.com", "password123", "Rob", "Ever")
+#auth_register("rob@gmail.com", "password123", "Rob", "Ever")
 
 
 @APP.route("/auth/register", methods=["POST"])
@@ -945,19 +946,40 @@ def timer_action():
 # DONT REMOVE THE FOLLOWING LINE. IT IS IMPORTANT FOR MAKING STANDUPS WORK
 timer_action()
 
+def update_users_store():
+    with open('userStore.p', 'wb') as FILE_3:
+        pickle.dump(get_user_store(), FILE_3)
+    FILE_3.close()
+
+def update_channels_store():
+    with open('channelStore.p', 'wb') as FILE_4:
+        pickle.dump(get_channel_store(), FILE_4)
+    FILE_4.close()
+
+def update_messages_store():
+    with open('messagesStore.p', 'wb') as FILE_5:
+        pickle.dump(get_messages_store(), FILE_5)
+    FILE_5.close()
+
+def timer_data_store_action():
+    timer = threading.Timer(1.0, timer_data_store_action)
+    timer.start()
+    update_users_store()
+    print("The user store is")
+    print(get_user_store())
+    update_channels_store()
+    print("The channels store is")
+    print(get_channel_store())
+    update_messages_store()
+    print("The message store is")
+    print(get_messages_store())
+
+# DON'T REMOVE THE FOLLOWING LINE. IT IS IMPORTANT FOR MAKING DATASTORE WORK
+timer_data_store_action()
+
+
 ###############################################################
 #DONT TOUCH ANYTHING BELOW THIS LINE
 ###############################################################
 if __name__ == "__main__":
     APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 5324599))
-    storing_data_thread = threading.Thread(target = store_the_data)
-    storing_data_thread.start()
-
-def timer_action():
-	timer = threading.Timer(1.0, timer_action)
-	timer.start()
-	update_message()
-	update_standup()
-    update_users()
-    update_channels()
-    

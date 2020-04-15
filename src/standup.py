@@ -36,7 +36,6 @@ def standup_start(token, channel_id, length):
     if channel['standup']['time_standup_finished'] != None:
         if datetime.utcnow().replace(tzinfo=timezone.utc).timestamp() < channel['standup']['time_standup_finished']:
             raise InputError
-    #get_standup_queue()['Standup_queues'].append({"final_string":""})
     channel['standup']['is_standup_active'] = True
     time_finish = datetime.utcnow().replace(tzinfo=timezone.utc).timestamp() + length
     channel['standup']['time_standup_finished'] = time_finish
