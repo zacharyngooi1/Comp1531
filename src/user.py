@@ -87,9 +87,31 @@ def user_profile_sethandle(token, handle_str):
 def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
     #need to complete checks 
 
-    store = get_user_store()
-    for user in store: 
-        if user['token'] == token: 
-            user['profile_img_url'] = img_url
+    # use library to uplpad photo and crop it 
+    # save that new photo to server and get new link 
+    # that is the link you want to upload to user profile 
+
+    #opens image 
+    img = Image.open(img_url)
+
+    #gets current dimensions of picture 
+    width, height = img.size()
+
+    if img.format() != 'JPG': 
+        raise InputError
+
+    if (x_end - x_start > width) or (y_end- y_start > height): 
+        raise InputError
+        
+    #slightly confused about how to find left, top, right, and bottom- which one they correspond to 
+    left = x_start 
+    top = y_start #or should this be y_end? 
+    right = x_end 
+    bottom = y_end
+
+    img_cropped = img.crop(left, top, right, bottom)
+    
+    user = token_check(token)
+    user['profile_img_url'] = img_url
             
 

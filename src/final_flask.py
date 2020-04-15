@@ -299,10 +299,18 @@ def uploadphoto():
     x_end = data['x_end']
     y_end = data['y_end']
 
-    #this is where the input testing will go 
-    #test img_url 
-    #test dimensions 
-    #test jpg 
+    #opens image 
+    img = Image.open(img_url)
+
+    #gets current dimensions of picture 
+    width, height = img.size()
+
+    if img.format() != 'JPG': 
+        raise InputError
+
+    if (x_end - x_start > width) or (y_end- y_start > height): 
+        raise InputError
+         
 
     user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end)
     return dumps({})
