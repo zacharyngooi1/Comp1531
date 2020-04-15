@@ -1,7 +1,7 @@
 import re
 from error import InputError
-from db import login, make_user, get_channel_store, get_messages_store
-from db import get_user_store, add_user, login, make_user
+from db import login, make_user, get_channel_store, get_messages_store,remove_from_user
+from db import get_user_store, add_user, login, make_user, remove_from_channel
 from PIL import Image
 from db import token_check, channel_check, u_id_check, email_check, email_dupe_check, handle_check
 import urllib.request 
@@ -118,4 +118,15 @@ def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
     user = token_check(token)
     user['profile_img_url'] = img_url
             
+
+def user_remove(token, u_id):
+    user_remove = u_id_check(u_id)
+    if user_remove == False:
+        raise InputError
+    user_action = token_check(token)
+    if user_action['u_id'] != user_action['permission_id']:
+        raise AccessError
+
+    remove_from_channel(u_id)
+    remove_from_user(u_id)
 

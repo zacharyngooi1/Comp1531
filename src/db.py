@@ -272,7 +272,21 @@ def owner_channel_check(token, channel_id):
     return False
 
 
+def remove_from_channel(u_id):
+    data = get_channel_store()
+    for channel in data['Channels']:
+        for mem in mem_check['all_members']:              
+            if int(mem["u_id"]) == u_id:
+                mem_check['all_members'].remove(mem)
+        for mem in mem_check['owner_members']:              
+            if int(mem["u_id"]) == u_id:
+                mem_check['all_members'].remove(mem)
 
+def remove_from_user(u_id):
+    data = get_user_store()
+    for user in data['users']:
+        if int(user["u_id"]) == u_id:   
+            data['users'].remove(user)
 
 def member_channel_check(token, channel_id):
     user = token_check(token)   #checks if it's a valid user
