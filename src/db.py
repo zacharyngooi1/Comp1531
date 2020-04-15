@@ -46,12 +46,6 @@ MESSAGESTORE = {
     
 }
 
-PERMISSIONSTORE = {
-    "SLACKR_OWNER": 1,
-    "SLACKR_MEMBER": 2,
-    "CHANNEL_OWNER": 1,
-    "CHANNEL_MEMBER": 2,
-}
 
 def get_user_store():
     global USERDATASTORE
@@ -118,11 +112,12 @@ def get_logged_in_users():
     return logged_in_users
 
 
-permission_ids = {
+PERMISSIONSTORE = {
     "SLACKR_OWNER": 1,
     "SLACKR_MEMBER": 2,
     "CHANNEL_OWNER": 1,
     "CHANNEL_MEMBER": 2,
+    "USER_NUM": [],
 }
 
 def make_user(email, password, name_first, name_last, u_id, perm_id):
@@ -155,9 +150,14 @@ def create_handle(first_name, last_name):
     return sample_handle
 
 def add_user(email, password, name_first, name_last):
+    permission = get_permission_store()
     store = get_user_store()
     u_id = len(name_first) +len(name_last) +len(email) + randrange(100000)
-    permission_id = permission_ids['SLACKR_OWNER'] if u_id == 0 else permission_ids['SLACKR_MEMBER']
+    if len(permission['USER_NUM'] == 0):
+        permission['USER_NUM'].append(u_id)
+        permission_id = permission['SLACKR_OWNER']
+    else:
+        permission_id = permission['SLACKR_MEMBER']
     user = make_user(email, password, name_first, name_last, u_id, permission_id)
     store['users'].append(user)
     return user
