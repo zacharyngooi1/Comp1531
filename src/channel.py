@@ -1,6 +1,6 @@
 import jwt
 from db import get_user_store, add_user, login, make_user
-from db import login, make_user, get_channel_store, get_messages_store
+from db import login, make_user, get_channel_store, get_messages_store, get_user_store
 from db import token_check, channel_check, u_id_check, member_channel_check
 from error import InputError, AccessError
 from random import randrange
@@ -319,6 +319,8 @@ def channels_create(token, name, is_public):
 
     store = get_channel_store()
     
+    store1 = get_user_store
+    print("HELLLOOOOOO THIS IS A TEST LOOK HERE", store1)
     user_store = token_check(token)
     
     if user_store == False:
