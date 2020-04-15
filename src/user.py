@@ -4,6 +4,8 @@ from db import login, make_user, get_channel_store, get_messages_store,remove_fr
 from db import get_user_store, add_user, login, make_user, remove_from_channel
 from PIL import Image
 from db import token_check, channel_check, u_id_check, email_check, email_dupe_check, handle_check
+import urllib.request 
+import io 
 
 def user_profile(token, u_id):
     if token_check(token) == False:
@@ -92,12 +94,14 @@ def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
     # that is the link you want to upload to user profile 
 
     #opens image 
-    img = Image.open(img_url)
+    fd = urllib.request.urlopen(img_url)
+    image_file = io.BytesIO(fd.read())
+    img = Image.open(image_file)
 
     #gets current dimensions of picture 
-    width, height = img.size()
+    width, height = img.size
 
-    if img.format() != 'JPG': 
+    if img.format != 'JPG': 
         raise InputError
 
     if (x_end - x_start > width) or (y_end- y_start > height): 

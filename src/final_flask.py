@@ -9,7 +9,9 @@ from db import get_user_store, add_user, create_handle, message_create_for_stand
 from db import token_check, channel_check, u_id_check, email_check, email_dupe_check
 from db import handle_check, password_check, message_check, owner_channel_check
 from db import member_channel_check, react_check, reset_store
-from user import user_profile, user_profile_setemail, user_profile_sethandle, user_remove
+from db import get_messages_store
+from db import load_user_store, load_channels_store, load_messages_store, update_users_store, update_channels_store, update_messages_store
+from user import user_profile, user_profile_setemail, user_profile_sethandle,  user_remove
 from user import user_profile_setname, user_profile_uploadphoto
 from auth import auth_register, auth_logout, auth_login, auth_pw_request, auth_pw_reset
 from other import users_all, search
@@ -25,6 +27,17 @@ from channel import check_if_channel_exists
 from datetime import timezone, datetime
 import threading
 from hangman import play_hangman
+<<<<<<< src/final_flask.py
+from PIL import Image
+import urllib.request
+import io 
+import pickle
+
+#input_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
+#chan_id = channels_create(input_dict['token'], 'Hayden', True)
+=======
+import pickle
+>>>>>>> src/final_flask.py
 
 APP = Flask(__name__)
 CORS(APP)
@@ -295,12 +308,15 @@ def uploadphoto():
     y_end = data['y_end']
 
     #opens image 
-    img = Image.open(img_url)
+    fd = urllib.request.urlopen(img_url)
+    image_file = io.BytesIO(fd.read())
+    img = Image.open(image_file)
 
     #gets current dimensions of picture 
-    width, height = img.size()
+    width, height = img.size
 
-    if img.format() != 'JPG': 
+    print(img.format)
+    if img.format != 'JPG': 
         raise InputError
 
     if (x_end - x_start > width) or (y_end- y_start > height): 
@@ -938,8 +954,22 @@ def timer_action():
 # DONT REMOVE THE FOLLOWING LINE. IT IS IMPORTANT FOR MAKING STANDUPS WORK
 timer_action()
 
+def timer_data_store_action():
+    timer = threading.Timer(1.0, timer_data_store_action)
+    timer.start()
+    update_users_store()
+    update_channels_store()
+    update_messages_store()
+
+# DON'T REMOVE THE FOLLOWING LINE. IT IS IMPORTANT FOR MAKING DATASTORE WORK
+load_user_store()
+load_channels_store()
+load_messages_store()
+timer_data_store_action()
+
 ###############################################################
 #DONT TOUCH ANYTHING BELOW THIS LINE
 ###############################################################
+
 if __name__ == "__main__":
     APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 5324599))
