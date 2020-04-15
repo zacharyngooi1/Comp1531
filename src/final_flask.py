@@ -933,16 +933,9 @@ timer_action()
 def timer_data_store_action():
     timer = threading.Timer(1.0, timer_data_store_action)
     timer.start()
-    print("calling all the updates")
     update_users_store()
-    #print("The user store is")
-    #print(get_user_store())
     update_channels_store()
-    #print("The channels store is")
-    #print(get_channel_store())
     update_messages_store()
-    #print("The message store is")
-    #print(get_messages_store())
 
 # DON'T REMOVE THE FOLLOWING LINE. IT IS IMPORTANT FOR MAKING DATASTORE WORK
 load_user_store()
@@ -955,5 +948,4 @@ timer_data_store_action()
 ###############################################################
 
 if __name__ == "__main__":
-    print("In main")
     APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 5324599))

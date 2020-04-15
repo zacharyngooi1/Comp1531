@@ -12,7 +12,6 @@ from random import randrange
 import pickle
 import time
 import threading
-#print(threading.get_ident())
 
 USERDATASTORE = {
     'users': [
@@ -165,7 +164,7 @@ def add_user(email, password, name_first, name_last):
     permission = get_permission_store()
     store = get_user_store()
     u_id = len(name_first) +len(name_last) +len(email) + randrange(100000)
-    if len(permission['USER_NUM'] == 0):
+    if len(permission['USER_NUM']) == 0:
         permission['USER_NUM'].append(u_id)
         permission_id = permission['SLACKR_OWNER']
     else:
@@ -336,10 +335,8 @@ def load_user_store():
     try:
         FILE_2 = open('userStore.p', 'rb')
         USERDATASTORE = pickle.load(FILE_2)
-        print(USERDATASTORE)
         FILE_2.close()
     except Exception:
-        print("Print to identify userdatastore")
         USERDATASTORE = {
             'users': []
         }
@@ -349,7 +346,6 @@ def load_channels_store():
     try:
         FILE_3 = open('channelStore.p', 'rb')
         CHANNELSTORE = pickle.load(FILE_3)
-        print(CHANNELSTORE)
         FILE_3.close()
     except Exception:
         CHANNELSTORE = {
@@ -369,19 +365,16 @@ def load_messages_store():
 
 def update_users_store():
     with open('userStore.p', 'wb') as FILE_3:
-        #print(hex(id(get_user_store())))
         pickle.dump(get_user_store(), FILE_3)
         FILE_3.close()
 
 def update_channels_store():
     with open('channelStore.p', 'wb') as FILE_4:
-        #print(get_channel_store())
         pickle.dump(get_channel_store(), FILE_4)
         FILE_4.close()
 
 def update_messages_store():
     with open('messagesStore.p', 'wb') as FILE_5:
-        #print(get_messages_store())
         pickle.dump(get_messages_store(), FILE_5)
         FILE_5.close()
 
