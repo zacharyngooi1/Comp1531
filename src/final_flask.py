@@ -27,7 +27,17 @@ from channel import check_if_channel_exists
 from datetime import timezone, datetime
 import threading
 from hangman import play_hangman
+<<<<<<< src/final_flask.py
+from PIL import Image
+import urllib.request
+import io 
 import pickle
+
+#input_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
+#chan_id = channels_create(input_dict['token'], 'Hayden', True)
+=======
+import pickle
+>>>>>>> src/final_flask.py
 
 APP = Flask(__name__)
 CORS(APP)
@@ -289,12 +299,15 @@ def uploadphoto():
     y_end = data['y_end']
 
     #opens image 
-    img = Image.open(img_url)
+    fd = urllib.request.urlopen(img_url)
+    image_file = io.BytesIO(fd.read())
+    img = Image.open(image_file)
 
     #gets current dimensions of picture 
-    width, height = img.size()
+    width, height = img.size
 
-    if img.format() != 'JPG': 
+    print(img.format)
+    if img.format != 'JPG': 
         raise InputError
 
     if (x_end - x_start > width) or (y_end- y_start > height): 
