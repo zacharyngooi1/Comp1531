@@ -10,7 +10,7 @@ from db import token_check, channel_check, u_id_check, email_check, email_dupe_c
 from db import handle_check, password_check, message_check, owner_channel_check
 from db import member_channel_check, react_check, reset_store
 from user import user_profile, user_profile_setemail, user_profile_sethandle
-from user import user_profile_setname
+from user import user_profile_setname, user_profile_uploadphoto
 from auth import auth_register, auth_logout, auth_login, auth_pw_request, auth_pw_reset
 from other import users_all, search
 from standup import standup_start, standup_active, standup_send
@@ -265,6 +265,42 @@ def user_handle():
     user_profile_sethandle(token, set_handle)
     return dumps({})
 
+@APP.route("/user/profile/uploadphoto", methods=["POST"])
+def uploadphoto(): 
+    """ This is a flask wrapper for the user/profile/uploadphoto function
+
+    Parameters:
+        No parameters
+    
+    Returns:
+        (dictionary): Empty dictionary
+    """
+    #request data 
+    data = request.get_json()
+    #save data  
+    token = data['token']
+    img_url = data['img_url']
+    x_start = data['x_start']
+    y_start = data['y_start']
+    x_end = data['x_end']
+    y_end = data['y_end']
+
+    #opens image 
+    img = Image.open(img_url)
+
+    #gets current dimensions of picture 
+    width, height = img.size()
+
+    if img.format() != 'JPG': 
+        raise InputError
+
+    if (x_end - x_start > width) or (y_end- y_start > height): 
+        raise InputError
+         
+
+    user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end)
+    return dumps({})
+
 @APP.route("/users/all", methods=["GET"])
 def get_all_users():
     """ This is a flask wrapper for the users_all function
@@ -283,6 +319,7 @@ def get_all_users():
     return dumps({
         'users': user_list['users']
     })
+
 
 
 @APP.route("/search", methods=["GET"])
