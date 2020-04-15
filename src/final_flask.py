@@ -2,7 +2,7 @@ import sys
 from json import dumps
 from flask import Flask, request
 from flask_cors import CORS
-from error import InputError, AccessError, NameException, KeyError
+from error import InputError, AccessError
 from server import defaultHandler
 from db import login, make_user, get_channel_store, get_messages_store, get_permission_store
 from db import get_user_store, add_user, create_handle, message_create_for_standup
@@ -12,7 +12,7 @@ from db import member_channel_check, react_check, reset_store
 from db import get_messages_store
 from db import load_user_store, load_channels_store, load_messages_store, update_users_store, update_channels_store, update_messages_store
 from user import user_profile, user_profile_setemail, user_profile_sethandle
-from user import user_profile_setname
+from user import user_profile_setname, user_profile_uploadphoto
 from auth import auth_register, auth_logout, auth_login, auth_pw_request, auth_pw_reset
 from other import users_all, search
 from standup import standup_start, standup_active, standup_send
@@ -22,14 +22,12 @@ from channel import channel_invite, channel_details, channel_messages, channel_l
 from channel import channel_join, channel_addowner, channel_removeowner, channels_create
 from channel import channels_list_all, channel_list, check_if_user_in_channel_member
 from channel import check_if_user_in_channel_owner, check_if_user_in_channel_owner_uid
-from channel import check_if_user_in_channel_member_uid, check_if_channel_is_public, check_if_channel_exists
+from channel import check_if_user_in_channel_member_uid, check_if_channel_is_public
+from channel import check_if_channel_exists
 from datetime import timezone, datetime
 import threading
 from hangman import play_hangman
 import pickle
-
-#input_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
-#chan_id = channels_create(input_dict['token'], 'Hayden', True)
 
 APP = Flask(__name__)
 CORS(APP)
@@ -49,20 +47,18 @@ def reset():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): Empty dictionary
     """
     reset_store()
     return dumps({})
-    
+
 
 
 ###############################################################
 # AUTH FLASK FUNCTIONS
 ###############################################################
-#auth_register("rob@gmail.com", "password123", "Rob", "Ever")
-
 
 @APP.route("/auth/register", methods=["POST"])
 def register():
@@ -70,7 +66,7 @@ def register():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): Empty dictionary
     """
@@ -90,18 +86,11 @@ def register():
         raise InputError(description="First name is invalid")
     if len(name_last) < 1 or len(name_last) > 50:
         raise InputError(description="Last name is invalid")
-    #print()
-    #print('Auth register:makes it this far!!')
-    #print()    
+
     auth = auth_register(email, password, name_first, name_last)
     auth_token = auth['token']
     auth_uid = auth['u_id']
-    
-    #print('this is auth register')
-    #print(get_user_store())
-    #print()
-    #print(auth)
-    #print()
+
     return dumps({
         'token': auth_token,
         'u_id': auth_uid
@@ -115,7 +104,7 @@ def login_user():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): A dictionary containing the user id (u_id)
         and token is returned.
@@ -147,7 +136,7 @@ def logout_user():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): A dictionary containing a key called is_success,
         which indicates whether logout has been successful
@@ -170,10 +159,10 @@ def auth_request_password():
 
 @APP.route("/auth/passwordreset/reset", methods=["POST"])
 def auth_reset_password():
-    data = request.get_json() 
+    data = request.get_json()
     code = data['reset_code']
     password = data['new_password']
-    auth_pw_reset(code,password)
+    auth_pw_reset(code, password)
     return dumps({})
 
 
@@ -187,7 +176,7 @@ def get_all():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): A dictionary which contains information
         about user_id, email, first name, last name and handle
@@ -195,11 +184,11 @@ def get_all():
     # Get current data inside store
     token = request.args.get("token")
     u_id = request.args.get("u_id")
-    
+
     # Check for valid u_id
     if not u_id_check(u_id):
         raise InputError(description="u_id is not valid")
-        
+
     profile = user_profile(token, u_id)
     return dumps({
         'user':profile
@@ -211,7 +200,7 @@ def name_set():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): Empty dictionary
     """
@@ -235,7 +224,7 @@ def email_set():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): Empty dictionary
     """
@@ -259,26 +248,60 @@ def user_handle():
 
     Parameters:
         No parameters
+
+    Returns:
+        (dictionary): Empty dictionary
+    """
+
+    data = request.get_json()
+    token = data['token']
+
+    set_handle = data['handle_str']
+
+    if not token_check(token):
+        raise InputError(description="Invalid token")
+    if (len(set_handle) <= 2 or len(set_handle) >= 20):
+        raise InputError(description="Invalid handle")
+    if handle_check(set_handle):
+        raise InputError(description="Handle already in use")
+
+    user_profile_sethandle(token, set_handle)
+    return dumps({})
+
+@APP.route("/user/profile/uploadphoto", methods=["POST"])
+def uploadphoto(): 
+    """ This is a flask wrapper for the user/profile/uploadphoto function
+
+    Parameters:
+        No parameters
     
     Returns:
         (dictionary): Empty dictionary
     """
-    # Request information
+    #request data 
     data = request.get_json()
+    #save data  
     token = data['token']
-    # Save input as handle
-    set_handle = data['handle_str']
-    # Validate token first
-    if not token_check(token):
-        raise InputError(description="Invalid token")
-    # Check requirements for length
-    if (len(set_handle) <= 2 or len(set_handle) >= 20):
-        raise InputError(description="Invalid handle")
-    # Check requirements for duplication
-    if handle_check(set_handle):
-        raise InputError(description="Handle already in use")
-    user_profile_sethandle(token, set_handle)
+    img_url = data['img_url']
+    x_start = data['x_start']
+    y_start = data['y_start']
+    x_end = data['x_end']
+    y_end = data['y_end']
 
+    #opens image 
+    img = Image.open(img_url)
+
+    #gets current dimensions of picture 
+    width, height = img.size()
+
+    if img.format() != 'JPG': 
+        raise InputError
+
+    if (x_end - x_start > width) or (y_end- y_start > height): 
+        raise InputError
+         
+
+    user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end)
     return dumps({})
 
 @APP.route("/users/all", methods=["GET"])
@@ -287,21 +310,19 @@ def get_all_users():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): A dictionary which contains a list of all
         the users and the details that are associated with them
     """
     token = request.args.get("token")
-    # Get current data inside store
-    #print('users listall:',token)
     if not token_check(token):
-        #print('invalid token')
         raise InputError(description="Invalid_token")
     user_list = users_all(token)
     return dumps({
         'users': user_list['users']
     })
+
 
 
 @APP.route("/search", methods=["GET"])
@@ -310,7 +331,7 @@ def search_message():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): Creates a dictionary which contains a key called
         messages which resturns a collection of the messages (which match
@@ -337,7 +358,7 @@ def c_create():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): A dictionary with the channel_id of the new channel
     """
@@ -346,10 +367,8 @@ def c_create():
     token = data['token']
     name = data['name']
     is_public = bool(data['is_public'])
-    #print(is_public)
     channel_id = channels_create(token, name, is_public)
-    #print(get_channel_store())
-    #message_id = {'message_id':1}
+
     return dumps(channel_id)
     #return 1
 
@@ -359,66 +378,47 @@ def c_invite():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): Empty dictionary
     """
-    print('ENTERS CHANNEL INVITE')
     data = request.get_json()
 
     token = data['token']
     channel_id = int(data['channel_id'])
     u_id = int(data['u_id'])
 
-    if channel_check(channel_id) == False: 
-        print('ch invite: input error')
-        raise InputError(description="input error")
+    if not channel_check(channel_id):
+        raise InputError(description="Invalid channel")
 
-    if check_if_user_in_channel_member_uid(token,channel_id) == True: 
-        print('ch invite: Access error')
-        raise AccessError
+    if check_if_user_in_channel_member_uid(token, channel_id):
+        raise AccessError(description="User is not a member in channel")
 
-    print()
-    print('Channel invite: passed all the errors')
     out = channel_invite(token, channel_id, u_id)
     return dumps(out)
 
 #APP route
 @APP.route("/channel/leave", methods=["POST"])
-def c_leave(): 
+def c_leave():
     """ This is a flask wrapper for the channel_leave function
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): Empty dictionary
     """
-    #Request information 
+
     data = request.get_json()
 
-    #print("gets to request")
-    #print()
     channel_id = data['channel_id']
     token = data['token']
 
-    #print("assigns data")
-    #channel_id = new_chl['channel_id']
-    #token = new_user['token']
+    if channel_check(channel_id) is None:
+        raise InputError(description="Channel invalid id")
+    if not check_if_user_in_channel_member(token, channel_id):
+        raise AccessError(description="User not a member of channel")
 
-    if channel_check(channel_id) == None:
-        raise InputError
-
-    #print()
-    #print("gets passed first error")
-    #print()
-    #print(channel_id)
-    check = check_if_user_in_channel_member(token, channel_id)
-    #print(check)
-    if check == False:
-        raise AccessError(description="False leave")
-    #print('gets passed second error')
-    #print("gets to channel_leave call")
     channel_leave(token, channel_id)
     return dumps({})
 
@@ -429,24 +429,22 @@ def c_join():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): Empty dictionary
     """
-    #Request information 
-
     data = request.get_json()
 
     channel_id = data['channel_id']
     token = data['token']
 
-    if channel_check(channel_id) == None:
+    if channel_check(channel_id) is None:
         raise InputError(description="Wrong channel ID")
 
-    if check_if_channel_is_public(channel_id) == False:
-        raise AccessError(description="public error")
-    if check_if_user_in_channel_member(token, channel_id) == True:
-        raise AccessError(description="Access error")
+    if not check_if_channel_is_public(channel_id):
+        raise AccessError(description="Channel is not public")
+    if check_if_user_in_channel_member(token, channel_id):
+        raise AccessError(description="User already member of channel")
 
     channel_join(token, channel_id)
     return dumps({})
@@ -462,21 +460,21 @@ def c_add_owner():
     Returns:
         (dictionary): Empty dictionary
     """
-    #Request information 
+    #Request information
     data = request.get_json()
 
     token = data['token']
     u_id = data['u_id']
     channel_id = data['channel_id']
 
-    if channel_check(channel_id) == False:
-        raise InputError
+    if not channel_check(channel_id):
+        raise InputError(description="Channel is invalid")
 
-    if check_if_user_in_channel_owner_uid(u_id, channel_id) == True:
-        raise InputError
+    if check_if_user_in_channel_owner_uid(u_id, channel_id):
+        raise InputError(description="User already owner of channel")
 
-    if check_if_user_in_channel_owner(token, channel_id) == False:
-        raise AccessError
+    if check_if_user_in_channel_owner(token, channel_id):
+        raise AccessError(description="User already owner of channel")
 
     channel_addowner(token, channel_id, u_id)
     return dumps({})
@@ -487,29 +485,25 @@ def c_removeowner():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): Empty dictionary
     """
-    
     data = request.get_json()
-
     token = data['token']
     channel_id = int(data['channel_id'])
     u_id = int(data['u_id'])
 
-    if channel_check(channel_id) == False:
-        raise InputError
+    if not channel_check(channel_id):
+        raise InputError(description="Channel is invalid")
+    if not check_if_user_in_channel_owner_uid(u_id, channel_id):
+        raise InputError(description="User not owner of channel")
+    if not check_if_user_in_channel_owner(token, channel_id):
+        raise AccessError(description="User not owner of channel")
 
-    if check_if_user_in_channel_owner_uid(u_id, channel_id) == False:
-        raise InputError
-
-    if check_if_user_in_channel_owner(token, channel_id) == False:
-        raise AccessError
     out = channel_removeowner(token, channel_id, u_id)
-    
+
     return dumps(out)
-    #return 1
 
 @APP.route("/channel/details", methods=["GET"])
 def c_details():
@@ -517,24 +511,23 @@ def c_details():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): A dictionary which contains details about
         the channel(the name of the channel, owners of the channels
         and all the members of the channel)
     """
-
     token = request.args.get('token')
     channel_id = int(request.args.get('channel_id'))
-    print(token)
-    if channel_check(channel_id) == False: 
+
+    if not channel_check(channel_id): 
         raise InputError(description="channel id not found")
-    if check_if_user_in_channel_member(token,channel_id) == False: 
+    if not check_if_user_in_channel_member(token, channel_id): 
         raise AccessError(description="User in channel members not found")
+
     return_dict = channel_details(token, channel_id)
-    print(return_dict)
     return dumps(return_dict)
-    #return 1
+
 
 @APP.route("/channels/list", methods=["GET"])
 def c_list():
@@ -542,7 +535,7 @@ def c_list():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): This dictionary contains a list of all the 
         channels that the user is part of and their associated
@@ -551,12 +544,10 @@ def c_list():
 
     token = request.args.get('token')
 
-    if token_check(token) == False:
-
-        raise InputError
+    if not token_check(token):
+        raise AccessError(description="Invalid token")
 
     return_dict = channel_list(token)
-
     return dumps(return_dict)
 
 
@@ -566,26 +557,20 @@ def c_listall():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): A dictionary which contains the key called
         channels and is a list of channels and their associated details
     """
 
-    #print("IT ENTERS THIS ATLEAST(listall)")
-    #print()
-    #print()
     token = request.args.get('token')
 
-    if token_check(token) == False:
-        raise InputError
+    if not token_check(token):
+        raise AccessError(description="Invalid token")
 
-    #print('token correct')
     return_dict = channels_list_all(token)
-    #print('returns the channels list all function')
-    #print(return_dict)
     return dumps(return_dict)
-    #return 1
+
 
 @APP.route("/channel/messages", methods=["GET"])
 def c_messages():
@@ -593,27 +578,24 @@ def c_messages():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): A dictionary containing messages which
         are between the start value and the end value. This dictionary
         contains the keys of messages, start and end.
     """
-    #token = request.args.get('token')
-    #channel_id = int(request.args.get('channel_id'))
-    #start = int(request.args.get('start'))
+
     token = request.args.get('token')
     ch_id = int(request.args.get('channel_id'))
     start = int(request.args.get('start'))
 
-    if channel_check(ch_id) == None:
-        raise InputError
+    if not channel_check(ch_id):
+        raise InputError(description="channel id not found")
 
-    if check_if_user_in_channel_member(token, ch_id) == False:
-        raise AccessError
+    if not check_if_user_in_channel_member(token, ch_id):
+        raise AccessError("User not a member of channel")
 
-    return_dict = channel_messages(token, ch_id,start)
-    #print('bout to return this:',return_dict)
+    return_dict = channel_messages(token, ch_id, start)
     return dumps(return_dict)
     #return 1
 
@@ -628,7 +610,7 @@ def send():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): A dictionary containing the message_id
         of the message that was sent.
@@ -638,15 +620,14 @@ def send():
     token = data['token']
     channel_id = data['channel_id']
     message = data['message']
+
     if len(message) >= 1000:
         raise InputError(description="Message is too long")
     if not check_if_user_in_channel_member(token, channel_id):
         raise AccessError(description="User not member of channel")
     message_id = message_send(token, channel_id, message)
-    #message_id = {'message_id':1}
-    print(get_messages_store())
+
     return dumps(message_id)
-    #return 1
 
 
 @APP.route("/message/sendlater", methods=["POST"])
@@ -655,7 +636,7 @@ def send_later():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): A dictionary containing the message_id
         of the message that was sent.
@@ -665,6 +646,7 @@ def send_later():
     channel_id = int(data['channel_id'])
     message = data['message']
     time = (data['time_sent'])
+
     if len(message) >= 1000:
         raise InputError(description="Message is too long")
     if not check_if_channel_exists(channel_id):
@@ -673,6 +655,7 @@ def send_later():
         raise InputError(description="Invalid time")
     if not check_if_user_in_channel_member(token, channel_id):
         raise AccessError(description="User not member of channel")
+
     message_id = message_send_later(token, channel_id, message,time)
     return dumps(message_id)
 
@@ -683,7 +666,7 @@ def react():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): Empty dictionary
     """
@@ -701,8 +684,6 @@ def react():
     if react_check(message_id, user['u_id'], react_id):
         raise InputError(description="Already reacted")
 
-    is_this_user_reacted = False;
-
     message_react(token, message_id, 1)
 
     return dumps({})
@@ -713,7 +694,7 @@ def unreact():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): Empty dictionary.
     """
@@ -722,6 +703,7 @@ def unreact():
     token = data['token']
     react_id = int(data['react_id'])
     message_id = int(data['message_id'])
+
     if react_id != 1:
         raise InputError(description="Invalid react id")
     if not token_check(token):
@@ -729,6 +711,7 @@ def unreact():
     user = token_check(token)
     if not react_check(message_id, user['u_id'], react_id):
         raise InputError(description="Already reacted")
+
     message_unreact(token, message_id, 1)
     return dumps({})
 
@@ -740,7 +723,7 @@ def pin():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): Empty dictionary
     """
@@ -748,7 +731,8 @@ def pin():
 
     token = data['token']
     message_id = int(data['message_id'])
-    if message_check(message_id) == None:
+
+    if message_check(message_id) is None:
         raise InputError(description="Invalid id")
     message = message_check(message_id)
     if message['is_pinned']:
@@ -757,6 +741,7 @@ def pin():
         raise AccessError(description="User not member")
     if not check_if_user_in_channel_owner(token, message['channel_id']):
         raise AccessError(description="User not Owner")
+
     message_pin(token,message_id)
     return dumps(message_id)
 
@@ -767,7 +752,7 @@ def unpin():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): Empty dictionary.
     """
@@ -775,8 +760,8 @@ def unpin():
 
     token = data['token']
     message_id = int(data['message_id'])
-    
-    if message_check(message_id) == None:
+
+    if message_check(message_id) is None:
         raise InputError(description="Invalid id")
     message = message_check(message_id)
     if not message['is_pinned']:
@@ -797,24 +782,23 @@ def edit():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): Empty dictionary
     """
     data = request.get_json()
-
     token = data['token']
     message_id = int(data['message_id'])
     message = data['message']
 
     message_probe = message_check(message_id)
     user = token_check(token)
-   
+
     if not check_if_user_in_channel_owner(token, message['channel_id']):
         raise AccessError(description="User not owner")
     if user['u_id'] != message_probe['user_id']:
         raise AccessError(description="User not sender")
-    
+
     message_edit(token, message_id, message)
     return dumps(message_id)
 
@@ -825,7 +809,7 @@ def remove():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): Empty dictionary
     """
@@ -833,18 +817,18 @@ def remove():
 
     token = data['token']
     message_id = int(data['message_id'])
-    
+
     message_probe = message_check(message_id)
     user = token_check(token)
-    if message_probe == None:
+
+    if message_probe is None:
         raise InputError(description="Message not found")
     if not check_if_user_in_channel_owner(token, message['channel_id']):
         raise AccessError(description="User not owner")
     if user['u_id'] != message_probe['user_id']:
         raise AccessError(description="User not sender")
 
-
-    message_remove(token,message_id)
+    message_remove(token, message_id)
     return dumps(message_id)
 
 
@@ -861,7 +845,7 @@ def standup_start_flask():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): A dictionary containing the key named time_finish.
         time_finish refers to the time that the standup finishes.
@@ -880,7 +864,7 @@ def standup_active_flask():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary): A dictionary containing two keys called is_active
         and time_finish. is_active lets the user know if the standup is
@@ -898,7 +882,7 @@ def standup_send_flask():
 
     Parameters:
         No parameters
-    
+
     Returns:
         (dictionary):Empty dictionary.
     """
@@ -919,7 +903,7 @@ def update_message():
     # 2. Check if message at the end of statdup is sent
     # 3. If not send the message
     for channel in channel_store['Channels']:
-        if ((channel['standup']['is_message_sent'] == False) and (channel['standup']['time_standup_finished'] != None)):
+        if (not channel['standup']['is_message_sent']) and (channel['standup']['time_standup_finished'] is not None):
             user = u_id_check(channel['standup']['u_id_standup_started'])
             if (int(datetime.utcnow().replace(tzinfo=timezone.utc).timestamp()) > int(channel['standup']['time_standup_finished'])):
                 message_send(user['token'], channel['channel_id'], channel['standup']['standup_message'])
@@ -928,7 +912,7 @@ def update_message():
 def update_standup():
     channel_store = get_channel_store()
     for channel in channel_store['Channels']:
-        if ((channel['standup']['is_message_sent'] == False) and (channel['standup']['time_standup_finished'] != None)):
+        if (not channel['standup']['is_message_sent']) and (channel['standup']['time_standup_finished'] is not None):
             if (int(datetime.utcnow().replace(tzinfo=timezone.utc).timestamp()) > int(channel['standup']['time_standup_finished'])):
                 channel['standup']['is_standup_active'] = False
                 channel['standup']['time_standup_finished'] = None
@@ -938,10 +922,10 @@ def update_standup():
     return
 
 def timer_action():
-	timer = threading.Timer(1.0, timer_action)
-	timer.start()
-	update_message()
-	update_standup()
+    timer = threading.Timer(1.0, timer_action)
+    timer.start()
+    update_message()
+    update_standup()
 
 # DONT REMOVE THE FOLLOWING LINE. IT IS IMPORTANT FOR MAKING STANDUPS WORK
 timer_action()
