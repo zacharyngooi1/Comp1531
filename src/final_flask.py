@@ -911,6 +911,9 @@ def standup_send_flask():
     out = standup_send(token, channel_id, message)   
     return dumps(out)
 
+
+
+###DO NOT REMOVE THE FOLLOWING FUNCTIONS (OR MOVE TO db.py) BECAUSE THEY ARE ESSENTIAL FOR MAKING STANDUPS AND DATASTORE WORK.
 # update message function
 # Step 1: Check if standup is running
 # Step 2: If running, send the standup message using message_send (time_now >time_sent) 
