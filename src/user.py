@@ -101,11 +101,14 @@ def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
     #gets current dimensions of picture 
     width, height = img.size
 
+    #figure out how to check if image is a valid link!! 
+
+
     if img.format != 'JPEG': 
         raise InputError
 
-    #if x_end - x_start > int(width) or y_end- y_start > int(height): 
-      #  raise InputError
+    if x_end - x_start > int(width) or y_end- y_start > int(height): 
+        raise InputError
         
     #slightly confused about how to find left, top, right, and bottom- which one they correspond to 
     left = x_start 
@@ -113,7 +116,7 @@ def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
     right = x_end 
     bottom = y_end
 
-    img_cropped = img.crop((int(left), int(top), int(right), int(bottom)))
+    img_cropped = img.crop((left, top, right, bottom))
     
     user = token_check(token)
     user['profile_img_url'] = img_url

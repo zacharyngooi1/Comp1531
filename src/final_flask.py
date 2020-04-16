@@ -319,6 +319,7 @@ def uploadphoto():
     x_end = data['x_end']
     y_end = data['y_end']
 
+    print(type(x_start))
     #opens image 
     fd = urllib.request.urlopen(img_url)
     image_file = io.BytesIO(fd.read())
