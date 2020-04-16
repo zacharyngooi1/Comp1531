@@ -101,10 +101,10 @@ def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
     #gets current dimensions of picture 
     width, height = img.size
 
-    if img.format != 'JPG': 
+    if img.format != 'JPEG': 
         raise InputError
 
-    if (x_end - x_start > width) or (y_end- y_start > height): 
+    if x_end - x_start > int(width) or y_end- y_start > int(height): 
         raise InputError
         
     #slightly confused about how to find left, top, right, and bottom- which one they correspond to 
