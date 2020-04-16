@@ -27,17 +27,7 @@ from channel import check_if_channel_exists
 from datetime import timezone, datetime
 import threading
 from hangman import play_hangman
-<<<<<<< src/final_flask.py
-from PIL import Image
-import urllib.request
-import io 
 import pickle
-
-#input_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
-#chan_id = channels_create(input_dict['token'], 'Hayden', True)
-=======
-import pickle
->>>>>>> src/final_flask.py
 
 APP = Flask(__name__)
 CORS(APP)
