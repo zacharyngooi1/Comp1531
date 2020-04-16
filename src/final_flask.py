@@ -46,13 +46,16 @@ APP.register_error_handler(Exception, defaultHandler)
 #DONT TOUCH ANYTHING ABOVE THIS LINE OR ZACH WILL BEAT U UP  
 ###############################################################
 
-@APP.route("/admin/user/remove", methods=["DELETE"])
-def remove_user():
-    
+@APP.route("/admin/userpermission/change", methods=["POST"])
+def permission_change():
     data = request.get_json()
     print('this is data->',data)
-    token = data['token']
-    u_id = data['u_id']
+
+@APP.route("/admin/user/remove", methods=["DELETE"])
+def remove_user():
+    token = request.args.get('token')
+    u_id = int(request.args.get('u_id'))
+    print(token,u_id)
     user_remove(token, u_id)
     return dumps({})
 
@@ -74,6 +77,9 @@ def reset():
 ###############################################################
 # AUTH FLASK FUNCTIONS
 ###############################################################
+
+
+
 
 @APP.route("/auth/register", methods=["POST"])
 def register():
