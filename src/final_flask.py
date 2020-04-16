@@ -27,7 +27,13 @@ from channel import check_if_channel_exists
 from datetime import timezone, datetime
 import threading
 from hangman import play_hangman
+from PIL import Image
+import urllib.request
+import io 
 import pickle
+
+#input_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
+#chan_id = channels_create(input_dict['token'], 'Hayden', True)
 
 APP = Flask(__name__)
 CORS(APP)
@@ -309,8 +315,8 @@ def uploadphoto():
     if img.format != 'JPEG': 
         raise InputError
 
-    if x_end - x_start > int(width) or y_end- y_start > int(height): 
-        raise InputError
+    #if x_end - x_start > int(width) or y_end- y_start > int(height): 
+       # raise InputError
          
 
     user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end)
