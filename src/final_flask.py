@@ -319,7 +319,6 @@ def uploadphoto():
     x_end = data['x_end']
     y_end = data['y_end']
 
-    print(type(x_start))
     #opens image 
     fd = urllib.request.urlopen(img_url)
     image_file = io.BytesIO(fd.read())
@@ -328,7 +327,6 @@ def uploadphoto():
     #gets current dimensions of picture 
     width, height = img.size
 
-    print(img.format)
     if img.format != 'JPEG': 
         raise InputError
 
@@ -336,7 +334,7 @@ def uploadphoto():
        # raise InputError
          
 
-    user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end)
+    user_profile_uploadphoto(token, img_url, int(x_start), int(y_start), int(x_end), int(y_end))
     return dumps({})
 
 @APP.route("/users/all", methods=["GET"])
