@@ -6,6 +6,7 @@ from PIL import Image
 from db import token_check, channel_check, u_id_check, email_check, email_dupe_check, handle_check
 import urllib.request 
 import io 
+import uuid
 
 def user_profile(token, u_id):
     if token_check(token) == False:
@@ -118,8 +119,13 @@ def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
 
     img_cropped = img.crop((left, top, right, bottom))
     
+    file_name = uuid.uuid4().hex
+    path_name = 'photos/' + file_name + '.jpg'
+    img.save(path_name, 'JPEG')
+
+    new_url = 'http://localhost:5001' + path_name
     user = token_check(token)
-    user['profile_img_url'] = img_url
+    user['profile_img_url'] = new_url 
     print(user['profile_img_url'])
             
 
