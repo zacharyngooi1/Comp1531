@@ -32,9 +32,6 @@ import urllib.request
 import io 
 import pickle
 
-#input_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
-#chan_id = channels_create(input_dict['token'], 'Hayden', True)
-
 APP = Flask(__name__)
 CORS(APP)
 
@@ -46,6 +43,19 @@ APP.register_error_handler(Exception, defaultHandler)
 #DONT TOUCH ANYTHING ABOVE THIS LINE OR ZACH WILL BEAT U UP  
 ###############################################################
 
+#input_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
+#chan_id = channels_create(input_dict['token'], 'Hayden', True)
+#mufeed_dict =  auth_register('moomatia8@gmail.com', 'password', 'Mufeed', 'Oomatia')
+#rob_dict =  auth_register('rob@gmail.com', 'password', 'Rob', 'skrt')
+
+#hannel_invite(input_dict['token'], chan_id["channel_id"], rob_dict["u_id"])
+#channel_invite(input_dict['token'], chan_id["channel_id"], mufeed_dict["u_id"])
+
+#message_id = message_send(input_dict['token'], chan_id['channel_id'], "Haydens Message")
+##message_id1 = message_send(mufeed_dict['token'], chan_id['channel_id'], "Mufeed Message")
+#message_id2 = message_send(rob_dict['token'], chan_id['channel_id'], "rob Message")
+
+#print(input_dict)
 @APP.route("/admin/userpermission/change", methods=["POST"])
 def permission_change():
     data = request.get_json()
