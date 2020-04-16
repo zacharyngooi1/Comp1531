@@ -120,6 +120,7 @@ def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
     
     user = token_check(token)
     user['profile_img_url'] = img_url
+    print(user['profile_img_url'])
             
 
 def user_remove(token, u_id):
