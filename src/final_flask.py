@@ -306,10 +306,10 @@ def uploadphoto():
     width, height = img.size
 
     print(img.format)
-    if img.format != 'JPG': 
+    if img.format != 'JPEG': 
         raise InputError
 
-    if (x_end - x_start > width) or (y_end- y_start > height): 
+    if x_end - x_start > int(width) or y_end- y_start > int(height): 
         raise InputError
          
 
