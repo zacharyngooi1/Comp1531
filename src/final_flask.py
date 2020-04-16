@@ -11,7 +11,7 @@ from db import handle_check, password_check, message_check, owner_channel_check
 from db import member_channel_check, react_check, reset_store
 from db import get_messages_store
 from db import load_user_store, load_channels_store, load_messages_store, update_users_store, update_channels_store, update_messages_store
-from user import user_profile, user_profile_setemail, user_profile_sethandle
+from user import user_profile, user_profile_setemail, user_profile_sethandle,  user_remove
 from user import user_profile_setname, user_profile_uploadphoto
 from auth import auth_register, auth_logout, auth_login, auth_pw_request, auth_pw_reset
 from other import users_all, search
@@ -46,6 +46,15 @@ APP.register_error_handler(Exception, defaultHandler)
 #DONT TOUCH ANYTHING ABOVE THIS LINE OR ZACH WILL BEAT U UP  
 ###############################################################
 
+@APP.route("/admin/user/remove", methods=["DELETE"])
+def remove_user():
+    
+    data = request.get_json()
+    print('this is data->',data)
+    token = data['token']
+    u_id = data['u_id']
+    user_remove(token, u_id)
+    return dumps({})
 
 @APP.route("/reset", methods=["GET"])
 def reset():
@@ -936,6 +945,8 @@ def timer_action():
     timer.start()
     update_message()
     update_standup()
+
+
 
 # DONT REMOVE THE FOLLOWING LINE. IT IS IMPORTANT FOR MAKING STANDUPS WORK
 timer_action()
