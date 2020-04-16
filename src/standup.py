@@ -1,4 +1,4 @@
-from db import channel_check, get_channel_store, message_create_for_standup, member_channel_check, token_check, get_user_store
+from db import channel_check, get_channel_store, message_create_for_standup, member_channel_check, token_check, get_user_store, get_messages_store
 from datetime import datetime, timezone
 import time
 from error import InputError
@@ -36,7 +36,6 @@ def standup_start(token, channel_id, length):
     if channel['standup']['time_standup_finished'] != None:
         if datetime.utcnow().replace(tzinfo=timezone.utc).timestamp() < channel['standup']['time_standup_finished']:
             raise InputError
-    #get_standup_queue()['Standup_queues'].append({"final_string":""})
     channel['standup']['is_standup_active'] = True
     time_finish = datetime.utcnow().replace(tzinfo=timezone.utc).timestamp() + length
     channel['standup']['time_standup_finished'] = time_finish

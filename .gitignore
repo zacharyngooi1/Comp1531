@@ -1,3 +1,8 @@
+# The following files should be ignored for DataStore
+src/userStore.p
+src/messagesStore.p
+src/channelStore.p
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
