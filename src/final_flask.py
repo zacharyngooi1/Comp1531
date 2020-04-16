@@ -314,8 +314,8 @@ def uploadphoto():
     if img.format != 'JPEG': 
         raise InputError
 
-    #if x_end - x_start > int(width) or y_end- y_start > int(height): 
-       # raise InputError
+    if int(x_end) - int(x_start) > int(width) or int(y_end)- int(y_start) > int(height): 
+       raise InputError
          
 
     user_profile_uploadphoto(token, img_url, int(x_start), int(y_start), int(x_end), int(y_end))
