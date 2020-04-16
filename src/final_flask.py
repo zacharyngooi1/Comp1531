@@ -27,7 +27,6 @@ from channel import check_if_channel_exists
 from datetime import timezone, datetime
 import threading
 from hangman import play_hangman
-<<<<<<< src/final_flask.py
 from PIL import Image
 import urllib.request
 import io 
@@ -35,9 +34,7 @@ import pickle
 
 #input_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
 #chan_id = channels_create(input_dict['token'], 'Hayden', True)
-=======
-import pickle
->>>>>>> src/final_flask.py
+
 
 APP = Flask(__name__)
 CORS(APP)
@@ -50,13 +47,16 @@ APP.register_error_handler(Exception, defaultHandler)
 #DONT TOUCH ANYTHING ABOVE THIS LINE OR ZACH WILL BEAT U UP  
 ###############################################################
 
-@APP.route("/admin/user/remove", methods=["DELETE"])
-def remove_user():
-    
+@APP.route("/admin/userpermission/change", methods=["POST"])
+def permission_change():
     data = request.get_json()
     print('this is data->',data)
-    token = data['token']
-    u_id = data['u_id']
+
+@APP.route("/admin/user/remove", methods=["DELETE"])
+def remove_user():
+    token = request.args.get('token')
+    u_id = int(request.args.get('u_id'))
+    print(token,u_id)
     user_remove(token, u_id)
     return dumps({})
 
@@ -78,6 +78,9 @@ def reset():
 ###############################################################
 # AUTH FLASK FUNCTIONS
 ###############################################################
+
+
+
 
 @APP.route("/auth/register", methods=["POST"])
 def register():
