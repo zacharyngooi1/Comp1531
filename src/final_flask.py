@@ -958,7 +958,7 @@ def update_standup():
     return
 
 def timer_action():
-    timer = threading.Timer(1.0, timer_action)
+    timer = threading.Timer(0.5, timer_action)
     timer.start()
     update_message()
     update_standup()
@@ -969,7 +969,7 @@ def timer_action():
 timer_action()
 
 def timer_data_store_action():
-    timer = threading.Timer(1.0, timer_data_store_action)
+    timer = threading.Timer(0.5, timer_data_store_action)
     timer.start()
     update_users_store()
     update_channels_store()
@@ -986,4 +986,4 @@ timer_data_store_action()
 ###############################################################
 
 if __name__ == "__main__":
-    APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 5324599))
+    APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 5324599), debug = False)

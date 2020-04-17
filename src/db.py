@@ -275,12 +275,12 @@ def owner_channel_check(token, channel_id):
 def remove_from_channel(u_id):
     data = get_channel_store()
     for channel in data['Channels']:
-        for mem in channel['all_members']:              
+        for mem in mem_check['all_members']:              
             if int(mem["u_id"]) == u_id:
-                channel['all_members'].remove(mem)
-        for mem in channel['owner_members']:              
+                mem_check['all_members'].remove(mem)
+        for mem in mem_check['owner_members']:              
             if int(mem["u_id"]) == u_id:
-                channel['all_members'].remove(mem)
+                mem_check['all_members'].remove(mem)
 
 def remove_from_user(u_id):
     data = get_user_store()
