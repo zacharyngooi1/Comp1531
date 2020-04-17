@@ -5,7 +5,7 @@ from db import get_user_store, add_user, login, make_user, remove_from_channel, 
 from PIL import Image
 from db import token_check, channel_check, u_id_check, email_check, email_dupe_check, handle_check
 import urllib.request 
-from urllib.error import URLError
+from urllib.error import HTTPError
 import io 
 import uuid
 from flask import url_for 

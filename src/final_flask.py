@@ -29,6 +29,7 @@ import threading
 from hangman import play_hangman
 from PIL import Image
 import urllib.request
+from urllib.error import HTTPError
 import io 
 import uuid
 import pickle
