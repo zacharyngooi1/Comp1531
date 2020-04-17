@@ -887,6 +887,12 @@ def standup_start_flask():
     token = data['token']
     channel_id = int(data['channel_id'])
     standup_length = int(data['length'])
+    required_channel = channel_check(channel_id)
+    if required_channel is None:
+        raise InputError(description="Wrong channel ID")
+    if required_channel['standup']['time_standup_finished'] != None:
+        if datetime.utcnow().replace(tzinfo=timezone.utc).timestamp() < required_channel['standup']['time_standup_finished']:
+            raise InputError(description="There is already a standup running in this channel. Only one standup can run at a time.")
     time_finish = standup_start(token, channel_id, standup_length)
     return dumps(time_finish)
 
@@ -905,6 +911,8 @@ def standup_active_flask():
     """
     token = request.args.get('token')
     channel_id = int(request.args.get('channel_id'))
+    if channel_check(channel_id) is None:
+        raise InputError(description="Wrong channel ID")
     is_active = standup_active(token, channel_id)
     return dumps(is_active)
 
@@ -923,6 +931,14 @@ def standup_send_flask():
     token = data['token']
     channel_id = int(data['channel_id'])
     message = data['message']
+    if channel_check(channel_id) is None:
+        raise InputError(description="Wrong channel ID")
+    if len(message) > 1000:
+        raise InputError(description="Message cannot be more than 1000 characters long")
+    if check_if_user_in_channel_member_uid(token, channel_id):
+        raise AccessError(description="User is not a member in channel")
+    if standup_active(token,channel_id)['is_active'] == False:
+        raise InputError(description="There is not a standup going on right now")
     out = standup_send(token, channel_id, message)   
     return dumps(out)
 
