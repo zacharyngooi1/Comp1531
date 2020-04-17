@@ -307,8 +307,12 @@ def uploadphoto():
     #opens image 
     fd = urllib.request.urlopen(img_url)
     image_file = io.BytesIO(fd.read())
-    img = Image.open(image_file)
-
+    try: 
+        img = Image.open(image_file)
+    except HTTPError as e:
+        print('The server could not fulfill request.')
+        print('Error code', e.code)
+   
     #gets current dimensions of picture 
     width, height = img.size
 

@@ -21,7 +21,7 @@ def users_all(token):
     for indiv_user in user_store['users']:
         user_dict['users'].append({'u_id': indiv_user['u_id'], 'email':indiv_user['email'],
         'name_first': indiv_user['name_first'], 'name_last': indiv_user['name_last'], 
-        'handle_str': indiv_user['handle_str'] })
+        'handle_str': indiv_user['handle_str'], 'profile_img_url': indiv_user['profile_img_url'] })
     return user_dict
 
 def search(token, query_str):
