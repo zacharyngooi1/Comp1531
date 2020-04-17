@@ -5,6 +5,7 @@ from db import get_user_store, add_user, login, make_user, remove_from_channel, 
 from PIL import Image
 from db import token_check, channel_check, u_id_check, email_check, email_dupe_check, handle_check
 import urllib.request 
+from urllib.error import URLError
 import io 
 import uuid
 from flask import url_for 
@@ -99,7 +100,11 @@ def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
     #opens image 
     fd = urllib.request.urlopen(img_url)
     image_file = io.BytesIO(fd.read())
-    img = Image.open(image_file)
+    try: 
+        img = Image.open(image_file)
+    except HTTPError as e: 
+        print('The server could not fulfill request.')
+        print('Error code', e.code)
 
     #gets current dimensions of picture 
     width, height = img.size
