@@ -1,6 +1,6 @@
 import sys
 from json import dumps
-from flask import Flask, request
+from flask import Flask, request, url_for
 from flask_cors import CORS
 from error import InputError, AccessError
 from server import defaultHandler
@@ -30,6 +30,7 @@ from hangman import play_hangman
 from PIL import Image
 import urllib.request
 import io 
+import uuid
 import pickle
 
 APP = Flask(__name__)
@@ -332,7 +333,6 @@ def uploadphoto():
 
     if int(x_end) - int(x_start) > int(width) or int(y_end)- int(y_start) > int(height): 
        raise InputError
-         
 
     user_profile_uploadphoto(token, img_url, int(x_start), int(y_start), int(x_end), int(y_end))
     return dumps({})
