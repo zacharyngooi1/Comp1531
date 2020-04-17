@@ -31,6 +31,8 @@ def auth_register(email, password, name_first, name_last):
     for i in data['users']:
         if i['u_id'] == user['u_id']:
             i['token'] = token
+    users = get_user_store()
+    print(users)
     return {
         "u_id": user["u_id"],
         "token": token
@@ -52,12 +54,14 @@ def auth_login(email, password):
     if not password_check(password):
         raise InputError
 
-    user = password_check(password)
+    user = find_email(email)
     token = login(user)
     data = get_user_store()
     for i in data['users']:
         if i['u_id'] == user['u_id']:
             i['token'] = token
+    print("The person being logged in is")
+    print(user)
     return {
         "u_id": user["u_id"],
         "token": token

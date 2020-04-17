@@ -40,7 +40,7 @@ APP.debug = True
 APP.register_error_handler(Exception, defaultHandler)
 
 ###############################################################
-#DONT TOUCH ANYTHING ABOVE THIS LINE OR ZACH WILL BEAT U UP  
+#DONT TOUCH ANYTHING ABOVE THIS LINE 
 ###############################################################
 
 #input_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
