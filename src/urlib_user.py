@@ -74,6 +74,7 @@ def test_user_profile():
     'email': 'zacharyngooi@hotmail.com',
     'name_first': 'bracket',
     'name_last': 'smith',
+    'profile_img_url': '',
     'handle_str':'bsmith',
     }
     }
@@ -104,6 +105,7 @@ def test_user_profile():
         'email': 'Haydensmith@hotmail.com',
         'name_first': 'Hayden',
         'name_last': 'smith',
+        'profile_img_url': '',
         'handle_str':'hsmith',
         }
     }
@@ -113,6 +115,7 @@ def test_user_profile():
         'email': 'zacharyngooi@hotmail.com',
         'name_first': 'bracket',
         'name_last': 'smith',
+        'profile_img_url': '',
         'handle_str':'bsmith',
         }
     }
@@ -385,6 +388,7 @@ def test_user_all():
         'email': 'zacharyngooi@hotmail.com',
         'name_first': 'bracket',
         'name_last': 'smith',
+        'profile_img_url': '',
         'handle_str':'bsmith',
         },
         {
@@ -392,6 +396,7 @@ def test_user_all():
         'email': 'Haydensmith@hotmail.com',
         'name_first': 'Hayden',
         'name_last': 'smith',
+        'profile_img_url': '',
         'handle_str':'hsmith',
         }]
     }
@@ -409,6 +414,7 @@ def test_user_all():
         'email': 'zacharyngooi@hotmail.com',
         'name_first': 'bracket',
         'name_last': 'smith',
+        'profile_img_url': '',
         'handle_str':'bsmith',
         },
         {
@@ -416,6 +422,7 @@ def test_user_all():
         'email': 'Haydensmith@hotmail.com',
         'name_first': 'Hayden',
         'name_last': 'smith',
+        'profile_img_url': '',
         'handle_str':'hsmith',
         }]
     }
