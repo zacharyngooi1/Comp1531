@@ -367,7 +367,6 @@ def c_create():
     channel_id = channels_create(token, name, is_public)
 
     return dumps(channel_id)
-    #return 1
 
 @APP.route("/channel/invite", methods=["POST"])
 def c_invite():
@@ -931,4 +930,4 @@ timer_action()
 #DONT TOUCH ANYTHING BELOW THIS LINE
 ###############################################################
 if __name__ == "__main__":
-    APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 5324599))
+    APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 53245))
