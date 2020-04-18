@@ -125,25 +125,9 @@ def channel_messages(token, channel_id, start):
     
     final_dict['start'] = start
     final_dict['end'] = counter
-    
-    #print('This is the dictionary:',final_dict)
-    return final_dict
-    #for x in message_store['Messages']:
-    #    if x['channel_id'] == channel_id:
-    #        proto_dict['messages'].append(x['message'])
 
-    # Now i reverse the list to get the most recent message as the first value
-    #proto_dict['messages'].reverse()
-
-    #for i in range(50):
-    #    for y in proto_dict['messages']:
-    #        final_dict['messages'].append(y[start + i])
-    #        final_dict['start'] = start
-    #        final_dict['end'] = start + 50
-    #        if start + 50 >= sum_of_messages:
-    #            final_dict['end'] = -1
-    #print(final_dict)
     return final_dict
+
 
 def channel_leave(token, channel_id):
     '''Removes member from a channel.
@@ -320,7 +304,6 @@ def channels_create(token, name, is_public):
     store = get_channel_store()
     
     store1 = get_user_store
-    print("HELLLOOOOOO THIS IS A TEST LOOK HERE", store1)
     user_store = token_check(token)
     
     if user_store == False:

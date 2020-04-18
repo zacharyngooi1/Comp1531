@@ -427,4 +427,13 @@ def test_user_all():
         }]
     }
     
+    def test_user_profile():
+
+    # Call user set up
+    get_user = set_up_user1_and_reset()
     
+############################################################
+    # Storing data
+    test_token = get_user['token']
+    test_uid = get_user['u_id']
+#########################################################
