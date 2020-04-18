@@ -25,16 +25,16 @@ def message_send(token, channel_id, message):
     """
     
     user = token_check(token)
-    if user == False:  
+    if not user:  
         raise InputError
     channel = channel_check(channel_id)
-    if channel == None: 
+    if channel is None: 
         raise InputError
     #if check_user_in_channel(user['u_id'], channel_id) == False: 
     #    raise AccessError
     if (len(message) > 1000): 
         raise InputError
-    if member_channel_check(token, channel_id) == False:
+    if not member_channel_check(token, channel_id):
         raise AccessError
    # message_store = get_messages_store()
     for member in channel['all_members']: 

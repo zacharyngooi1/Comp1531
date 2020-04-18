@@ -11,7 +11,7 @@ from werkzeug.exceptions import BadRequest, HTTPException
 from urllib.error import HTTPError
 
 
-BASE_URL = 'http://127.0.0.1:5324599'
+BASE_URL = 'http://127.0.0.1:52361'
 
 # KISS ME
 def set_up_user1_and_reset():
@@ -197,7 +197,6 @@ def test_user_set_name_invalid():
    
    # Assert errors are raised for diff invalid inputs
     with pytest.raises(requests.exceptions.HTTPError):
-
         name_change = requests.put(f"{BASE_URL}/user/profile/setname", json={
             'token': test_token,
             'name_first' : '',
@@ -427,7 +426,7 @@ def test_user_all():
         }]
     }
     
-    def test_user_profile():
+def test_search_message():
 
     # Call user set up
     get_user = set_up_user1_and_reset()
@@ -437,3 +436,42 @@ def test_user_all():
     test_token = get_user['token']
     test_uid = get_user['u_id']
 #########################################################
+    # Create channel
+    c = requests.post(f"{BASE_URL}/channels/create", json = {
+        "token":test_token,
+        "name":"thisIsANewChannel",
+        "is_public": True,
+    })
+
+    payload_2 = c.json()
+    assert payload_2["channel_id"] != None
+    # Send message
+    m = requests.post(f"{BASE_URL}/message/send", json = {
+    "token": test_token,
+    "channel_id": payload_2["channel_id"],
+    "message": "The first message",
+    })
+
+    payload_3 = m.json()
+    assert payload_3["message_id"] != None
+    store = get_messages_store()
+
+    for id in store['Messages']:
+        if id['message_id'] == payload_3['message_id']:
+            time_created = id['time_created']
+            reacts = id['reacts']
+            pin_status = id['is_pinned']
+
+            query_search = urllib.parse.urlencode({
+                'token': test_token,
+                'query_str': 'first'
+            })
+            search_payload = json.load(urllib.request.urlopen(f"{BASE_URL}/search?{query_search}"))
+            assert search_payload == {
+                {'messages': [{'message_id': payload_3["message_id"], 
+                'u_id': test_uid, 
+                'message': 'The first message', 
+                'time_created': time_created,
+                'reacts': reacts,
+                'is_pinned': pin_status,}]}
+            }

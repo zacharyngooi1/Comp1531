@@ -29,7 +29,9 @@ def search(token, query_str):
     # iterate thru message database and append to a new {messages: list} the messages that == user_id
     # remember to reverse the list before returning it
     user = token_check(token)
+    print(user)
     message_store = get_messages_store()
+    print(message_store)
     message_list = {
         'messages':[]
     }
@@ -39,8 +41,8 @@ def search(token, query_str):
                 fullstring = mem_check['message']
                 substring = query_str
                 if substring in fullstring:
-                    message_list['messages'].append({'message_id':mem_check['message_id'],'u_id': mem_check['user_id'],
-                    'message':mem_check['message'], 'time_created': mem_check['time_created'] })
-
-    message_list['messages'].reverse()
+                    message_list['messages'].append({'message_id':mem_check['message_id'], 'u_id': mem_check['user_id'],
+                    'message':mem_check['message'], 'time_created': str(mem_check['time_created']), 'reacts': mem_check['reacts'], 'is_pinned': mem_check['is_pinned'] })
+    if len(message_list['messages']) > 1:
+        message_list['messages'].reverse()
     return message_list

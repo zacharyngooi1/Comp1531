@@ -1,3 +1,5 @@
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning) 
 import json
 import requests
 import urllib.request
@@ -5,7 +7,7 @@ import pytest
 from db import get_user_store, get_messages_store, get_channel_store
 from error import InputError, AccessError, NameException, KeyError
 
-BASE_URL = "http://127.0.0.1:53251"
+BASE_URL = "http://127.0.0.1:52361"
 
 def test_messages_send():
 
@@ -34,7 +36,7 @@ def test_messages_send():
     assert payload_wrong_user["token"] != None
 
     c = requests.post(f"{BASE_URL}/channels/create", json = {
-        "token":r["token"],
+        "token":payload["token"],
         "name":"thisIsANewChannel",
         "is_public": True
     })
@@ -51,19 +53,19 @@ def test_messages_send():
     payload_3 = m.json()
     assert payload_3["message_id"] != None
     
-    with pytest.raises(InputError):
+    with pytest.raises(requests.exceptions.HTTPError):
         m = requests.post(f"{BASE_URL}/message/send", json={
             "token":payload["token"],
             "channel_id":payload_2["channel_id"],
             "message": "Wrong message"* 10001
-        })
+        }).raise_for_status()
     
-    with pytest.raises(AccessError):
+    with pytest.raises(requests.exceptions.HTTPError):
         m = requests.post(f"{BASE_URL}/message/send", json={
             "token":payload_wrong_user["token"],
             "channel_id":payload_2["channel_id"],
             "message": "Hello"
-        })
+        }).raise_for_status()
 
 def test_message_sendlater():
     requests.get(f"{BASE_URL}/reset")
@@ -98,7 +100,7 @@ def test_message_sendlater():
     payload_2 = c.json()
     assert payload_2["channel_id"] != None
 
-    m = requests.post(f"{BASE_URL}/message/sendlater", json = {
+    m = requests.post(f"{BASE_URL}/message/sendlater", json={
         "token": payload["token"],
         "channel_id": payload_2["channel_id"],
         "message": "The first message",
@@ -106,35 +108,39 @@ def test_message_sendlater():
     })
 
     payload_3 = m.json()
-    assert payload_3["message_id"] != None
-    
-    with pytest.raises(InputError):
+    # From zach, why is payload 3 a key error? im confused
+    assert payload_3['message_id'] != None
+
+
+    with pytest.raises(requests.exceptions.HTTPError):
         m = requests.post(f"{BASE_URL}/message/sendlater", json={
             "token":payload["token"],
             "channel_id":payload_2["channel_id"],
             "message": "Wrong message"* 10001,
             "time_sent": 120
-        })
+        }).raise_for_status()
+    with pytest.raises(requests.exceptions.HTTPError):
         m = requests.post(f"{BASE_URL}/message/sendlater", json={
             "token":payload["token"],
             "channel_id":1,
             "message": "Hello",
             "time_sent": 120
-        })
+        }).raise_for_status()
+    with pytest.raises(requests.exceptions.HTTPError):
         m = requests.post(f"{BASE_URL}/message/sendlater", json={
             "token":payload["token"],
             "channel_id":payload_2["channel_id"],
             "message": "Hello",
             "time_sent": -10
-        })
+        }).raise_for_status()
 
-    with pytest.raises(AccessError):
+    with pytest.raises(requests.exceptions.HTTPError):
         m = requests.post(f"{BASE_URL}/message/sendlater", json={
             "token":payload_wrong_user["token"],
             "channel_id":payload_2["channel_id"],
             "message": "Hello",
             "time_sent": 120
-        })
+        }).raise_for_status()
 
 def test_message_react():
     requests.get(f"{BASE_URL}/reset")
@@ -574,7 +580,7 @@ def message_edit():
     with pytest.raises(AccessError):
         message_remove = requests.post(f"{BASE_URL}/message/edit", json = {
             "token": wrong_user["token"],
-            "message_id": payload_3["message_id"]
+            "message_id": payload_3["message_id"],
             "message": "The second message"
         }) # This owner is not an authorised user of the owner
     
