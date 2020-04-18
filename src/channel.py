@@ -30,7 +30,7 @@ def channel_invite(token, channel_id, u_id):
     user = u_id_check(u_id)
     for channel in channel_store["Channels"]:
         if channel["channel_id"] == channel_id:
-            channel["all_members"].append({"u_id": user["u_id"], "name_first": user['name_first'], "name_last" : user["name_last"]})    
+            channel["all_members"].append({"u_id": user["u_id"], "name_first": user['name_first'], "name_last" : user["name_last"], 'profile_img_url': user['profile_img_url']})    
     
     user['channel_id_part'].append(channel_id)
 
@@ -206,7 +206,7 @@ def channel_join(token, channel_id):
         if channel["channel_id"] == int(channel_id):
             #print("gets in if statement")
             channel["all_members"].append({"u_id": user["u_id"], 
-            "name_first": user['name_first'], "name_last" : user["name_last"]})
+            "name_first": user['name_first'], "name_last" : user["name_last"], 'profile_img_url': user['profile_img_url']})
 
     user['channel_id_part'].append(channel_id)
 
@@ -326,9 +326,9 @@ def channels_create(token, name, is_public):
     if user_store == False:
          raise InputError(description="channel create user not found")
 
-    channel_dict['owner_members'].append({'u_id': user_store['u_id'], 'name_first': user_store['name_first'], 'name_last': user_store['name_last']})
+    channel_dict['owner_members'].append({'u_id': user_store['u_id'], 'name_first': user_store['name_first'], 'name_last': user_store['name_last'], 'profile_img_url': user_store['profile_img_url']})
     
-    channel_dict['all_members'].append({'u_id': user_store['u_id'], 'name_first': user_store['name_first'], 'name_last': user_store['name_last']})
+    channel_dict['all_members'].append({'u_id': user_store['u_id'], 'name_first': user_store['name_first'], 'name_last': user_store['name_last'], 'profile_img_url': user_store['profile_img_url']})
     
     store['Channels'].append(channel_dict)
     user_store['channel_id_owned'].append(channel_dict["channel_id"])

@@ -1,6 +1,6 @@
 import sys
 from json import dumps
-from flask import Flask, request
+from flask import Flask, request, url_for
 from flask_cors import CORS
 from error import InputError, AccessError
 from server import defaultHandler
@@ -9,7 +9,9 @@ from db import get_user_store, add_user, create_handle, message_create_for_stand
 from db import token_check, channel_check, u_id_check, email_check, email_dupe_check
 from db import handle_check, password_check, message_check, owner_channel_check
 from db import member_channel_check, react_check, reset_store
-from user import user_profile, user_profile_setemail, user_profile_sethandle
+from db import get_messages_store
+from db import load_user_store, load_channels_store, load_messages_store, update_users_store, update_channels_store, update_messages_store
+from user import user_profile, user_profile_setemail, user_profile_sethandle,  user_remove
 from user import user_profile_setname, user_profile_uploadphoto
 from auth import auth_register, auth_logout, auth_login, auth_pw_request, auth_pw_reset
 from other import users_all, search
@@ -25,6 +27,12 @@ from channel import check_if_channel_exists
 from datetime import timezone, datetime
 import threading
 from hangman import play_hangman
+from PIL import Image
+import urllib.request
+from urllib.error import HTTPError
+import io 
+import uuid
+import pickle
 
 APP = Flask(__name__)
 CORS(APP)
@@ -34,9 +42,34 @@ APP.debug = True
 APP.register_error_handler(Exception, defaultHandler)
 
 ###############################################################
-#DONT TOUCH ANYTHING ABOVE THIS LINE OR ZACH WILL BEAT U UP  
+#DONT TOUCH ANYTHING ABOVE THIS LINE 
 ###############################################################
 
+#input_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
+#chan_id = channels_create(input_dict['token'], 'Hayden', True)
+#mufeed_dict =  auth_register('moomatia8@gmail.com', 'password', 'Mufeed', 'Oomatia')
+#rob_dict =  auth_register('rob@gmail.com', 'password', 'Rob', 'skrt')
+
+#hannel_invite(input_dict['token'], chan_id["channel_id"], rob_dict["u_id"])
+#channel_invite(input_dict['token'], chan_id["channel_id"], mufeed_dict["u_id"])
+
+#message_id = message_send(input_dict['token'], chan_id['channel_id'], "Haydens Message")
+##message_id1 = message_send(mufeed_dict['token'], chan_id['channel_id'], "Mufeed Message")
+#message_id2 = message_send(rob_dict['token'], chan_id['channel_id'], "rob Message")
+
+#print(input_dict)
+@APP.route("/admin/userpermission/change", methods=["POST"])
+def permission_change():
+    data = request.get_json()
+    print('this is data->',data)
+
+@APP.route("/admin/user/remove", methods=["DELETE"])
+def remove_user():
+    token = request.args.get('token')
+    u_id = int(request.args.get('u_id'))
+    print(token,u_id)
+    user_remove(token, u_id)
+    return dumps({})
 
 @APP.route("/reset", methods=["GET"])
 def reset():
@@ -56,6 +89,9 @@ def reset():
 ###############################################################
 # AUTH FLASK FUNCTIONS
 ###############################################################
+
+
+
 
 @APP.route("/auth/register", methods=["POST"])
 def register():
@@ -286,19 +322,24 @@ def uploadphoto():
     y_end = data['y_end']
 
     #opens image 
-    img = Image.open(img_url)
-
+    fd = urllib.request.urlopen(img_url)
+    image_file = io.BytesIO(fd.read())
+    try: 
+        img = Image.open(image_file)
+    except HTTPError as e:
+        print('The server could not fulfill request.')
+        print('Error code', e.code)
+   
     #gets current dimensions of picture 
-    width, height = img.size()
+    width, height = img.size
 
-    if img.format() != 'JPG': 
+    if img.format != 'JPEG': 
         raise InputError
 
-    if (x_end - x_start > width) or (y_end- y_start > height): 
-        raise InputError
-         
+    if int(x_end) - int(x_start) > int(width) or int(y_end)- int(y_start) > int(height): 
+       raise InputError
 
-    user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end)
+    user_profile_uploadphoto(token, img_url, int(x_start), int(y_start), int(x_end), int(y_end))
     return dumps({})
 
 @APP.route("/users/all", methods=["GET"])
@@ -850,6 +891,12 @@ def standup_start_flask():
     token = data['token']
     channel_id = int(data['channel_id'])
     standup_length = int(data['length'])
+    required_channel = channel_check(channel_id)
+    #if required_channel is None:
+    #    raise InputError(description="Wrong channel ID")
+    #if required_channel['standup']['time_standup_finished'] != None:
+    #    if datetime.utcnow().replace(tzinfo=timezone.utc).timestamp() < required_channel['standup']['time_standup_finished']:
+    #        raise InputError(description="There is already a standup running in this channel. Only one standup can run at a time.")
     time_finish = standup_start(token, channel_id, standup_length)
     return dumps(time_finish)
 
@@ -868,6 +915,8 @@ def standup_active_flask():
     """
     token = request.args.get('token')
     channel_id = int(request.args.get('channel_id'))
+    #if channel_check(channel_id) is None:
+    #    raise InputError(description="Wrong channel ID")
     is_active = standup_active(token, channel_id)
     return dumps(is_active)
 
@@ -886,9 +935,20 @@ def standup_send_flask():
     token = data['token']
     channel_id = int(data['channel_id'])
     message = data['message']
+    #if channel_check(channel_id) is None:
+    #    raise InputError(description="Wrong channel ID")
+    #if len(message) > 1000:
+    #    raise InputError(description="Message cannot be more than 1000 characters long")
+    #if check_if_user_in_channel_member_uid(token, channel_id):
+    #    raise AccessError(description="User is not a member in channel")
+    #if standup_active(token,channel_id)['is_active'] == False:
+    #    raise InputError(description="There is not a standup going on right now")
     out = standup_send(token, channel_id, message)   
     return dumps(out)
 
+
+
+###DO NOT REMOVE THE FOLLOWING FUNCTIONS (OR MOVE TO db.py) BECAUSE THEY ARE ESSENTIAL FOR MAKING STANDUPS AND DATASTORE WORK.
 # update message function
 # Step 1: Check if standup is running
 # Step 2: If running, send the standup message using message_send (time_now >time_sent) 
@@ -918,16 +978,32 @@ def update_standup():
     return
 
 def timer_action():
-    timer = threading.Timer(1.0, timer_action)
+    timer = threading.Timer(0.5, timer_action)
     timer.start()
     update_message()
     update_standup()
 
+
+
 # DONT REMOVE THE FOLLOWING LINE. IT IS IMPORTANT FOR MAKING STANDUPS WORK
 timer_action()
+
+def timer_data_store_action():
+    timer = threading.Timer(0.5, timer_data_store_action)
+    timer.start()
+    update_users_store()
+    update_channels_store()
+    update_messages_store()
+
+# DON'T REMOVE THE FOLLOWING LINE. IT IS IMPORTANT FOR MAKING DATASTORE WORK
+load_user_store()
+load_channels_store()
+load_messages_store()
+timer_data_store_action()
 
 ###############################################################
 #DONT TOUCH ANYTHING BELOW THIS LINE
 ###############################################################
+
 if __name__ == "__main__":
-    APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 53245))
+    APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 5324599), debug = False)

@@ -1,9 +1,14 @@
 import re
-from error import InputError
-from db import login, make_user, get_channel_store, get_messages_store
-from db import get_user_store, add_user, login, make_user
+from error import InputError, AccessError
+from db import login, make_user, get_channel_store, get_messages_store,remove_from_user
+from db import get_user_store, add_user, login, make_user, remove_from_channel, get_permission_store
 from PIL import Image
 from db import token_check, channel_check, u_id_check, email_check, email_dupe_check, handle_check
+import urllib.request 
+from urllib.error import HTTPError
+import io 
+import uuid
+from flask import url_for 
 
 def user_profile(token, u_id):
     if token_check(token) == False:
@@ -23,7 +28,8 @@ def user_profile(token, u_id):
         'email': user['email'],
         'name_first': user['name_first'],
         'name_last': user['name_last'],
-        'handle_str': user['handle_str']
+        'handle_str': user['handle_str'],
+        'profile_img_url': user['profile_img_url'], 
         }
     return user_prof_dict
 
@@ -92,15 +98,24 @@ def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
     # that is the link you want to upload to user profile 
 
     #opens image 
-    img = Image.open(img_url)
+    fd = urllib.request.urlopen(img_url)
+    image_file = io.BytesIO(fd.read())
+    try: 
+        img = Image.open(image_file)
+    except HTTPError as e: 
+        print('The server could not fulfill request.')
+        print('Error code', e.code)
 
     #gets current dimensions of picture 
-    width, height = img.size()
+    width, height = img.size
 
-    if img.format() != 'JPG': 
+    #figure out how to check if image is a valid link!! 
+
+
+    if img.format != 'JPEG': 
         raise InputError
 
-    if (x_end - x_start > width) or (y_end- y_start > height): 
+    if x_end - x_start > int(width) or y_end- y_start > int(height): 
         raise InputError
         
     #slightly confused about how to find left, top, right, and bottom- which one they correspond to 
@@ -109,9 +124,31 @@ def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
     right = x_end 
     bottom = y_end
 
-    img_cropped = img.crop(left, top, right, bottom)
+    img_cropped = img.crop((left, top, right, bottom))
     
+    file_name = uuid.uuid4().hex
+    path_name = 'photos/' + file_name + '.jpg'
+    img.save('static/' + path_name, 'JPEG')
+
+    new_url = url_for('static', filename = path_name, _external = True)
     user = token_check(token)
-    user['profile_img_url'] = img_url
+    user['profile_img_url'] = new_url 
+    print(user['profile_img_url'])
             
+
+def user_remove(token, u_id):
+    user_remove = u_id_check(u_id)
+    permission = get_permission_store()
+    
+    if user_remove == False:
+        raise InputError
+    user_action = token_check(token)
+    print(user_action['u_id'])
+    print(permission['USER_NUM'])
+    if user_action['u_id'] != permission['USER_NUM'][0]:
+        print('raise access error')
+        raise AccessError
+
+    remove_from_channel(u_id)
+    remove_from_user(u_id)
 

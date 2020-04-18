@@ -1,2 +1,6 @@
 flask
 flask-cors
+PIL 
+urllib.request
+urllib.error import HTTPError
+io 
