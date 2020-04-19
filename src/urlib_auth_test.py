@@ -8,7 +8,7 @@ from db import get_user_store, get_messages_store, get_channel_store
 from error import AccessError, NameException, KeyError
 from werkzeug.exceptions import BadRequest, HTTPException
 
-BASE_URL = 'http://127.0.0.1:5324599'
+BASE_URL = 'http://127.0.0.1:52361'
 
 
 

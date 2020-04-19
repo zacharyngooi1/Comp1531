@@ -1,5 +1,11 @@
 import sys
 from json import dumps
+from datetime import timezone, datetime
+import threading
+import urllib.request
+from urllib.error import HTTPError
+import io
+from PIL import Image
 from flask import Flask, request, url_for
 from flask_cors import CORS
 from error import InputError, AccessError
@@ -10,8 +16,9 @@ from db import token_check, channel_check, u_id_check, email_check, email_dupe_c
 from db import handle_check, password_check, message_check, owner_channel_check
 from db import member_channel_check, react_check, reset_store
 from db import get_messages_store
-from db import load_user_store, load_channels_store, load_messages_store, update_users_store, update_channels_store, update_messages_store
-from user import user_profile, user_profile_setemail, user_profile_sethandle,  user_remove
+from db import load_user_store, load_channels_store, load_messages_store
+from db import update_users_store, update_channels_store, update_messages_store
+from user import user_profile, user_profile_setemail, user_profile_sethandle, user_remove
 from user import user_profile_setname, user_profile_uploadphoto
 from auth import auth_register, auth_logout, auth_login, auth_pw_request, auth_pw_reset
 from other import users_all, search
@@ -24,13 +31,7 @@ from channel import channels_list_all, channel_list, check_if_user_in_channel_me
 from channel import check_if_user_in_channel_owner, check_if_user_in_channel_owner_uid
 from channel import check_if_user_in_channel_member_uid, check_if_channel_is_public
 from channel import check_if_channel_exists
-from datetime import timezone, datetime
-import threading
 from hangman import play_hangman
-from PIL import Image
-import urllib.request
-from urllib.error import HTTPError
-import io 
 import uuid
 import pickle
 
@@ -42,7 +43,7 @@ APP.debug = True
 APP.register_error_handler(Exception, defaultHandler)
 
 ###############################################################
-#DONT TOUCH ANYTHING ABOVE THIS LINE 
+#DONT TOUCH ANYTHING ABOVE THIS LINE OR ZACH TRASHES U
 ###############################################################
 
 #input_dict =  auth_register('hayden@gmail.com', 'password', 'hayden', 'smith')
@@ -61,13 +62,13 @@ APP.register_error_handler(Exception, defaultHandler)
 @APP.route("/admin/userpermission/change", methods=["POST"])
 def permission_change():
     data = request.get_json()
-    print('this is data->',data)
+    print('this is data->', data)
 
 @APP.route("/admin/user/remove", methods=["DELETE"])
 def remove_user():
     token = request.args.get('token')
     u_id = int(request.args.get('u_id'))
-    print(token,u_id)
+    print(token, u_id)
     user_remove(token, u_id)
     return dumps({})
 
@@ -1003,7 +1004,7 @@ load_messages_store()
 timer_data_store_action()
 
 ###############################################################
-#DONT TOUCH ANYTHING BELOW THIS LINE
+#DONT TOUCH ANYTHING BELOW THIS LINE OR ZACH TRASHES U
 ###############################################################
 
 if __name__ == "__main__":

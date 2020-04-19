@@ -19,7 +19,7 @@ def set_up_user1_and_reset():
     # Reset workspace
     requests.get(f"{BASE_URL}/reset")
      
-    # Create User 
+    # Create User
     request_this = requests.post(f"{BASE_URL}/auth/register", json={
     'email': 'zacharyngooi@hotmail.com',
     'password': 'password',

@@ -1,6 +1,6 @@
 from db import get_messages_store, get_user_store, get_channel_store, make_message 
 from db import member_channel_check, owner_channel_check, react_check, member_channel_check
-from db import token_check, channel_check, u_id_check, check_user_in_channel, message_check
+from db import token_check, channel_check, u_id_check, message_check
 from error import InputError, AccessError
 import datetime
 from datetime import timezone

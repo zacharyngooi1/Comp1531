@@ -104,20 +104,6 @@ def make_message(message, channel_id, user_id, time_created):
     store['Messages'].append({'channel_id':channel_id, 'message_id':message_id, 'user_id': user_id, 'message': message, 'reacts': Reacts, 'time_created': time, 'is_pinned' : False})
     return message_id
 
-def check_user_in_channel(u_id, channel_id): 
-    channel_data = get_channel_store
-   
-    channel = channel_check(channel_id)
-    flag = 0
-    for member in channel_iter['all_members']: 
-        if int(member['u_id']) == int(u_id): 
-            
-            flag = 1
-    if flag == 1: 
-        return True
-    else: 
-        return False
-
 logged_in_users = {}
 
 def get_logged_in_users():
@@ -153,7 +139,7 @@ def create_handle(first_name, last_name):
     sample_handle = sample_handle.lower()
 
     if handle_check(sample_handle):
-        sample_handle = sample_handle + randrange(25000)
+        sample_handle = sample_handle + str(randrange(25000))
 
     if len(sample_handle) > 20:
         sample_handle = sample_handle[0:20]
@@ -206,9 +192,6 @@ def handle_check(handle_str):
         if user['handle_str'] == handle_str:
             return True
     return False
-    
-# Make a regular expression 
-# for validating an Email 
 
 def email_check(email):
     regex = '^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$'

@@ -99,21 +99,25 @@ def test_search_valid():
     new_message_id = message_send(hamish['token'], ch_id['channel_id'], 'yes')
     # Save the time created
     message_store = get_messages_store()
-    for x in message_store['Messages']:
-        if x['message_id'] == new_message_id['message_id']:
-            time_created = x['time_created']
+    for id in message_store['Messages']:
+        if id['message_id'] == new_message_id['message_id']:
+            time_created = id['time_created']
+            reacts = id['reacts']
+            pin_status = id['is_pinned']
     assert(search(hamish['token'], 'yes') == {
-       'messages':
+    'messages':
         [
             {
                 'message_id': new_message_id['message_id'],
                 'u_id': hamish['u_id'],
                 'message': 'yes',
-                'time_created': time_created,
+                'time_created': str(time_created),
+                'reacts': reacts,
+                'is_pinned': pin_status,
             }
         ]
-        
-    
+                
+            
         }
         
         ) # Valid Display 
@@ -121,18 +125,18 @@ def test_search_valid():
 # The following part was done by Mufeed Oomatia
 def test_user_profile():
 
-    assert user_profile(12345, 1) ==  {'u_id': 1,'email': 'cs1531@cse.unsw.edu.au','name_first': 'Hayden','name_last': 'Jacobs', 'handle_str': 'hjacobs'}
-
     assert user_profile(hamish['token'], hamish['u_id']) ==  {
     'u_id': hamish['u_id'],
     'email': hamish['email'],
     'name_first': hamish['name_first'],
     'name_last': hamish['name_last'], 
-   	'handle_str': hamish['handle_str']}
+   	'handle_str': hamish['handle_str'],
+    'profile_img_url': '',
+    }
 
    
-def test_user_profile():
-    with pytest.raises(InputError) as e:
-        assert user_profile(12345, "") 
-        assert user_profile("", 1) 
-        assert user_profile("", "") 
+def test_user_profile2():
+    with pytest.raises(InputError):
+        user_profile(12345, "") 
+        user_profile("", 1) 
+        user_profile("", "") 

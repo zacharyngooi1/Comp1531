@@ -112,11 +112,11 @@ channel_invite(hayden_dict['token'], chan_id_pin["channel_id"], rob_dict["u_id"]
 message_id_pin = message_send(hayden_dict['token'], chan_id_pin['channel_id'], "Haydens Message Check")
 
 
-def test_message_pin_invalid_InputError1():
-    with pytest.raises(InputError):
+def test_message_pin_invalid_AccessError1():
+    with pytest.raises(AccessError):
         message_pin(rob_dict['token'], message_id_pin['message_id'])
 
-def test_message_pin_invalid_AccessError():
+def test_message_pin_invalid_AccessError2():
     with pytest.raises(AccessError):
         message_pin(FOMO_dict['token'], message_id_pin['message_id'])
 
