@@ -29,9 +29,7 @@ def search(token, query_str):
     # iterate thru message database and append to a new {messages: list} the messages that == user_id
     # remember to reverse the list before returning it
     user = token_check(token)
-    print(user)
     message_store = get_messages_store()
-    print(message_store)
     message_list = {
         'messages':[]
     }
