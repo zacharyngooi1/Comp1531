@@ -42,10 +42,9 @@ def message_send(token, channel_id, message):
             message_id = make_message(message, channel_id, user['u_id'], 0)
     if message == "/hangman":
         channel['Hangman']['is_hangman_active'] = True
-    
+        make_message("Welcome to Hangman!\n Please input your guess to start the game in the format /guess x where x is your guess\n", channel_id, user['u_id'], 0)
     if message[0:6] == "/guess" and channel['Hangman']['is_hangman_active'] == True:
         
-        #print(play_hangman(message[7]))
         hangman = play_hangman(message[7])
         print('full hang',hangman)
         print('this is whats being used to print')  
@@ -53,7 +52,7 @@ def message_send(token, channel_id, message):
         print('Hangman drwing:',hangman['hang_man_drawing'])
         if len(hangman['final'])!= 0:
             channel['Hangman']['is_hangman_active'] = False
-        make_message(hangman['hang_man_drawing']+hangman['print_word'] +hangman['final'], channel_id, user['u_id'], 0)
+        make_message(hangman['hang_man_drawing']+"\nWord to guess: "+hangman['print_word'] +hangman['final'], channel_id, user['u_id'], 0)
     return {
         'message_id': message_id,
     }
@@ -86,7 +85,6 @@ def message_send_later(token, channel_id, message, time_sent):
         raise InputError
 
   
-    #should this maybe be more ??
     if int(time_sent) < int(datetime.datetime.now().replace(tzinfo=timezone.utc).timestamp()): 
        
         raise InputError
